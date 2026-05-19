@@ -1,0 +1,2 @@
+[console_scripts]
+wod-bot = wod.bot.main:main
