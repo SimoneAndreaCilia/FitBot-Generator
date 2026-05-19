@@ -1,0 +1,13 @@
+[run]
+source = src/wod
+omit =
+    src/wod/bot/handlers/onboarding.py
+    src/wod/bot/handlers/history.py
+    src/wod/bot/handlers/favorites.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if __name__ == .__main__
+    raise NotImplementedError
