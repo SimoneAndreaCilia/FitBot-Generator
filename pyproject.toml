@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wod-telegram-bot"
+version = "0.1.0"
+description = "Personalized Workout of the Day generator with Telegram Bot interface"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "WOD Team"},
+]
+dependencies = [
+    # Telegram Bot
+    "python-telegram-bot[all]>=21.0,<22.0",
+
+    # Database
+    "SQLAlchemy>=2.0,<3.0",
+    "aiosqlite>=0.20.0",
+    "alembic>=1.13,<2.0",
+
+    # Configuration
+    "pydantic>=2.0,<3.0",
+    "pydantic-settings>=2.0,<3.0",
+
+    # PDF generation
+    "reportlab>=4.0,<5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=8.0,<9.0",
+    "pytest-asyncio>=0.23,<1.0",
+    "pytest-cov>=5.0,<6.0",
+
+    # Linting & Formatting
+    "black>=24.0",
+    "isort>=5.13",
+    "flake8>=7.0",
+    "pylint>=3.0",
+    "mypy>=1.8",
+
+]
+
+[project.scripts]
+wod-bot = "wod.bot.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+known_first_party = ["wod"]
+src_paths = ["src", "tests"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["telegram.*", "reportlab.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = [
+    "--strict-markers",
+    "--cov=src/wod",
+    "--cov-report=term-missing",
+    "--cov-fail-under=75",
+]
+
+[tool.pylint.main]
+load-plugins = ["pylint.extensions.no_self_use"]
+ignore-paths = ["migrations"]
+
+[tool.pylint."messages control"]
+disable = [
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring (we use type annotations)
+    "R0903",  # too-few-public-methods (SQLAlchemy models)
+]
+
+[tool.pylint.format]
+max-line-length = 88
