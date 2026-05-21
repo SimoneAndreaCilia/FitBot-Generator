@@ -60,6 +60,7 @@ async def get_session() -> AsyncSession:
 
 def reset_engine() -> None:
     """Reset the engine and session factory (for testing)."""
-    global _ENGINE, _SESSION_FACTORY  # noqa: PLW0603  pylint: disable=global-statement
+    # pylint: disable=global-statement
+    global _ENGINE, _SESSION_FACTORY
     _ENGINE = None
     _SESSION_FACTORY = None
