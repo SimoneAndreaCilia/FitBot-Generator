@@ -25,7 +25,10 @@ async def async_engine():
 
     # Enable foreign-key enforcement for SQLite
     @event.listens_for(engine.sync_engine, "connect")
-    def _set_sqlite_pragma(dbapi_connection, _connection_record):  # type: ignore[no-untyped-def]
+    def _set_sqlite_pragma(  # type: ignore[no-untyped-def]
+        dbapi_connection,
+        _connection_record,
+    ):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()

@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
-
-from wod.core.types import EffortType, ExperienceLevel, MuscleGroup, SplitType
+from wod.core.types import EffortType, ExperienceLevel, MuscleGroup
 from wod.db.models import (
     Equipment,
     Exercise,

@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
 from wod.core.types import ExperienceLevel, SplitType
-from wod.db.models import Equipment, Exercise, GeneratedWorkout, User
 from wod.db.repositories import (
     get_all_equipment,
     get_all_exercises,
