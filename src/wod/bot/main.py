@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from telegram.ext import Application
 
@@ -27,7 +28,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def create_application() -> Application:
+def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     """Build the Telegram Application with all handlers registered."""
     settings = get_settings()
     app = Application.builder().token(settings.telegram_bot_token).build()

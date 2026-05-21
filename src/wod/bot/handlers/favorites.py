@@ -66,7 +66,12 @@ async def favorites_command(
         return
 
     tuples = [
-        (f.workout.id, f.workout.title, f.workout.created_at.strftime("%d/%m/%Y %H:%M"), True)
+        (
+            f.workout.id,
+            f.workout.title,
+            f.workout.created_at.strftime("%d/%m/%Y %H:%M"),
+            True,
+        )
         for f in favorites if f.workout is not None
     ]
     await update.message.reply_text(
@@ -76,9 +81,13 @@ async def favorites_command(
     )
 
 
-def build_favorite_callback_handler() -> CallbackQueryHandler:
+def build_favorite_callback_handler() -> (
+    CallbackQueryHandler[ContextTypes.DEFAULT_TYPE, None]
+):
     return CallbackQueryHandler(favorite_callback, pattern=r"^fav:")
 
 
-def build_favorites_command_handler() -> CommandHandler:
+def build_favorites_command_handler() -> (
+    CommandHandler[ContextTypes.DEFAULT_TYPE, None]
+):
     return CommandHandler("favorites", favorites_command)

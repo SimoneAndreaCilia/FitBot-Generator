@@ -50,11 +50,6 @@ def get_session_factory(
     return _session_factory
 
 
-# Convenience aliases used throughout the codebase
-engine = property(lambda self: get_engine())  # type: ignore[arg-type]
-async_session_factory = property(lambda self: get_session_factory())  # type: ignore[arg-type]
-
-
 async def get_session() -> AsyncSession:
     """Yield an async database session."""
     factory = get_session_factory()

@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from wod.core.types import ExperienceLevel, MuscleGroup, SplitType
-
 
 # ---------------------------------------------------------------------------
 # Onboarding keyboards
@@ -40,7 +38,12 @@ def frequency_keyboard() -> InlineKeyboardMarkup:
     for i in range(1, 8):
         emoji = "📅"
         buttons.append(
-            [InlineKeyboardButton(f"{emoji} {i} giorni/settimana", callback_data=f"freq:{i}")]
+            [
+                InlineKeyboardButton(
+                    f"{emoji} {i} giorni/settimana",
+                    callback_data=f"freq:{i}",
+                )
+            ]
         )
     return InlineKeyboardMarkup(buttons)
 
@@ -101,7 +104,12 @@ def equipment_keyboard(
             ]
         )
     buttons.append(
-        [InlineKeyboardButton("✅ Conferma selezione", callback_data="equip:done")]
+        [
+            InlineKeyboardButton(
+                "✅ Conferma selezione",
+                callback_data="equip:done",
+            )
+        ]
     )
     return InlineKeyboardMarkup(buttons)
 
@@ -111,9 +119,16 @@ def equipment_keyboard(
 # ---------------------------------------------------------------------------
 
 
-def workout_actions_keyboard(workout_id: int, is_favorite: bool) -> InlineKeyboardMarkup:
+def workout_actions_keyboard(
+    workout_id: int,
+    is_favorite: bool,
+) -> InlineKeyboardMarkup:
     """Actions available for a generated workout."""
-    fav_text = "💔 Rimuovi dai preferiti" if is_favorite else "⭐ Aggiungi ai preferiti"
+    fav_text = (
+        "💔 Rimuovi dai preferiti"
+        if is_favorite
+        else "⭐ Aggiungi ai preferiti"
+    )
     buttons = [
         [
             InlineKeyboardButton(
@@ -122,10 +137,12 @@ def workout_actions_keyboard(workout_id: int, is_favorite: bool) -> InlineKeyboa
         ],
         [
             InlineKeyboardButton(
-                "📄 Scarica .txt", callback_data=f"dl_txt:{workout_id}"
+                "📄 Scarica .txt",
+                callback_data=f"dl_txt:{workout_id}",
             ),
             InlineKeyboardButton(
-                "📕 Scarica .pdf", callback_data=f"dl_pdf:{workout_id}"
+                "📕 Scarica .pdf",
+                callback_data=f"dl_pdf:{workout_id}",
             ),
         ],
     ]

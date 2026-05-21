@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -116,7 +116,7 @@ async def save_workout(
     title: str,
     content_json: str,
     content_text: str,
-    exercise_entries: list[dict],
+    exercise_entries: list[dict[str, Any]],
 ) -> GeneratedWorkout:
     """Persist a newly generated workout with its exercise entries.
 

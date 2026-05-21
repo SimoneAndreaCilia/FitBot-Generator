@@ -9,10 +9,18 @@ from __future__ import annotations
 import io
 import logging
 
-from telegram import Update
-from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes
+from telegram import Message, Update
+from telegram.ext import (
+    CallbackQueryHandler,
+    CommandHandler,
+    ContextTypes,
+)
 
-from wod.bot.formatters import FormattedExercise, FormattedWorkout, workout_to_pdf, workout_to_text
+from wod.bot.formatters import (
+    FormattedExercise,
+    FormattedWorkout,
+    workout_to_pdf,
+)
 from wod.bot.keyboards import history_keyboard, workout_actions_keyboard
 from wod.config import get_settings
 from wod.db.repositories import (
@@ -20,7 +28,6 @@ from wod.db.repositories import (
     get_user_favorites,
     get_user_workouts,
     get_workout_by_id,
-    toggle_favorite,
 )
 from wod.db.session import get_session_factory
 
@@ -117,10 +124,13 @@ async def download_txt_callback(
             return
 
     txt_bytes = workout.content_text.encode("utf-8")
-    filename = f"WOD_{workout.title.replace(' ', '_')}_{workout.created_at.strftime('%Y%m%d')}.txt"
+    date_str = workout.created_at.strftime('%Y%m%d')
+    title_slug = workout.title.replace(' ', '_')
+    filename = f"WOD_{title_slug}_{date_str}.txt"
 
     assert query.message is not None
-    await query.message.reply_document(
+    msg: Message = query.message  # type: ignore[assignment]
+    await msg.reply_document(
         document=io.BytesIO(txt_bytes),
         filename=filename,
         caption=f"📄 {workout.title}",
@@ -151,7 +161,11 @@ async def download_pdf_callback(
         exercises=[
             FormattedExercise(
                 order=we.order_index + 1,
-                name=we.exercise.name if we.exercise else f"Esercizio #{we.order_index + 1}",
+                name=(
+                    we.exercise.name
+                    if we.exercise
+                    else f"Esercizio #{we.order_index + 1}"
+                ),
                 sets=we.sets,
                 reps=we.reps,
                 notes=we.notes,
@@ -161,31 +175,40 @@ async def download_pdf_callback(
     )
 
     pdf_bytes = workout_to_pdf(formatted)
-    filename = f"WOD_{workout.title.replace(' ', '_')}_{workout.created_at.strftime('%Y%m%d')}.pdf"
+    date_str = workout.created_at.strftime('%Y%m%d')
+    title_slug = workout.title.replace(' ', '_')
+    filename = f"WOD_{title_slug}_{date_str}.pdf"
 
     assert query.message is not None
-    await query.message.reply_document(
+    msg: Message = query.message  # type: ignore[assignment]
+    await msg.reply_document(
         document=io.BytesIO(pdf_bytes),
         filename=filename,
         caption=f"📕 {workout.title}",
     )
 
 
-def build_history_handler() -> CommandHandler:
+def build_history_handler() -> CommandHandler[ContextTypes.DEFAULT_TYPE, None]:
     """Build the /history command handler."""
     return CommandHandler("history", history_command)
 
 
-def build_view_callback_handler() -> CallbackQueryHandler:
+def build_view_callback_handler() -> (
+    CallbackQueryHandler[ContextTypes.DEFAULT_TYPE, None]
+):
     """Build the callback handler for viewing a workout."""
     return CallbackQueryHandler(view_workout_callback, pattern=r"^view:")
 
 
-def build_download_txt_handler() -> CallbackQueryHandler:
+def build_download_txt_handler() -> (
+    CallbackQueryHandler[ContextTypes.DEFAULT_TYPE, None]
+):
     """Build the callback handler for .txt download."""
     return CallbackQueryHandler(download_txt_callback, pattern=r"^dl_txt:")
 
 
-def build_download_pdf_handler() -> CallbackQueryHandler:
+def build_download_pdf_handler() -> (
+    CallbackQueryHandler[ContextTypes.DEFAULT_TYPE, None]
+):
     """Build the callback handler for .pdf download."""
     return CallbackQueryHandler(download_pdf_callback, pattern=r"^dl_pdf:")

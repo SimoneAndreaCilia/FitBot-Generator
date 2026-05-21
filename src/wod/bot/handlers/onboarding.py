@@ -55,7 +55,7 @@ async def start_command(
         await conn.run_sync(Base.metadata.create_all)
 
     async with get_session_factory()() as session:
-        user = await get_or_create_user(
+        await get_or_create_user(
             session,
             telegram_id=update.effective_user.id,
             username=update.effective_user.username,
@@ -236,7 +236,9 @@ async def cancel_command(
     return ConversationHandler.END
 
 
-def build_onboarding_handler() -> ConversationHandler:
+def build_onboarding_handler() -> (
+    ConversationHandler[ContextTypes.DEFAULT_TYPE]
+):
     """Build and return the ConversationHandler for onboarding."""
     return ConversationHandler(
         entry_points=[CommandHandler("start", start_command)],

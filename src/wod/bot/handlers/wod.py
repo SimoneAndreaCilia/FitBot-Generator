@@ -14,18 +14,24 @@ import json
 import logging
 import random
 import datetime
-from typing import Sequence
 
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 
-from wod.bot.formatters import FormattedExercise, FormattedWorkout, workout_to_text
+from wod.bot.formatters import (
+    FormattedExercise,
+    FormattedWorkout,
+    workout_to_text,
+)
 from wod.bot.keyboards import workout_actions_keyboard
-from wod.core.engine import filter_exercises_by_equipment, filter_exercises_by_muscle_groups
+from wod.core.engine import (
+    filter_exercises_by_equipment,
+    filter_exercises_by_muscle_groups,
+)
 from wod.core.intensity import calculate_intensity
 from wod.core.split_generator import TrainingDay, generate_weekly_split
 from wod.core.types import ExperienceLevel, SplitType
-from wod.db.models import Exercise, User
+from wod.db.models import Exercise
 from wod.db.repositories import (
     get_all_exercises,
     get_or_create_user,
@@ -52,7 +58,11 @@ async def wod_command(
         )
 
         # Validate profile completeness
-        if not user.experience_level or not user.training_frequency or not user.preferred_split:
+        if (
+            not user.experience_level
+            or not user.training_frequency
+            or not user.preferred_split
+        ):
             await update.message.reply_text(
                 "⚠️ Il tuo profilo non è completo.\n"
                 "Usa /start per configurare livello, frequenza e split."
@@ -132,7 +142,9 @@ async def wod_command(
 
         # Build exercise_entries for DB
         exercise_entries = []
-        exercise_name_to_id = {ex.name: ex.id for ex in all_exercises}
+        exercise_name_to_id = {
+            ex.name: ex.id for ex in all_exercises
+        }
         for ex in prescribed:
             exercise_entries.append(
                 {
@@ -158,7 +170,9 @@ async def wod_command(
         await update.message.reply_text(
             f"```\n{text}\n```",
             parse_mode="Markdown",
-            reply_markup=workout_actions_keyboard(workout.id, is_favorite=False),
+            reply_markup=workout_actions_keyboard(
+                workout.id, is_favorite=False
+            ),
         )
 
 
@@ -171,7 +185,10 @@ def _pick_today_training_day(
     modulo the training frequency.
     """
     weekly_plan = generate_weekly_split(split_type, frequency)
-    today_index = (datetime.date.today().isoweekday() - 1) % len(weekly_plan)
+    today_index = (
+        (datetime.date.today().isoweekday() - 1)
+        % len(weekly_plan)
+    )
     return weekly_plan[today_index]
 
 
@@ -187,11 +204,19 @@ def _select_exercises(
     selected: list[Exercise] = []
 
     for group in training_day.muscle_groups:
-        group_exercises = [ex for ex in exercises if ex.muscle_group == group]
+        group_exercises = [
+            ex for ex in exercises if ex.muscle_group == group
+        ]
 
         # Compounds first, then isolations
-        compounds = [ex for ex in group_exercises if ex.effort_type.value == "compound"]
-        isolations = [ex for ex in group_exercises if ex.effort_type.value == "isolation"]
+        compounds = [
+            ex for ex in group_exercises
+            if ex.effort_type.value == "compound"
+        ]
+        isolations = [
+            ex for ex in group_exercises
+            if ex.effort_type.value == "isolation"
+        ]
 
         random.shuffle(compounds)
         random.shuffle(isolations)
@@ -221,6 +246,6 @@ def _prescribe_exercises(
     return result
 
 
-def build_wod_handler() -> CommandHandler:
+def build_wod_handler() -> CommandHandler[ContextTypes.DEFAULT_TYPE, None]:
     """Build the /wod command handler."""
     return CommandHandler("wod", wod_command)

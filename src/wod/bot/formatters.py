@@ -5,7 +5,7 @@ from __future__ import annotations
 import io
 import datetime
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -102,7 +102,7 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
         spaceAfter=20,
     )
 
-    elements: list = []
+    elements: list[Any] = []
 
     # Title
     elements.append(Paragraph(workout.title, title_style))
@@ -118,6 +118,10 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
         )
 
     table = Table(table_data, colWidths=[1.2 * cm, 7 * cm, 2 * cm, 2 * cm, 4 * cm])
+    alt_colors = [
+        colors.white,
+        colors.HexColor("#f0f0f0"),
+    ]
     table.setStyle(
         TableStyle(
             [
@@ -128,7 +132,7 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
                 ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
                 ("TOPPADDING", (0, 0), (-1, 0), 8),
                 ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#f5f5f5")),
-                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f0f0f0")]),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), alt_colors),
                 ("FONTSIZE", (0, 1), (-1, -1), 9),
                 ("TOPPADDING", (0, 1), (-1, -1), 5),
                 ("BOTTOMPADDING", (0, 1), (-1, -1), 5),
