@@ -1,0 +1,288 @@
+{
+    "equipment": [
+        "barbell",
+        "dumbbell",
+        "kettlebell",
+        "pull_up_bar",
+        "bench",
+        "resistance_band",
+        "bodyweight"
+    ],
+    "exercises": [
+        {
+            "name": "Barbell Bench Press",
+            "muscle_group": "chest",
+            "effort_type": "compound",
+            "description": "Flat barbell bench press — primary chest builder",
+            "equipment": [
+                "barbell",
+                "bench"
+            ]
+        },
+        {
+            "name": "Dumbbell Incline Press",
+            "muscle_group": "chest",
+            "effort_type": "compound",
+            "description": "Incline dumbbell press targeting upper chest",
+            "equipment": [
+                "dumbbell",
+                "bench"
+            ]
+        },
+        {
+            "name": "Push-Up",
+            "muscle_group": "chest",
+            "effort_type": "compound",
+            "description": "Bodyweight push-up",
+            "equipment": [
+                "bodyweight"
+            ]
+        },
+        {
+            "name": "Dumbbell Fly",
+            "muscle_group": "chest",
+            "effort_type": "isolation",
+            "description": "Flat or incline dumbbell chest fly",
+            "equipment": [
+                "dumbbell",
+                "bench"
+            ]
+        },
+        {
+            "name": "Barbell Row",
+            "muscle_group": "back",
+            "effort_type": "compound",
+            "description": "Bent-over barbell row",
+            "equipment": [
+                "barbell"
+            ]
+        },
+        {
+            "name": "Dumbbell Row",
+            "muscle_group": "back",
+            "effort_type": "compound",
+            "description": "Single-arm dumbbell row on a bench",
+            "equipment": [
+                "dumbbell",
+                "bench"
+            ]
+        },
+        {
+            "name": "Pull-Up",
+            "muscle_group": "back",
+            "effort_type": "compound",
+            "description": "Overhand grip bodyweight pull-up",
+            "equipment": [
+                "pull_up_bar"
+            ]
+        },
+        {
+            "name": "Chin-Up",
+            "muscle_group": "back",
+            "effort_type": "compound",
+            "description": "Underhand grip bodyweight chin-up",
+            "equipment": [
+                "pull_up_bar"
+            ]
+        },
+        {
+            "name": "Band Pull-Apart",
+            "muscle_group": "back",
+            "effort_type": "isolation",
+            "description": "Resistance band pull-apart for rear delts and upper back",
+            "equipment": [
+                "resistance_band"
+            ]
+        },
+        {
+            "name": "Overhead Press",
+            "muscle_group": "shoulders",
+            "effort_type": "compound",
+            "description": "Standing barbell overhead press",
+            "equipment": [
+                "barbell"
+            ]
+        },
+        {
+            "name": "Dumbbell Lateral Raise",
+            "muscle_group": "shoulders",
+            "effort_type": "isolation",
+            "description": "Standing dumbbell lateral raise for medial deltoids",
+            "equipment": [
+                "dumbbell"
+            ]
+        },
+        {
+            "name": "Dumbbell Shoulder Press",
+            "muscle_group": "shoulders",
+            "effort_type": "compound",
+            "description": "Seated or standing dumbbell shoulder press",
+            "equipment": [
+                "dumbbell"
+            ]
+        },
+        {
+            "name": "Pike Push-Up",
+            "muscle_group": "shoulders",
+            "effort_type": "compound",
+            "description": "Bodyweight pike push-up emphasizing shoulders",
+            "equipment": [
+                "bodyweight"
+            ]
+        },
+        {
+            "name": "Barbell Back Squat",
+            "muscle_group": "legs",
+            "effort_type": "compound",
+            "description": "Barbell back squat — king of leg exercises",
+            "equipment": [
+                "barbell"
+            ]
+        },
+        {
+            "name": "Goblet Squat",
+            "muscle_group": "legs",
+            "effort_type": "compound",
+            "description": "Dumbbell or kettlebell goblet squat",
+            "equipment": [
+                "dumbbell"
+            ]
+        },
+        {
+            "name": "Bodyweight Squat",
+            "muscle_group": "legs",
+            "effort_type": "compound",
+            "description": "Air squat — no equipment needed",
+            "equipment": [
+                "bodyweight"
+            ]
+        },
+        {
+            "name": "Romanian Deadlift",
+            "muscle_group": "legs",
+            "effort_type": "compound",
+            "description": "Barbell Romanian deadlift for hamstrings and glutes",
+            "equipment": [
+                "barbell"
+            ]
+        },
+        {
+            "name": "Dumbbell Lunge",
+            "muscle_group": "legs",
+            "effort_type": "compound",
+            "description": "Walking or stationary dumbbell lunges",
+            "equipment": [
+                "dumbbell"
+            ]
+        },
+        {
+            "name": "Kettlebell Swing",
+            "muscle_group": "legs",
+            "effort_type": "compound",
+            "description": "Russian kettlebell swing — hips, glutes,hamstrings",
+            "equipment": [
+                "kettlebell"
+            ]
+        },
+        {
+            "name": "Bulgarian Split Squat",
+            "muscle_group": "legs",
+            "effort_type": "compound",
+            "description": "Rear-foot elevated split squat",
+            "equipment": [
+                "dumbbell",
+                "bench"
+            ]
+        },
+        {
+            "name": "Barbell Curl",
+            "muscle_group": "arms",
+            "effort_type": "isolation",
+            "description": "Standing barbell bicep curl",
+            "equipment": [
+                "barbell"
+            ]
+        },
+        {
+            "name": "Dumbbell Bicep Curl",
+            "muscle_group": "arms",
+            "effort_type": "isolation",
+            "description": "Standing dumbbell bicep curl",
+            "equipment": [
+                "dumbbell"
+            ]
+        },
+        {
+            "name": "Dumbbell Tricep Extension",
+            "muscle_group": "arms",
+            "effort_type": "isolation",
+            "description": "Overhead dumbbell tricep extension",
+            "equipment": [
+                "dumbbell"
+            ]
+        },
+        {
+            "name": "Diamond Push-Up",
+            "muscle_group": "arms",
+            "effort_type": "compound",
+            "description": "Close-grip push-up targeting triceps",
+            "equipment": [
+                "bodyweight"
+            ]
+        },
+        {
+            "name": "Hammer Curl",
+            "muscle_group": "arms",
+            "effort_type": "isolation",
+            "description": "Neutral-grip dumbbell curl for brachialis",
+            "equipment": [
+                "dumbbell"
+            ]
+        },
+        {
+            "name": "Plank",
+            "muscle_group": "core",
+            "effort_type": "isolation",
+            "description": "Front plank hold — isometric core strength",
+            "equipment": [
+                "bodyweight"
+            ]
+        },
+        {
+            "name": "Russian Twist",
+            "muscle_group": "core",
+            "effort_type": "isolation",
+            "description": "Seated Russian twist with or without weight",
+            "equipment": [
+                "bodyweight"
+            ]
+        },
+        {
+            "name": "Hanging Leg Raise",
+            "muscle_group": "core",
+            "effort_type": "isolation",
+            "description": "Hanging leg raise on pull-up bar",
+            "equipment": [
+                "pull_up_bar"
+            ]
+        },
+        {
+            "name": "Kettlebell Turkish Get-Up",
+            "muscle_group": "core",
+            "effort_type": "compound",
+            "description": "Full-body movement emphasizing core stability",
+            "equipment": [
+                "kettlebell"
+            ]
+        },
+        {
+            "name": "Dead Bug",
+            "muscle_group": "core",
+            "effort_type": "isolation",
+            "description": "Supine dead bug — anti-extension core drill",
+            "equipment": [
+                "bodyweight"
+            ]
+        }
+    ]
+}
