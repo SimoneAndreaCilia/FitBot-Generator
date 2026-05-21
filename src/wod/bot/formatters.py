@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-import io
 import datetime
+import io
 from dataclasses import dataclass
 from typing import Any, Optional
 
+from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
-from reportlab.lib import colors
 
 
 @dataclass
