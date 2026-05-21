@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import datetime
 
-from wod.bot.formatters import FormattedExercise, FormattedWorkout, workout_to_pdf, workout_to_text
+from wod.bot.formatters import (
+    FormattedExercise,
+    FormattedWorkout,
+    workout_to_pdf,
+    workout_to_text,
+)
 
 
 def _make_workout() -> FormattedWorkout:
@@ -14,7 +19,9 @@ def _make_workout() -> FormattedWorkout:
         date=datetime.datetime(2025, 6, 15, 14, 30, tzinfo=datetime.timezone.utc),
         exercises=[
             FormattedExercise(order=1, name="Bench Press", sets=4, reps=10),
-            FormattedExercise(order=2, name="Dumbbell Row", sets=4, reps=10, notes="Slow"),
+            FormattedExercise(
+                order=2, name="Dumbbell Row", sets=4, reps=10, notes="Slow"
+            ),
             FormattedExercise(order=3, name="Bicep Curl", sets=3, reps=12),
         ],
     )

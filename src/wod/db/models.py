@@ -38,7 +38,6 @@ from sqlalchemy.orm import (
 
 from wod.core.types import EffortType, ExperienceLevel, MuscleGroup, SplitType
 
-
 # ---------------------------------------------------------------------------
 # Base
 # ---------------------------------------------------------------------------

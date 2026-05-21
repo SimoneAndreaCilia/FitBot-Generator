@@ -46,7 +46,10 @@ class TestSessionFactory:
 
     def test_get_engine_from_settings(self) -> None:
         """When no URL is provided, engine should use settings."""
-        env = {"TELEGRAM_BOT_TOKEN": "tok", "DATABASE_URL": "sqlite+aiosqlite:///:memory:"}
+        env = {
+            "TELEGRAM_BOT_TOKEN": "tok",
+            "DATABASE_URL": "sqlite+aiosqlite:///:memory:",
+        }
         with patch.dict(os.environ, env, clear=True):
             engine = get_engine()
             assert engine is not None

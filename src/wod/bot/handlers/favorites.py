@@ -19,9 +19,7 @@ from wod.db.session import get_session_factory
 logger = logging.getLogger(__name__)
 
 
-async def favorite_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def favorite_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle fav:<id> — toggle favorite status."""
     query = update.callback_query
     assert query is not None
@@ -49,9 +47,7 @@ async def favorite_callback(
     )
 
 
-async def favorites_command(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def favorites_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /favorites — list bookmarked workouts."""
     assert update.effective_user is not None and update.message is not None
 
@@ -72,7 +68,8 @@ async def favorites_command(
             f.workout.created_at.strftime("%d/%m/%Y %H:%M"),
             True,
         )
-        for f in favorites if f.workout is not None
+        for f in favorites
+        if f.workout is not None
     ]
     await update.message.reply_text(
         "*I tuoi preferiti:*\nTocca per visualizzare:",

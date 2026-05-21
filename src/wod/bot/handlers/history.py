@@ -34,9 +34,7 @@ from wod.db.session import get_session_factory
 logger = logging.getLogger(__name__)
 
 
-async def history_command(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /history — list recent workouts."""
     assert update.effective_user is not None
     assert update.message is not None
@@ -44,9 +42,7 @@ async def history_command(
     settings = get_settings()
 
     async with get_session_factory()() as session:
-        user = await get_or_create_user(
-            session, telegram_id=update.effective_user.id
-        )
+        user = await get_or_create_user(session, telegram_id=update.effective_user.id)
         workouts = await get_user_workouts(
             session, user.id, limit=settings.max_history_items
         )
@@ -124,8 +120,8 @@ async def download_txt_callback(
             return
 
     txt_bytes = workout.content_text.encode("utf-8")
-    date_str = workout.created_at.strftime('%Y%m%d')
-    title_slug = workout.title.replace(' ', '_')
+    date_str = workout.created_at.strftime("%Y%m%d")
+    title_slug = workout.title.replace(" ", "_")
     filename = f"WOD_{title_slug}_{date_str}.txt"
 
     assert query.message is not None
@@ -175,8 +171,8 @@ async def download_pdf_callback(
     )
 
     pdf_bytes = workout_to_pdf(formatted)
-    date_str = workout.created_at.strftime('%Y%m%d')
-    title_slug = workout.title.replace(' ', '_')
+    date_str = workout.created_at.strftime("%Y%m%d")
+    title_slug = workout.title.replace(" ", "_")
     filename = f"WOD_{title_slug}_{date_str}.pdf"
 
     assert query.message is not None

@@ -23,9 +23,7 @@ class SetRepPrescription:
 
 
 # Prescription tables keyed by (experience_level, effort_type)
-_PRESCRIPTIONS: dict[
-    tuple[ExperienceLevel, EffortType], SetRepPrescription
-] = {
+_PRESCRIPTIONS: dict[tuple[ExperienceLevel, EffortType], SetRepPrescription] = {
     # Beginners: moderate volume, higher reps for motor-pattern learning
     (ExperienceLevel.BEGINNER, EffortType.COMPOUND): SetRepPrescription(
         sets=3, reps=12
@@ -41,9 +39,7 @@ _PRESCRIPTIONS: dict[
         sets=3, reps=12
     ),
     # Advanced: high volume, varied rep range
-    (ExperienceLevel.ADVANCED, EffortType.COMPOUND): SetRepPrescription(
-        sets=5, reps=8
-    ),
+    (ExperienceLevel.ADVANCED, EffortType.COMPOUND): SetRepPrescription(sets=5, reps=8),
     (ExperienceLevel.ADVANCED, EffortType.ISOLATION): SetRepPrescription(
         sets=4, reps=10
     ),

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-
 # ---------------------------------------------------------------------------
 # Onboarding keyboards
 # ---------------------------------------------------------------------------
@@ -13,21 +12,9 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 def experience_keyboard() -> InlineKeyboardMarkup:
     """Build a keyboard for selecting experience level."""
     buttons = [
-        [
-            InlineKeyboardButton(
-                "🟢 Principiante", callback_data="exp:beginner"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                "🟡 Intermedio", callback_data="exp:intermediate"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                "🔴 Avanzato", callback_data="exp:advanced"
-            )
-        ],
+        [InlineKeyboardButton("🟢 Principiante", callback_data="exp:beginner")],
+        [InlineKeyboardButton("🟡 Intermedio", callback_data="exp:intermediate")],
+        [InlineKeyboardButton("🔴 Avanzato", callback_data="exp:advanced")],
     ]
     return InlineKeyboardMarkup(buttons)
 
@@ -51,16 +38,8 @@ def frequency_keyboard() -> InlineKeyboardMarkup:
 def split_keyboard() -> InlineKeyboardMarkup:
     """Build a keyboard for selecting the training split."""
     buttons = [
-        [
-            InlineKeyboardButton(
-                "💪 Full Body", callback_data="split:full_body"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                "⬆️⬇️ Upper/Lower", callback_data="split:upper_lower"
-            )
-        ],
+        [InlineKeyboardButton("💪 Full Body", callback_data="split:full_body")],
+        [InlineKeyboardButton("⬆️⬇️ Upper/Lower", callback_data="split:upper_lower")],
         [
             InlineKeyboardButton(
                 "🔄 Push/Pull/Legs", callback_data="split:push_pull_legs"
@@ -124,17 +103,9 @@ def workout_actions_keyboard(
     is_favorite: bool,
 ) -> InlineKeyboardMarkup:
     """Actions available for a generated workout."""
-    fav_text = (
-        "💔 Rimuovi dai preferiti"
-        if is_favorite
-        else "⭐ Aggiungi ai preferiti"
-    )
+    fav_text = "💔 Rimuovi dai preferiti" if is_favorite else "⭐ Aggiungi ai preferiti"
     buttons = [
-        [
-            InlineKeyboardButton(
-                fav_text, callback_data=f"fav:{workout_id}"
-            )
-        ],
+        [InlineKeyboardButton(fav_text, callback_data=f"fav:{workout_id}")],
         [
             InlineKeyboardButton(
                 "📄 Scarica .txt",
@@ -164,7 +135,5 @@ def history_keyboard(
         # Truncate label to 64 chars (Telegram limit)
         if len(label) > 64:
             label = label[:61] + "..."
-        buttons.append(
-            [InlineKeyboardButton(label, callback_data=f"view:{wid}")]
-        )
+        buttons.append([InlineKeyboardButton(label, callback_data=f"view:{wid}")])
     return InlineKeyboardMarkup(buttons)

@@ -26,16 +26,12 @@ class TestCalculateIntensity:
     # --- Intermediate ---
 
     def test_intermediate_compound(self) -> None:
-        result = calculate_intensity(
-            ExperienceLevel.INTERMEDIATE, EffortType.COMPOUND
-        )
+        result = calculate_intensity(ExperienceLevel.INTERMEDIATE, EffortType.COMPOUND)
         assert result.sets == 4
         assert result.reps == 10
 
     def test_intermediate_isolation(self) -> None:
-        result = calculate_intensity(
-            ExperienceLevel.INTERMEDIATE, EffortType.ISOLATION
-        )
+        result = calculate_intensity(ExperienceLevel.INTERMEDIATE, EffortType.ISOLATION)
         assert result.sets == 3
         assert result.reps == 12
 

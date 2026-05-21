@@ -28,24 +28,39 @@ def bodyweight_eq() -> Equipment:
 def mixed_exercises(bodyweight_eq: Equipment) -> list[Exercise]:
     return [
         Exercise(
-            id=1, name="Push-Up", muscle_group=MuscleGroup.CHEST,
-            effort_type=EffortType.COMPOUND, equipment=[bodyweight_eq],
+            id=1,
+            name="Push-Up",
+            muscle_group=MuscleGroup.CHEST,
+            effort_type=EffortType.COMPOUND,
+            equipment=[bodyweight_eq],
         ),
         Exercise(
-            id=2, name="Chest Fly BW", muscle_group=MuscleGroup.CHEST,
-            effort_type=EffortType.ISOLATION, equipment=[bodyweight_eq],
+            id=2,
+            name="Chest Fly BW",
+            muscle_group=MuscleGroup.CHEST,
+            effort_type=EffortType.ISOLATION,
+            equipment=[bodyweight_eq],
         ),
         Exercise(
-            id=3, name="Extra Chest", muscle_group=MuscleGroup.CHEST,
-            effort_type=EffortType.COMPOUND, equipment=[bodyweight_eq],
+            id=3,
+            name="Extra Chest",
+            muscle_group=MuscleGroup.CHEST,
+            effort_type=EffortType.COMPOUND,
+            equipment=[bodyweight_eq],
         ),
         Exercise(
-            id=4, name="Squat", muscle_group=MuscleGroup.LEGS,
-            effort_type=EffortType.COMPOUND, equipment=[bodyweight_eq],
+            id=4,
+            name="Squat",
+            muscle_group=MuscleGroup.LEGS,
+            effort_type=EffortType.COMPOUND,
+            equipment=[bodyweight_eq],
         ),
         Exercise(
-            id=5, name="Plank", muscle_group=MuscleGroup.CORE,
-            effort_type=EffortType.ISOLATION, equipment=[bodyweight_eq],
+            id=5,
+            name="Plank",
+            muscle_group=MuscleGroup.CORE,
+            effort_type=EffortType.ISOLATION,
+            equipment=[bodyweight_eq],
         ),
     ]
 
@@ -77,7 +92,8 @@ class TestSelectExercises:
 
     def test_limits_per_muscle_group(self, mixed_exercises: list[Exercise]) -> None:
         day = TrainingDay(
-            day_number=1, label="Test",
+            day_number=1,
+            label="Test",
             muscle_groups=[MuscleGroup.CHEST],
         )
         selected = _select_exercises(mixed_exercises, day)
@@ -86,7 +102,8 @@ class TestSelectExercises:
 
     def test_compounds_preferred(self, mixed_exercises: list[Exercise]) -> None:
         day = TrainingDay(
-            day_number=1, label="Test",
+            day_number=1,
+            label="Test",
             muscle_groups=[MuscleGroup.CHEST],
         )
         # Run multiple times — compounds should always be first
@@ -97,7 +114,8 @@ class TestSelectExercises:
 
     def test_multiple_muscle_groups(self, mixed_exercises: list[Exercise]) -> None:
         day = TrainingDay(
-            day_number=1, label="Test",
+            day_number=1,
+            label="Test",
             muscle_groups=[MuscleGroup.CHEST, MuscleGroup.LEGS, MuscleGroup.CORE],
         )
         selected = _select_exercises(mixed_exercises, day)
@@ -108,7 +126,8 @@ class TestSelectExercises:
 
     def test_empty_exercises(self) -> None:
         day = TrainingDay(
-            day_number=1, label="Test",
+            day_number=1,
+            label="Test",
             muscle_groups=[MuscleGroup.CHEST],
         )
         selected = _select_exercises([], day)
@@ -119,24 +138,23 @@ class TestPrescribeExercises:
     """Tests for _prescribe_exercises."""
 
     def test_returns_formatted_exercises(self, mixed_exercises: list[Exercise]) -> None:
-        result = _prescribe_exercises(
-            mixed_exercises[:2], ExperienceLevel.BEGINNER
-        )
+        result = _prescribe_exercises(mixed_exercises[:2], ExperienceLevel.BEGINNER)
         assert len(result) == 2
         assert all(isinstance(ex, FormattedExercise) for ex in result)
 
     def test_order_is_sequential(self, mixed_exercises: list[Exercise]) -> None:
-        result = _prescribe_exercises(
-            mixed_exercises[:3], ExperienceLevel.INTERMEDIATE
-        )
+        result = _prescribe_exercises(mixed_exercises[:3], ExperienceLevel.INTERMEDIATE)
         for i, ex in enumerate(result, start=1):
             assert ex.order == i
 
     def test_beginner_compound_prescription(self, bodyweight_eq: Equipment) -> None:
         exercises = [
             Exercise(
-                id=1, name="Push-Up", muscle_group=MuscleGroup.CHEST,
-                effort_type=EffortType.COMPOUND, equipment=[bodyweight_eq],
+                id=1,
+                name="Push-Up",
+                muscle_group=MuscleGroup.CHEST,
+                effort_type=EffortType.COMPOUND,
+                equipment=[bodyweight_eq],
             )
         ]
         result = _prescribe_exercises(exercises, ExperienceLevel.BEGINNER)
@@ -146,8 +164,11 @@ class TestPrescribeExercises:
     def test_advanced_isolation_prescription(self, bodyweight_eq: Equipment) -> None:
         exercises = [
             Exercise(
-                id=1, name="Plank", muscle_group=MuscleGroup.CORE,
-                effort_type=EffortType.ISOLATION, equipment=[bodyweight_eq],
+                id=1,
+                name="Plank",
+                muscle_group=MuscleGroup.CORE,
+                effort_type=EffortType.ISOLATION,
+                equipment=[bodyweight_eq],
             )
         ]
         result = _prescribe_exercises(exercises, ExperienceLevel.ADVANCED)

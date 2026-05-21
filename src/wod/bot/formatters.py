@@ -66,9 +66,7 @@ def workout_to_text(workout: FormattedWorkout) -> str:
 
     for ex in workout.exercises:
         note = ex.notes or ""
-        lines.append(
-            f"{ex.order:<3} {ex.name:<25} {ex.sets:>3} × {ex.reps:<10} {note}"
-        )
+        lines.append(f"{ex.order:<3} {ex.name:<25} {ex.sets:>3} × {ex.reps:<10} {note}")
 
     lines.append(sep)
     return "\n".join(lines)

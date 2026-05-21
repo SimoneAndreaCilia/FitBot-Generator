@@ -28,9 +28,7 @@ def filter_exercises_by_equipment(
     """
     owned_ids = {eq.id for eq in user_equipment}
     return [
-        ex
-        for ex in exercises
-        if {eq.id for eq in ex.equipment}.issubset(owned_ids)
+        ex for ex in exercises if {eq.id for eq in ex.equipment}.issubset(owned_ids)
     ]
 
 

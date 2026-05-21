@@ -43,9 +43,7 @@ logger = logging.getLogger(__name__)
 EXPERIENCE, FREQUENCY, SPLIT, EQUIPMENT = range(4)
 
 
-async def start_command(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Entry point: /start — greet and ask for experience level."""
     assert update.effective_user is not None
     assert update.message is not None
@@ -97,9 +95,7 @@ async def experience_callback(
     return FREQUENCY
 
 
-async def frequency_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def frequency_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle training frequency selection."""
     query = update.callback_query
     assert query is not None
@@ -119,9 +115,7 @@ async def frequency_callback(
     return SPLIT
 
 
-async def split_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def split_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle split type selection, then show equipment selector."""
     query = update.callback_query
     assert query is not None
@@ -225,9 +219,7 @@ async def _finalize_onboarding(
     return ConversationHandler.END
 
 
-async def cancel_command(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel the onboarding conversation."""
     assert update.message is not None
     await update.message.reply_text(
@@ -236,25 +228,15 @@ async def cancel_command(
     return ConversationHandler.END
 
 
-def build_onboarding_handler() -> (
-    ConversationHandler[ContextTypes.DEFAULT_TYPE]
-):
+def build_onboarding_handler() -> ConversationHandler[ContextTypes.DEFAULT_TYPE]:
     """Build and return the ConversationHandler for onboarding."""
     return ConversationHandler(
         entry_points=[CommandHandler("start", start_command)],
         states={
-            EXPERIENCE: [
-                CallbackQueryHandler(experience_callback, pattern=r"^exp:")
-            ],
-            FREQUENCY: [
-                CallbackQueryHandler(frequency_callback, pattern=r"^freq:")
-            ],
-            SPLIT: [
-                CallbackQueryHandler(split_callback, pattern=r"^split:")
-            ],
-            EQUIPMENT: [
-                CallbackQueryHandler(equipment_callback, pattern=r"^equip:")
-            ],
+            EXPERIENCE: [CallbackQueryHandler(experience_callback, pattern=r"^exp:")],
+            FREQUENCY: [CallbackQueryHandler(frequency_callback, pattern=r"^freq:")],
+            SPLIT: [CallbackQueryHandler(split_callback, pattern=r"^split:")],
+            EQUIPMENT: [CallbackQueryHandler(equipment_callback, pattern=r"^equip:")],
         },
         fallbacks=[CommandHandler("cancel", cancel_command)],
         per_message=False,

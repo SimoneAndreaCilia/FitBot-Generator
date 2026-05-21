@@ -45,17 +45,13 @@ logger = logging.getLogger(__name__)
 MAX_EXERCISES_PER_GROUP = 2
 
 
-async def wod_command(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def wod_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /wod — generate today's workout."""
     assert update.effective_user is not None
     assert update.message is not None
 
     async with get_session_factory()() as session:
-        user = await get_or_create_user(
-            session, telegram_id=update.effective_user.id
-        )
+        user = await get_or_create_user(session, telegram_id=update.effective_user.id)
 
         # Validate profile completeness
         if (
@@ -142,9 +138,7 @@ async def wod_command(
 
         # Build exercise_entries for DB
         exercise_entries = []
-        exercise_name_to_id = {
-            ex.name: ex.id for ex in all_exercises
-        }
+        exercise_name_to_id = {ex.name: ex.id for ex in all_exercises}
         for ex in prescribed:
             exercise_entries.append(
                 {
@@ -170,25 +164,18 @@ async def wod_command(
         await update.message.reply_text(
             f"```\n{text}\n```",
             parse_mode="Markdown",
-            reply_markup=workout_actions_keyboard(
-                workout.id, is_favorite=False
-            ),
+            reply_markup=workout_actions_keyboard(workout.id, is_favorite=False),
         )
 
 
-def _pick_today_training_day(
-    split_type: SplitType, frequency: int
-) -> TrainingDay:
+def _pick_today_training_day(split_type: SplitType, frequency: int) -> TrainingDay:
     """Pick today's training day based on the day of the week.
 
     Cycles through the weekly plan using the current ISO weekday
     modulo the training frequency.
     """
     weekly_plan = generate_weekly_split(split_type, frequency)
-    today_index = (
-        (datetime.date.today().isoweekday() - 1)
-        % len(weekly_plan)
-    )
+    today_index = (datetime.date.today().isoweekday() - 1) % len(weekly_plan)
     return weekly_plan[today_index]
 
 
@@ -204,18 +191,12 @@ def _select_exercises(
     selected: list[Exercise] = []
 
     for group in training_day.muscle_groups:
-        group_exercises = [
-            ex for ex in exercises if ex.muscle_group == group
-        ]
+        group_exercises = [ex for ex in exercises if ex.muscle_group == group]
 
         # Compounds first, then isolations
-        compounds = [
-            ex for ex in group_exercises
-            if ex.effort_type.value == "compound"
-        ]
+        compounds = [ex for ex in group_exercises if ex.effort_type.value == "compound"]
         isolations = [
-            ex for ex in group_exercises
-            if ex.effort_type.value == "isolation"
+            ex for ex in group_exercises if ex.effort_type.value == "isolation"
         ]
 
         random.shuffle(compounds)

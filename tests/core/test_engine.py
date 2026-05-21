@@ -11,7 +11,6 @@ from wod.core.engine import (
 from wod.core.types import EffortType, MuscleGroup
 from wod.db.models import Equipment, Exercise
 
-
 # ---------------------------------------------------------------------------
 # Fixtures (lightweight, no DB)
 # ---------------------------------------------------------------------------
@@ -161,9 +160,7 @@ class TestFilterByEquipment:
         equipment_catalog: dict[str, Equipment],
     ) -> None:
         """Empty exercise catalogue should return empty list."""
-        result = filter_exercises_by_equipment(
-            [], list(equipment_catalog.values())
-        )
+        result = filter_exercises_by_equipment([], list(equipment_catalog.values()))
         assert result == []
 
 
@@ -202,13 +199,9 @@ class TestFilterByMuscleGroups:
         result = filter_exercises_by_muscle_groups(exercise_catalog, [])
         assert result == []
 
-    def test_nonexistent_group_match(
-        self, exercise_catalog: list[Exercise]
-    ) -> None:
+    def test_nonexistent_group_match(self, exercise_catalog: list[Exercise]) -> None:
         """Filter for a group with no exercises returns empty list."""
         # All exercises have at least one group, but CORE only has Plank
-        result = filter_exercises_by_muscle_groups(
-            exercise_catalog, [MuscleGroup.CORE]
-        )
+        result = filter_exercises_by_muscle_groups(exercise_catalog, [MuscleGroup.CORE])
         assert len(result) == 1
         assert result[0].name == "Plank"
