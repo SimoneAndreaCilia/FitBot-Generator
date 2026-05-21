@@ -45,7 +45,9 @@ logger = logging.getLogger(__name__)
 MAX_EXERCISES_PER_GROUP = 2
 
 
-async def wod_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def wod_command(  # pylint: disable=too-many-locals
+    update: Update, _context: ContextTypes.DEFAULT_TYPE
+) -> None:
     """Handle /wod — generate today's workout."""
     assert update.effective_user is not None
     assert update.message is not None

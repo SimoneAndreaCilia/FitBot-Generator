@@ -16,8 +16,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-_engine: Optional[AsyncEngine] = None
-_session_factory: Optional[async_sessionmaker[AsyncSession]] = None
+_ENGINE: Optional[AsyncEngine] = None
+_SESSION_FACTORY: Optional[async_sessionmaker[AsyncSession]] = None
 
 
 def get_engine(database_url: Optional[str] = None) -> AsyncEngine:
@@ -26,28 +26,29 @@ def get_engine(database_url: Optional[str] = None) -> AsyncEngine:
     Args:
         database_url: Override the URL from settings (useful in tests).
     """
-    global _engine  # noqa: PLW0603
-    if _engine is None:
+    global _ENGINE  # noqa: PLW0603  # pylint: disable=global-statement
+    if _ENGINE is None:
         if database_url is None:
+            # pylint: disable=import-outside-toplevel
             from wod.config import get_settings
 
             database_url = get_settings().database_url
-        _engine = create_async_engine(database_url, echo=False, future=True)
-    return _engine
+        _ENGINE = create_async_engine(database_url, echo=False, future=True)
+    return _ENGINE
 
 
 def get_session_factory(
     database_url: Optional[str] = None,
 ) -> async_sessionmaker[AsyncSession]:
     """Return the global session factory, creating it on first call."""
-    global _session_factory  # noqa: PLW0603
-    if _session_factory is None:
-        _session_factory = async_sessionmaker(
+    global _SESSION_FACTORY  # noqa: PLW0603  # pylint: disable=global-statement
+    if _SESSION_FACTORY is None:
+        _SESSION_FACTORY = async_sessionmaker(
             get_engine(database_url),
             class_=AsyncSession,
             expire_on_commit=False,
         )
-    return _session_factory
+    return _SESSION_FACTORY
 
 
 async def get_session() -> AsyncSession:
@@ -59,6 +60,6 @@ async def get_session() -> AsyncSession:
 
 def reset_engine() -> None:
     """Reset the engine and session factory (for testing)."""
-    global _engine, _session_factory  # noqa: PLW0603
-    _engine = None
-    _session_factory = None
+    global _ENGINE, _SESSION_FACTORY  # noqa: PLW0603  pylint: disable=global-statement
+    _ENGINE = None
+    _SESSION_FACTORY = None

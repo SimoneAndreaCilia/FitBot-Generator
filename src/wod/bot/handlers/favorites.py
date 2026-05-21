@@ -19,7 +19,9 @@ from wod.db.session import get_session_factory
 logger = logging.getLogger(__name__)
 
 
-async def favorite_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def favorite_callback(
+    update: Update, _context: ContextTypes.DEFAULT_TYPE
+) -> None:
     """Handle fav:<id> — toggle favorite status."""
     query = update.callback_query
     assert query is not None
@@ -47,7 +49,9 @@ async def favorite_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     )
 
 
-async def favorites_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def favorites_command(
+    update: Update, _context: ContextTypes.DEFAULT_TYPE
+) -> None:
     """Handle /favorites — list bookmarked workouts."""
     assert update.effective_user is not None and update.message is not None
 
@@ -81,10 +85,12 @@ async def favorites_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 def build_favorite_callback_handler() -> (
     CallbackQueryHandler[ContextTypes.DEFAULT_TYPE, None]
 ):
+    """Build the callback handler for toggling favorites."""
     return CallbackQueryHandler(favorite_callback, pattern=r"^fav:")
 
 
 def build_favorites_command_handler() -> (
     CommandHandler[ContextTypes.DEFAULT_TYPE, None]
 ):
+    """Build the /favorites command handler."""
     return CommandHandler("favorites", favorites_command)

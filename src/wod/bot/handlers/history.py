@@ -34,7 +34,7 @@ from wod.db.session import get_session_factory
 logger = logging.getLogger(__name__)
 
 
-async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def history_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /history — list recent workouts."""
     assert update.effective_user is not None
     assert update.message is not None
@@ -74,7 +74,7 @@ async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 
 async def view_workout_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
+    update: Update, _context: ContextTypes.DEFAULT_TYPE
 ) -> None:
     """Handle view:<id> — display a specific workout."""
     query = update.callback_query
@@ -103,7 +103,7 @@ async def view_workout_callback(
 
 
 async def download_txt_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
+    update: Update, _context: ContextTypes.DEFAULT_TYPE
 ) -> None:
     """Handle dl_txt:<id> — send workout as .txt file."""
     query = update.callback_query
@@ -134,7 +134,7 @@ async def download_txt_callback(
 
 
 async def download_pdf_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
+    update: Update, _context: ContextTypes.DEFAULT_TYPE
 ) -> None:
     """Handle dl_pdf:<id> — send workout as .pdf file."""
     query = update.callback_query

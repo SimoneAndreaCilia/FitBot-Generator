@@ -59,7 +59,7 @@ def equipment_keyboard(
         equipment_list: List of (id, name) tuples for all equipment.
         selected_ids: IDs already selected by the user.
     """
-    EMOJI_MAP = {
+    emoji_map = {
         "barbell": "🏋️",
         "dumbbell": "🔩",
         "kettlebell": "🔔",
@@ -72,7 +72,7 @@ def equipment_keyboard(
     buttons = []
     for eq_id, eq_name in equipment_list:
         check = "✅" if eq_id in selected_ids else "⬜"
-        emoji = EMOJI_MAP.get(eq_name, "🔧")
+        emoji = emoji_map.get(eq_name, "🔧")
         display_name = eq_name.replace("_", " ").title()
         buttons.append(
             [

@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 EXPERIENCE, FREQUENCY, SPLIT, EQUIPMENT = range(4)
 
 
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def start_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> int:
     """Entry point: /start — greet and ask for experience level."""
     assert update.effective_user is not None
     assert update.message is not None
@@ -219,7 +219,7 @@ async def _finalize_onboarding(
     return ConversationHandler.END
 
 
-async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def cancel_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel the onboarding conversation."""
     assert update.message is not None
     await update.message.reply_text(

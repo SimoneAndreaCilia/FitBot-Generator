@@ -109,6 +109,7 @@ async def get_all_exercises(session: AsyncSession) -> Sequence[Exercise]:
 # ---------------------------------------------------------------------------
 
 
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 async def save_workout(
     session: AsyncSession,
     user: User,
