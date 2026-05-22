@@ -90,31 +90,43 @@ async def wod_command(  # pylint: disable=too-many-locals
             )
             return
 
-        # 2. Generate today's training day from the weekly split
-        training_day = _pick_today_training_day(
+        # 2. Generate weekly split
+        weekly_plan = generate_weekly_split(
             user.preferred_split, user.training_frequency
         )
 
-        # 3. Filter exercises by today's muscle groups
-        day_exercises = filter_exercises_by_muscle_groups(
-            available_exercises, training_day.muscle_groups
-        )
+        prescribed = []
+        global_order = 1
+        
+        for training_day in weekly_plan:
+            # 3. Filter exercises by today's muscle groups
+            day_exercises = filter_exercises_by_muscle_groups(
+                available_exercises, training_day.muscle_groups
+            )
 
-        if not day_exercises:
+            # 4. Select and prescribe exercises
+            selected = _select_exercises(day_exercises, training_day)
+            day_prescribed = _prescribe_exercises(
+                selected, 
+                user.experience_level, 
+                day_label=training_day.label, 
+                start_order=global_order
+            )
+            prescribed.extend(day_prescribed)
+            global_order += len(day_prescribed)
+
+        if not prescribed:
             await update.message.reply_text(
-                "😔 Non ho trovato esercizi per i gruppi muscolari di oggi.\n"
+                "😔 Non ho trovato esercizi sufficienti per i tuoi gruppi muscolari.\n"
                 "Prova a rivedere la tua attrezzatura con /start."
             )
             return
 
-        # 4. Select and prescribe exercises
-        selected = _select_exercises(day_exercises, training_day)
-        prescribed = _prescribe_exercises(selected, user.experience_level)
-
         # 5. Format
         now = datetime.datetime.now(tz=datetime.timezone.utc)
+        workout_title = f"Scheda Settimanale — {user.preferred_split.value.title().replace('_', ' ')}"
         formatted = FormattedWorkout(
-            title=training_day.label,
+            title=workout_title,
             date=now,
             exercises=prescribed,
         )
@@ -123,14 +135,14 @@ async def wod_command(  # pylint: disable=too-many-locals
         # 6. Persist
         content_json = json.dumps(
             {
-                "title": training_day.label,
-                "day_number": training_day.day_number,
+                "title": workout_title,
                 "exercises": [
                     {
                         "name": ex.name,
                         "sets": ex.sets,
                         "reps": ex.reps,
                         "notes": ex.notes,
+                        "day_label": ex.day_label,
                     }
                     for ex in prescribed
                 ],
@@ -149,13 +161,14 @@ async def wod_command(  # pylint: disable=too-many-locals
                     "reps": ex.reps,
                     "order_index": ex.order,
                     "notes": ex.notes,
+                    "day_label": ex.day_label,
                 }
             )
 
         workout = await save_workout(
             session,
             user=user,
-            title=training_day.label,
+            title=workout_title,
             content_json=content_json,
             content_text=text,
             exercise_entries=exercise_entries,
@@ -170,42 +183,26 @@ async def wod_command(  # pylint: disable=too-many-locals
         )
 
 
-def _pick_today_training_day(split_type: SplitType, frequency: int) -> TrainingDay:
-    """Pick today's training day based on the day of the week.
-
-    Cycles through the weekly plan using the current ISO weekday
-    modulo the training frequency.
-    """
-    weekly_plan = generate_weekly_split(split_type, frequency)
-    today_index = (datetime.date.today().isoweekday() - 1) % len(weekly_plan)
-    return weekly_plan[today_index]
-
-
 def _select_exercises(
     exercises: list[Exercise],
     training_day: TrainingDay,
 ) -> list[Exercise]:
     """Select a balanced subset of exercises for the training day.
 
-    Picks up to ``MAX_EXERCISES_PER_GROUP`` exercises per muscle group,
-    preferring compound movements first.
+    Picks exactly 1 weight=1 and 1 weight=2 exercise per muscle group.
     """
     selected: list[Exercise] = []
 
     for group in training_day.muscle_groups:
         group_exercises = [ex for ex in exercises if ex.muscle_group == group]
 
-        # Compounds first, then isolations
-        compounds = [ex for ex in group_exercises if ex.effort_type.value == "compound"]
-        isolations = [
-            ex for ex in group_exercises if ex.effort_type.value == "isolation"
-        ]
+        weight_1 = [ex for ex in group_exercises if getattr(ex, "weight", 1) == 1]
+        weight_2 = [ex for ex in group_exercises if getattr(ex, "weight", 1) == 2]
 
-        random.shuffle(compounds)
-        random.shuffle(isolations)
-
-        picks = (compounds + isolations)[:MAX_EXERCISES_PER_GROUP]
-        selected.extend(picks)
+        if weight_1:
+            selected.append(random.choice(weight_1))
+        if weight_2:
+            selected.append(random.choice(weight_2))
 
     return selected
 
@@ -213,10 +210,12 @@ def _select_exercises(
 def _prescribe_exercises(
     exercises: list[Exercise],
     experience: ExperienceLevel,
+    day_label: str,
+    start_order: int = 1,
 ) -> list[FormattedExercise]:
     """Apply intensity prescriptions to the selected exercises."""
     result: list[FormattedExercise] = []
-    for i, ex in enumerate(exercises, start=1):
+    for i, ex in enumerate(exercises, start=start_order):
         prescription = calculate_intensity(experience, ex.effort_type)
         result.append(
             FormattedExercise(
@@ -224,6 +223,7 @@ def _prescribe_exercises(
                 name=ex.name,
                 sets=prescription.sets,
                 reps=prescription.reps,
+                day_label=day_label,
             )
         )
     return result

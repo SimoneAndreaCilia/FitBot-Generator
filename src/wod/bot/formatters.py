@@ -23,6 +23,7 @@ class FormattedExercise:
     sets: int
     reps: int
     notes: Optional[str] = None
+    day_label: Optional[str] = None
 
 
 @dataclass
@@ -64,7 +65,11 @@ def workout_to_text(workout: FormattedWorkout) -> str:
         f"{'──':<3} {'─' * 25:<25} {'─' * 14:<15} {'─' * 5}",
     ]
 
+    current_day = None
     for ex in workout.exercises:
+        if ex.day_label and ex.day_label != current_day:
+            lines.append(f"\n--- {ex.day_label} ---")
+            current_day = ex.day_label
         note = ex.notes or ""
         lines.append(f"{ex.order:<3} {ex.name:<25} {ex.sets:>3} × {ex.reps:<10} {note}")
 
@@ -110,7 +115,13 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
 
     # Table
     table_data = [["#", "Esercizio", "Serie", "Reps", "Note"]]
-    for ex in workout.exercises:
+    day_rows = []
+    current_day = None
+    for row_idx, ex in enumerate(workout.exercises, start=1):
+        if ex.day_label and ex.day_label != current_day:
+            table_data.append(["", f"--- {ex.day_label} ---", "", "", ""])
+            day_rows.append(len(table_data) - 1)
+            current_day = ex.day_label
         table_data.append(
             [str(ex.order), ex.name, str(ex.sets), str(ex.reps), ex.notes or ""]
         )
@@ -120,26 +131,30 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
         colors.white,
         colors.HexColor("#f0f0f0"),
     ]
-    table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#16213e")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, 0), 10),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                ("TOPPADDING", (0, 0), (-1, 0), 8),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#f5f5f5")),
-                ("ROWBACKGROUNDS", (0, 1), (-1, -1), alt_colors),
-                ("FONTSIZE", (0, 1), (-1, -1), 9),
-                ("TOPPADDING", (0, 1), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 1), (-1, -1), 5),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cccccc")),
-                ("ALIGN", (0, 0), (0, -1), "CENTER"),
-                ("ALIGN", (2, 0), (3, -1), "CENTER"),
-            ]
-        )
-    )
+    style_commands = [
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#16213e")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 10),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+        ("TOPPADDING", (0, 0), (-1, 0), 8),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#f5f5f5")),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), alt_colors),
+        ("FONTSIZE", (0, 1), (-1, -1), 9),
+        ("TOPPADDING", (0, 1), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 1), (-1, -1), 5),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cccccc")),
+        ("ALIGN", (0, 0), (0, -1), "CENTER"),
+        ("ALIGN", (2, 0), (3, -1), "CENTER"),
+    ]
+    
+    for row in day_rows:
+        style_commands.append(("BACKGROUND", (0, row), (-1, row), colors.HexColor("#e0e0e0")))
+        style_commands.append(("FONTNAME", (0, row), (-1, row), "Helvetica-Bold"))
+        style_commands.append(("ALIGN", (0, row), (-1, row), "CENTER"))
+        style_commands.append(("SPAN", (0, row), (-1, row)))
+
+    table.setStyle(TableStyle(style_commands))
     elements.append(table)
 
     doc.build(elements)
