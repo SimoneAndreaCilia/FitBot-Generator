@@ -325,7 +325,7 @@ class WorkoutExercise(Base):
         comment="Label of the training day this exercise belongs to",
     )
     sets: Mapped[int] = mapped_column(Integer, nullable=False)
-    reps: Mapped[int] = mapped_column(Integer, nullable=False)
+    reps: Mapped[str] = mapped_column(String(16), nullable=False)
     order_index: Mapped[int] = mapped_column(
         Integer,
         nullable=False,

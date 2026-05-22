@@ -102,37 +102,6 @@ async def view_workout_callback(
     )
 
 
-async def download_txt_callback(
-    update: Update, _context: ContextTypes.DEFAULT_TYPE
-) -> None:
-    """Handle dl_txt:<id> — send workout as .txt file."""
-    query = update.callback_query
-    assert query is not None
-    await query.answer()
-    assert query.data is not None
-
-    workout_id = int(query.data.split(":")[1])
-
-    async with get_session_factory()() as session:
-        workout = await get_workout_by_id(session, workout_id)
-        if workout is None:
-            await query.edit_message_text("❌ Scheda non trovata.")
-            return
-
-    txt_bytes = workout.content_text.encode("utf-8")
-    date_str = workout.created_at.strftime("%Y%m%d")
-    title_slug = workout.title.replace(" ", "_")
-    filename = f"WOD_{title_slug}_{date_str}.txt"
-
-    assert query.message is not None
-    msg: Message = query.message  # type: ignore[assignment]
-    await msg.reply_document(
-        document=io.BytesIO(txt_bytes),
-        filename=filename,
-        caption=f"📄 {workout.title}",
-    )
-
-
 async def download_pdf_callback(
     update: Update, _context: ContextTypes.DEFAULT_TYPE
 ) -> None:
@@ -163,8 +132,9 @@ async def download_pdf_callback(
                     else f"Esercizio #{we.order_index + 1}"
                 ),
                 sets=we.sets,
-                reps=we.reps,
+                reps=str(we.reps),
                 notes=we.notes,
+                day_label=we.day_label,
             )
             for we in workout.exercises
         ],
@@ -194,13 +164,6 @@ def build_view_callback_handler() -> (
 ):
     """Build the callback handler for viewing a workout."""
     return CallbackQueryHandler(view_workout_callback, pattern=r"^view:")
-
-
-def build_download_txt_handler() -> (
-    CallbackQueryHandler[ContextTypes.DEFAULT_TYPE, None]
-):
-    """Build the callback handler for .txt download."""
-    return CallbackQueryHandler(download_txt_callback, pattern=r"^dl_txt:")
 
 
 def build_download_pdf_handler() -> (

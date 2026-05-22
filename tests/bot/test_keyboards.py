@@ -100,9 +100,8 @@ class TestWorkoutActionsKeyboard:
     def test_download_buttons(self) -> None:
         kb = workout_actions_keyboard(42, is_favorite=False)
         download_row = kb.inline_keyboard[1]
-        assert len(download_row) == 2
-        assert download_row[0].callback_data == "dl_txt:42"
-        assert download_row[1].callback_data == "dl_pdf:42"
+        assert len(download_row) == 1
+        assert download_row[0].callback_data == "dl_pdf:42"
 
 
 class TestHistoryKeyboard:

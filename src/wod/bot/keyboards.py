@@ -108,10 +108,6 @@ def workout_actions_keyboard(
         [InlineKeyboardButton(fav_text, callback_data=f"fav:{workout_id}")],
         [
             InlineKeyboardButton(
-                "📄 Scarica .txt",
-                callback_data=f"dl_txt:{workout_id}",
-            ),
-            InlineKeyboardButton(
                 "📕 Scarica .pdf",
                 callback_data=f"dl_pdf:{workout_id}",
             ),

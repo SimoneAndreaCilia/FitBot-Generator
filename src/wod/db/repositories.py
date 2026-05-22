@@ -149,6 +149,7 @@ async def save_workout(
             reps=entry["reps"],
             order_index=entry["order_index"],
             notes=entry.get("notes"),
+            day_label=entry.get("day_label"),
         )
         session.add(we)
 
