@@ -21,7 +21,8 @@ class FormattedExercise:
     order: int
     name: str
     sets: int
-    reps: int
+    reps: str
+    intensity: str = ""
     notes: Optional[str] = None
     day_label: Optional[str] = None
 
@@ -61,8 +62,8 @@ def workout_to_text(workout: FormattedWorkout) -> str:
         f"  📅 {date_str}",
         sep,
         "",
-        f"{'#':<3} {'Esercizio':<25} {'Serie × Reps':<15} {'Note'}",
-        f"{'──':<3} {'─' * 25:<25} {'─' * 14:<15} {'─' * 5}",
+        f"{'#':<3} {'Esercizio':<25} {'Serie × Reps':<15} {'Intensità':<20} {'Note'}",
+        f"{'──':<3} {'─' * 25:<25} {'─' * 14:<15} {'─' * 19:<20} {'─' * 5}",
     ]
 
     current_day = None
@@ -71,7 +72,7 @@ def workout_to_text(workout: FormattedWorkout) -> str:
             lines.append(f"\n--- {ex.day_label} ---")
             current_day = ex.day_label
         note = ex.notes or ""
-        lines.append(f"{ex.order:<3} {ex.name:<25} {ex.sets:>3} × {ex.reps:<10} {note}")
+        lines.append(f"{ex.order:<3} {ex.name:<25} {ex.sets:>3} × {ex.reps:<10} {ex.intensity:<20} {note}")
 
     lines.append(sep)
     return "\n".join(lines)

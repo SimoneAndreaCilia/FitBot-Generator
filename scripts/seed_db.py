@@ -38,7 +38,7 @@ async def seed_database() -> None:
         await session.commit()
 
     print(
-        f"✅ Seeded {len(data['equipment'])} equipment items "
+        f"[OK] Seeded {len(data['equipment'])} equipment items "
         f"and {len(data['exercises'])} exercises."
     )
 

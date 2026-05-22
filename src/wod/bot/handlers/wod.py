@@ -223,6 +223,7 @@ def _prescribe_exercises(
                 name=ex.name,
                 sets=prescription.sets,
                 reps=prescription.reps,
+                intensity=prescription.intensity,
                 day_label=day_label,
             )
         )

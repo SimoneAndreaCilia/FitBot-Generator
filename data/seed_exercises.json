@@ -145,7 +145,7 @@
         },
         {
             "name": "Barbell Back Squat",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
             "description": "Barbell back squat \u2014 king of leg exercises",
             "equipment": [
@@ -155,7 +155,7 @@
         },
         {
             "name": "Goblet Squat",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
             "description": "Dumbbell or kettlebell goblet squat",
             "equipment": [
@@ -165,7 +165,7 @@
         },
         {
             "name": "Bodyweight Squat",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
             "description": "Air squat \u2014 no equipment needed",
             "equipment": [
@@ -175,7 +175,7 @@
         },
         {
             "name": "Romanian Deadlift",
-            "muscle_group": "legs",
+            "muscle_group": "hamstrings",
             "effort_type": "compound",
             "description": "Barbell Romanian deadlift for hamstrings and glutes",
             "equipment": [
@@ -185,7 +185,7 @@
         },
         {
             "name": "Dumbbell Lunge",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
             "description": "Walking or stationary dumbbell lunges",
             "equipment": [
@@ -195,7 +195,7 @@
         },
         {
             "name": "Kettlebell Swing",
-            "muscle_group": "legs",
+            "muscle_group": "hamstrings",
             "effort_type": "compound",
             "description": "Russian kettlebell swing \u2014 hips, glutes,hamstrings",
             "equipment": [
@@ -205,7 +205,7 @@
         },
         {
             "name": "Bulgarian Split Squat",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
             "description": "Rear-foot elevated split squat",
             "equipment": [
@@ -216,7 +216,7 @@
         },
         {
             "name": "Barbell Curl",
-            "muscle_group": "arms",
+            "muscle_group": "biceps",
             "effort_type": "isolation",
             "description": "Standing barbell bicep curl",
             "equipment": [
@@ -226,7 +226,7 @@
         },
         {
             "name": "Dumbbell Bicep Curl",
-            "muscle_group": "arms",
+            "muscle_group": "biceps",
             "effort_type": "isolation",
             "description": "Standing dumbbell bicep curl",
             "equipment": [
@@ -236,7 +236,7 @@
         },
         {
             "name": "Dumbbell Tricep Extension",
-            "muscle_group": "arms",
+            "muscle_group": "triceps",
             "effort_type": "isolation",
             "description": "Overhead dumbbell tricep extension",
             "equipment": [
@@ -246,7 +246,7 @@
         },
         {
             "name": "Diamond Push-Up",
-            "muscle_group": "arms",
+            "muscle_group": "triceps",
             "effort_type": "compound",
             "description": "Close-grip push-up targeting triceps",
             "equipment": [
@@ -256,7 +256,7 @@
         },
         {
             "name": "Hammer Curl",
-            "muscle_group": "arms",
+            "muscle_group": "biceps",
             "effort_type": "isolation",
             "description": "Neutral-grip dumbbell curl for brachialis",
             "equipment": [
