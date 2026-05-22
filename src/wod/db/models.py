@@ -213,6 +213,13 @@ class Exercise(Base):
         nullable=False,
         comment="1 for primary/compound, 2 for secondary/isolation",
     )
+    tier: Mapped[str] = mapped_column(
+        String(1),
+        default="C",
+        server_default="C",
+        nullable=False,
+        comment="Exercise tier: A, B, or C",
+    )
     description: Mapped[Optional[str]] = mapped_column(
         Text,
         nullable=True,

@@ -16,62 +16,42 @@ class TestCalculateIntensity:
     def test_beginner_compound(self) -> None:
         result = calculate_intensity(ExperienceLevel.BEGINNER, EffortType.COMPOUND)
         assert result.sets == 3
-        assert result.reps == 12
+        assert result.reps == "8-12"
+        assert result.intensity == "Buffer 1"
 
     def test_beginner_isolation(self) -> None:
         result = calculate_intensity(ExperienceLevel.BEGINNER, EffortType.ISOLATION)
         assert result.sets == 2
-        assert result.reps == 15
+        assert result.reps == "12-15"
+        assert result.intensity == "Buffer 1"
 
     # --- Intermediate ---
 
     def test_intermediate_compound(self) -> None:
         result = calculate_intensity(ExperienceLevel.INTERMEDIATE, EffortType.COMPOUND)
-        assert result.sets == 4
-        assert result.reps == 10
+        assert result.sets == 2
+        assert result.reps == "6-10"
+        assert result.intensity == "Cedimento tecnico"
 
     def test_intermediate_isolation(self) -> None:
         result = calculate_intensity(ExperienceLevel.INTERMEDIATE, EffortType.ISOLATION)
-        assert result.sets == 3
-        assert result.reps == 12
+        assert result.sets == 2
+        assert result.reps == "10-12"
+        assert result.intensity == "Cedimento tecnico"
 
     # --- Advanced ---
 
     def test_advanced_compound(self) -> None:
         result = calculate_intensity(ExperienceLevel.ADVANCED, EffortType.COMPOUND)
-        assert result.sets == 5
-        assert result.reps == 8
+        assert result.sets == 2
+        assert result.reps == "4-8"
+        assert result.intensity == "Cedimento tecnico"
 
     def test_advanced_isolation(self) -> None:
         result = calculate_intensity(ExperienceLevel.ADVANCED, EffortType.ISOLATION)
-        assert result.sets == 4
-        assert result.reps == 10
-
-    # --- Volume progression ---
-
-    def test_compound_volume_increases_with_experience(self) -> None:
-        """Total volume (sets * reps) should generally increase with level."""
-        beginner = calculate_intensity(ExperienceLevel.BEGINNER, EffortType.COMPOUND)
-        intermediate = calculate_intensity(
-            ExperienceLevel.INTERMEDIATE, EffortType.COMPOUND
-        )
-        advanced = calculate_intensity(ExperienceLevel.ADVANCED, EffortType.COMPOUND)
-
-        vol_b = beginner.sets * beginner.reps
-        vol_i = intermediate.sets * intermediate.reps
-        vol_a = advanced.sets * advanced.reps
-
-        assert vol_b <= vol_i <= vol_a
-
-    def test_sets_increase_with_experience(self) -> None:
-        """Sets should increase as experience grows (for compound)."""
-        beginner = calculate_intensity(ExperienceLevel.BEGINNER, EffortType.COMPOUND)
-        intermediate = calculate_intensity(
-            ExperienceLevel.INTERMEDIATE, EffortType.COMPOUND
-        )
-        advanced = calculate_intensity(ExperienceLevel.ADVANCED, EffortType.COMPOUND)
-
-        assert beginner.sets <= intermediate.sets <= advanced.sets
+        assert result.sets == 2
+        assert result.reps == "8-12"
+        assert result.intensity == "Cedimento tecnico"
 
     # --- All combinations covered ---
 
@@ -82,27 +62,28 @@ class TestCalculateIntensity:
                 result = calculate_intensity(level, effort)
                 assert isinstance(result, SetRepPrescription)
                 assert result.sets > 0
-                assert result.reps > 0
+                assert isinstance(result.reps, str)
+                assert isinstance(result.intensity, str)
 
 
 class TestSetRepPrescription:
     """Tests for the SetRepPrescription dataclass."""
 
     def test_str_representation(self) -> None:
-        p = SetRepPrescription(sets=4, reps=10)
-        assert str(p) == "4×10"
+        p = SetRepPrescription(sets=4, reps="10-12", intensity="Cedimento")
+        assert str(p) == "4×10-12 (Cedimento)"
 
     def test_frozen(self) -> None:
-        p = SetRepPrescription(sets=3, reps=12)
+        p = SetRepPrescription(sets=3, reps="12", intensity="Buffer 1")
         with pytest.raises(AttributeError):
             p.sets = 5  # type: ignore[misc]
 
     def test_equality(self) -> None:
-        a = SetRepPrescription(sets=3, reps=12)
-        b = SetRepPrescription(sets=3, reps=12)
+        a = SetRepPrescription(sets=3, reps="12", intensity="Buffer 1")
+        b = SetRepPrescription(sets=3, reps="12", intensity="Buffer 1")
         assert a == b
 
     def test_inequality(self) -> None:
-        a = SetRepPrescription(sets=3, reps=12)
-        b = SetRepPrescription(sets=4, reps=10)
+        a = SetRepPrescription(sets=3, reps="12", intensity="Buffer 1")
+        b = SetRepPrescription(sets=4, reps="10-12", intensity="Cedimento")
         assert a != b

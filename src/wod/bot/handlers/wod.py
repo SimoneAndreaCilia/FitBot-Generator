@@ -196,6 +196,14 @@ def _select_exercises(
 
     _SINGLE_EXERCISE_GROUPS = {MuscleGroup.BICEPS, MuscleGroup.TRICEPS}
     selected: list[Exercise] = []
+    def _pick_best(ex_list: list[Exercise]) -> Exercise | None:
+        if not ex_list:
+            return None
+        for tier in ("A", "B", "C"):
+            tier_ex = [ex for ex in ex_list if getattr(ex, "tier", "C") == tier]
+            if tier_ex:
+                return random.choice(tier_ex)
+        return random.choice(ex_list)  # Fallback
 
     for group in training_day.muscle_groups:
         group_exercises = [ex for ex in exercises if ex.muscle_group == group]
@@ -205,16 +213,22 @@ def _select_exercises(
 
         if group in _SINGLE_EXERCISE_GROUPS:
             # Arms: pick 1 exercise, prefer isolation (max stretch)
-            if weight_2:
-                selected.append(random.choice(weight_2))
-            elif weight_1:
-                selected.append(random.choice(weight_1))
+            best_2 = _pick_best(weight_2)
+            if best_2:
+                selected.append(best_2)
+            else:
+                best_1 = _pick_best(weight_1)
+                if best_1:
+                    selected.append(best_1)
         else:
             # Other groups: 1 compound + 1 isolation
-            if weight_1:
-                selected.append(random.choice(weight_1))
-            if weight_2:
-                selected.append(random.choice(weight_2))
+            best_1 = _pick_best(weight_1)
+            if best_1:
+                selected.append(best_1)
+            
+            best_2 = _pick_best(weight_2)
+            if best_2:
+                selected.append(best_2)
 
     return selected
 

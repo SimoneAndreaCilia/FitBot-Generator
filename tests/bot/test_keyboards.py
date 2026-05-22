@@ -31,9 +31,9 @@ class TestExperienceKeyboard:
 
 
 class TestFrequencyKeyboard:
-    def test_has_seven_options(self) -> None:
+    def test_has_six_options(self) -> None:
         kb = frequency_keyboard()
-        assert len(kb.inline_keyboard) == 7
+        assert len(kb.inline_keyboard) == 6
 
     def test_callback_data_prefixed(self) -> None:
         kb = frequency_keyboard()

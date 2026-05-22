@@ -72,6 +72,7 @@ async def _get_or_create_exercise(
             muscle_group=ex_data["muscle_group"],
             effort_type=ex_data["effort_type"],
             weight=ex_data.get("weight", 1),
+            tier=ex_data.get("tier", "C"),
             description=ex_data.get("description", ""),
             equipment=[eq_map[eq_name] for eq_name in ex_data.get("equipment", [])],
         )

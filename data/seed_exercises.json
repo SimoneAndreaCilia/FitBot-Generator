@@ -18,7 +18,8 @@
                 "barbell",
                 "bench"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Incline Press",
@@ -29,7 +30,8 @@
                 "dumbbell",
                 "bench"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Push-Up",
@@ -39,7 +41,8 @@
             "equipment": [
                 "bodyweight"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Dumbbell Fly",
@@ -50,7 +53,8 @@
                 "dumbbell",
                 "bench"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "B"
         },
         {
             "name": "Barbell Row",
@@ -60,7 +64,8 @@
             "equipment": [
                 "barbell"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Row",
@@ -71,7 +76,8 @@
                 "dumbbell",
                 "bench"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Pull-Up",
@@ -81,7 +87,8 @@
             "equipment": [
                 "pull_up_bar"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Chin-Up",
@@ -91,7 +98,8 @@
             "equipment": [
                 "pull_up_bar"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Band Pull-Apart",
@@ -101,7 +109,8 @@
             "equipment": [
                 "resistance_band"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "C"
         },
         {
             "name": "Overhead Press",
@@ -111,7 +120,8 @@
             "equipment": [
                 "barbell"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Lateral Raise",
@@ -121,7 +131,8 @@
             "equipment": [
                 "dumbbell"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Shoulder Press",
@@ -131,7 +142,8 @@
             "equipment": [
                 "dumbbell"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Pike Push-Up",
@@ -141,7 +153,8 @@
             "equipment": [
                 "bodyweight"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Barbell Back Squat",
@@ -151,7 +164,8 @@
             "equipment": [
                 "barbell"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Goblet Squat",
@@ -161,7 +175,8 @@
             "equipment": [
                 "dumbbell"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Bodyweight Squat",
@@ -171,7 +186,8 @@
             "equipment": [
                 "bodyweight"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Romanian Deadlift",
@@ -181,7 +197,8 @@
             "equipment": [
                 "barbell"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Lunge",
@@ -191,7 +208,8 @@
             "equipment": [
                 "dumbbell"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Kettlebell Swing",
@@ -201,7 +219,8 @@
             "equipment": [
                 "kettlebell"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Bulgarian Split Squat",
@@ -212,7 +231,8 @@
                 "dumbbell",
                 "bench"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Barbell Curl",
@@ -222,7 +242,8 @@
             "equipment": [
                 "barbell"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Bicep Curl",
@@ -232,7 +253,8 @@
             "equipment": [
                 "dumbbell"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "B"
         },
         {
             "name": "Dumbbell Tricep Extension",
@@ -242,7 +264,8 @@
             "equipment": [
                 "dumbbell"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "A"
         },
         {
             "name": "Diamond Push-Up",
@@ -252,7 +275,8 @@
             "equipment": [
                 "bodyweight"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Hammer Curl",
@@ -262,7 +286,8 @@
             "equipment": [
                 "dumbbell"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "B"
         },
         {
             "name": "Plank",
@@ -272,7 +297,8 @@
             "equipment": [
                 "bodyweight"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "B"
         },
         {
             "name": "Russian Twist",
@@ -282,7 +308,8 @@
             "equipment": [
                 "bodyweight"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "C"
         },
         {
             "name": "Hanging Leg Raise",
@@ -292,7 +319,8 @@
             "equipment": [
                 "pull_up_bar"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "A"
         },
         {
             "name": "Kettlebell Turkish Get-Up",
@@ -302,7 +330,8 @@
             "equipment": [
                 "kettlebell"
             ],
-            "weight": 1
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Dead Bug",
@@ -312,7 +341,8 @@
             "equipment": [
                 "bodyweight"
             ],
-            "weight": 2
+            "weight": 2,
+            "tier": "B"
         }
     ]
 }
