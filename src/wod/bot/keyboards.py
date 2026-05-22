@@ -22,7 +22,7 @@ def experience_keyboard() -> InlineKeyboardMarkup:
 def frequency_keyboard() -> InlineKeyboardMarkup:
     """Build a keyboard for selecting training frequency (days per week)."""
     buttons = []
-    for i in range(1, 8):
+    for i in range(1, 7):
         emoji = "📅"
         buttons.append(
             [

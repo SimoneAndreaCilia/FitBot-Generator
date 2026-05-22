@@ -189,8 +189,12 @@ def _select_exercises(
 ) -> list[Exercise]:
     """Select a balanced subset of exercises for the training day.
 
-    Picks exactly 1 weight=1 and 1 weight=2 exercise per muscle group.
+    - Most muscle groups: 1 weight=1 (compound) + 1 weight=2 (isolation).
+    - Biceps & Triceps: 1 exercise only, preferring weight=2 (max stretch).
     """
+    from wod.core.types import MuscleGroup
+
+    _SINGLE_EXERCISE_GROUPS = {MuscleGroup.BICEPS, MuscleGroup.TRICEPS}
     selected: list[Exercise] = []
 
     for group in training_day.muscle_groups:
@@ -199,10 +203,18 @@ def _select_exercises(
         weight_1 = [ex for ex in group_exercises if getattr(ex, "weight", 1) == 1]
         weight_2 = [ex for ex in group_exercises if getattr(ex, "weight", 1) == 2]
 
-        if weight_1:
-            selected.append(random.choice(weight_1))
-        if weight_2:
-            selected.append(random.choice(weight_2))
+        if group in _SINGLE_EXERCISE_GROUPS:
+            # Arms: pick 1 exercise, prefer isolation (max stretch)
+            if weight_2:
+                selected.append(random.choice(weight_2))
+            elif weight_1:
+                selected.append(random.choice(weight_1))
+        else:
+            # Other groups: 1 compound + 1 isolation
+            if weight_1:
+                selected.append(random.choice(weight_1))
+            if weight_2:
+                selected.append(random.choice(weight_2))
 
     return selected
 
