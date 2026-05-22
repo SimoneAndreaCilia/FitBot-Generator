@@ -61,11 +61,11 @@ def equipment_keyboard(
     """
     emoji_map = {
         "barbell": "🏋️",
-        "dumbbell": "🔩",
-        "kettlebell": "🔔",
+        "dumbbell": "🦾",
+        "kettlebell": "💣",
         "pull_up_bar": "🪜",
-        "bench": "🪑",
-        "resistance_band": "🎗️",
+        "bench": "🛋️",
+        "resistance_band": "〰️",
         "bodyweight": "🤸",
     }
 
@@ -82,6 +82,14 @@ def equipment_keyboard(
                 )
             ]
         )
+    buttons.append(
+        [
+            InlineKeyboardButton(
+                "☑️ Seleziona tutti",
+                callback_data="equip:all",
+            )
+        ]
+    )
     buttons.append(
         [
             InlineKeyboardButton(

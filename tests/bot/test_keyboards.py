@@ -58,8 +58,8 @@ class TestEquipmentKeyboard:
     def test_shows_all_items_plus_confirm(self) -> None:
         items = [(1, "barbell"), (2, "dumbbell")]
         kb = equipment_keyboard(items, set())
-        # 2 items + 1 confirm button
-        assert len(kb.inline_keyboard) == 3
+        # 2 items + 1 select all + 1 confirm button
+        assert len(kb.inline_keyboard) == 4
 
     def test_selected_items_show_checkmark(self) -> None:
         items = [(1, "barbell"), (2, "dumbbell")]
@@ -81,8 +81,8 @@ class TestEquipmentKeyboard:
 
     def test_empty_equipment_list(self) -> None:
         kb = equipment_keyboard([], set())
-        # Only confirm button
-        assert len(kb.inline_keyboard) == 1
+        # Select all + confirm button
+        assert len(kb.inline_keyboard) == 2
 
 
 class TestWorkoutActionsKeyboard:
