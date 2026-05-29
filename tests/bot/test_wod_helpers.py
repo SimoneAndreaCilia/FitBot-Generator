@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import datetime
-from unittest.mock import patch
-
 import pytest
 
 from wod.bot.formatters import FormattedExercise
@@ -13,7 +10,7 @@ from wod.bot.handlers.wod import (
     _select_exercises,
 )
 from wod.core.split_generator import TrainingDay
-from wod.core.types import EffortType, ExperienceLevel, MuscleGroup, SplitType
+from wod.core.types import EffortType, ExperienceLevel, MuscleGroup
 from wod.db.models import Equipment, Exercise
 
 
