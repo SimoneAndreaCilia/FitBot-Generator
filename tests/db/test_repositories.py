@@ -158,7 +158,7 @@ class TestWorkoutRepository:
                 {
                     "exercise_id": None,
                     "sets": 3,
-                    "reps": 12,
+                    "reps": "12",
                     "order_index": 0,
                     "notes": "Slow tempo",
                 },
@@ -179,7 +179,7 @@ class TestWorkoutRepository:
         assert fetched is not None
         assert len(fetched.exercises) == 1
         assert fetched.exercises[0].sets == 3
-        assert fetched.exercises[0].reps == 12
+        assert fetched.exercises[0].reps == "12"
         assert fetched.exercises[0].notes == "Slow tempo"
 
     async def test_get_user_workouts(self, db_session) -> None:

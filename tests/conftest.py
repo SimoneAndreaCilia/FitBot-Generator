@@ -103,7 +103,7 @@ def sample_exercises(sample_equipment: list[Equipment]) -> list[Exercise]:
         ),
         Exercise(
             name="Bodyweight Squat",
-            muscle_group=MuscleGroup.LEGS,
+            muscle_group=MuscleGroup.QUADS,
             effort_type=EffortType.COMPOUND,
             description="Air squat",
             equipment=[bodyweight],
@@ -117,7 +117,7 @@ def sample_exercises(sample_equipment: list[Equipment]) -> list[Exercise]:
         ),
         Exercise(
             name="Bicep Curl",
-            muscle_group=MuscleGroup.ARMS,
+            muscle_group=MuscleGroup.BICEPS,
             effort_type=EffortType.ISOLATION,
             description="Standing dumbbell bicep curl",
             equipment=[dumbbell],

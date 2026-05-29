@@ -22,7 +22,7 @@ def experience_keyboard() -> InlineKeyboardMarkup:
 def frequency_keyboard() -> InlineKeyboardMarkup:
     """Build a keyboard for selecting training frequency (days per week)."""
     buttons = []
-    for i in range(1, 8):
+    for i in range(1, 7):
         emoji = "📅"
         buttons.append(
             [
@@ -61,11 +61,11 @@ def equipment_keyboard(
     """
     emoji_map = {
         "barbell": "🏋️",
-        "dumbbell": "🔩",
-        "kettlebell": "🔔",
+        "dumbbell": "🦾",
+        "kettlebell": "💣",
         "pull_up_bar": "🪜",
-        "bench": "🪑",
-        "resistance_band": "🎗️",
+        "bench": "🛋️",
+        "resistance_band": "〰️",
         "bodyweight": "🤸",
     }
 
@@ -82,6 +82,14 @@ def equipment_keyboard(
                 )
             ]
         )
+    buttons.append(
+        [
+            InlineKeyboardButton(
+                "☑️ Seleziona tutti",
+                callback_data="equip:all",
+            )
+        ]
+    )
     buttons.append(
         [
             InlineKeyboardButton(
@@ -107,10 +115,6 @@ def workout_actions_keyboard(
     buttons = [
         [InlineKeyboardButton(fav_text, callback_data=f"fav:{workout_id}")],
         [
-            InlineKeyboardButton(
-                "📄 Scarica .txt",
-                callback_data=f"dl_txt:{workout_id}",
-            ),
             InlineKeyboardButton(
                 "📕 Scarica .pdf",
                 callback_data=f"dl_pdf:{workout_id}",

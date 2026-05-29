@@ -40,6 +40,7 @@ def exercise_catalog(equipment_catalog: dict[str, Equipment]) -> list[Exercise]:
             name="Barbell Bench Press",
             muscle_group=MuscleGroup.CHEST,
             effort_type=EffortType.COMPOUND,
+            tier="C",
             equipment=[eq["barbell"], eq["bench"]],
         ),
         Exercise(
@@ -47,6 +48,7 @@ def exercise_catalog(equipment_catalog: dict[str, Equipment]) -> list[Exercise]:
             name="Dumbbell Row",
             muscle_group=MuscleGroup.BACK,
             effort_type=EffortType.COMPOUND,
+            tier="C",
             equipment=[eq["dumbbell"], eq["bench"]],
         ),
         Exercise(
@@ -54,6 +56,7 @@ def exercise_catalog(equipment_catalog: dict[str, Equipment]) -> list[Exercise]:
             name="Pull-Up",
             muscle_group=MuscleGroup.BACK,
             effort_type=EffortType.COMPOUND,
+            tier="C",
             equipment=[eq["pull_up_bar"]],
         ),
         Exercise(
@@ -61,13 +64,15 @@ def exercise_catalog(equipment_catalog: dict[str, Equipment]) -> list[Exercise]:
             name="Push-Up",
             muscle_group=MuscleGroup.CHEST,
             effort_type=EffortType.COMPOUND,
+            tier="C",
             equipment=[eq["bodyweight"]],
         ),
         Exercise(
             id=5,
             name="Bodyweight Squat",
-            muscle_group=MuscleGroup.LEGS,
+            muscle_group=MuscleGroup.QUADS,
             effort_type=EffortType.COMPOUND,
+            tier="C",
             equipment=[eq["bodyweight"]],
         ),
         Exercise(
@@ -75,13 +80,15 @@ def exercise_catalog(equipment_catalog: dict[str, Equipment]) -> list[Exercise]:
             name="Overhead Press",
             muscle_group=MuscleGroup.SHOULDERS,
             effort_type=EffortType.COMPOUND,
+            tier="C",
             equipment=[eq["barbell"]],
         ),
         Exercise(
             id=7,
             name="Bicep Curl",
-            muscle_group=MuscleGroup.ARMS,
+            muscle_group=MuscleGroup.BICEPS,
             effort_type=EffortType.ISOLATION,
+            tier="C",
             equipment=[eq["dumbbell"]],
         ),
         Exercise(
@@ -89,6 +96,7 @@ def exercise_catalog(equipment_catalog: dict[str, Equipment]) -> list[Exercise]:
             name="Plank",
             muscle_group=MuscleGroup.CORE,
             effort_type=EffortType.ISOLATION,
+            tier="C",
             equipment=[eq["bodyweight"]],
         ),
     ]
@@ -181,9 +189,9 @@ class TestFilterByMuscleGroups:
         assert len(result) == 2  # Bench Press + Push-Up
 
     def test_multiple_groups(self, exercise_catalog: list[Exercise]) -> None:
-        """Filter for BACK + ARMS should return matching exercises."""
+        """Filter for BACK + BICEPS should return matching exercises."""
         result = filter_exercises_by_muscle_groups(
-            exercise_catalog, [MuscleGroup.BACK, MuscleGroup.ARMS]
+            exercise_catalog, [MuscleGroup.BACK, MuscleGroup.BICEPS]
         )
         names = {ex.name for ex in result}
         assert names == {"Dumbbell Row", "Pull-Up", "Bicep Curl"}

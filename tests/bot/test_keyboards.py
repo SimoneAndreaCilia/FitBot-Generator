@@ -31,9 +31,9 @@ class TestExperienceKeyboard:
 
 
 class TestFrequencyKeyboard:
-    def test_has_seven_options(self) -> None:
+    def test_has_six_options(self) -> None:
         kb = frequency_keyboard()
-        assert len(kb.inline_keyboard) == 7
+        assert len(kb.inline_keyboard) == 6
 
     def test_callback_data_prefixed(self) -> None:
         kb = frequency_keyboard()
@@ -58,8 +58,8 @@ class TestEquipmentKeyboard:
     def test_shows_all_items_plus_confirm(self) -> None:
         items = [(1, "barbell"), (2, "dumbbell")]
         kb = equipment_keyboard(items, set())
-        # 2 items + 1 confirm button
-        assert len(kb.inline_keyboard) == 3
+        # 2 items + 1 select all + 1 confirm button
+        assert len(kb.inline_keyboard) == 4
 
     def test_selected_items_show_checkmark(self) -> None:
         items = [(1, "barbell"), (2, "dumbbell")]
@@ -81,8 +81,8 @@ class TestEquipmentKeyboard:
 
     def test_empty_equipment_list(self) -> None:
         kb = equipment_keyboard([], set())
-        # Only confirm button
-        assert len(kb.inline_keyboard) == 1
+        # Select all + confirm button
+        assert len(kb.inline_keyboard) == 2
 
 
 class TestWorkoutActionsKeyboard:
@@ -100,9 +100,8 @@ class TestWorkoutActionsKeyboard:
     def test_download_buttons(self) -> None:
         kb = workout_actions_keyboard(42, is_favorite=False)
         download_row = kb.inline_keyboard[1]
-        assert len(download_row) == 2
-        assert download_row[0].callback_data == "dl_txt:42"
-        assert download_row[1].callback_data == "dl_pdf:42"
+        assert len(download_row) == 1
+        assert download_row[0].callback_data == "dl_pdf:42"
 
 
 class TestHistoryKeyboard:

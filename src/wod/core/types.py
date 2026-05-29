@@ -17,8 +17,11 @@ class MuscleGroup(str, Enum):
     CHEST = "chest"
     BACK = "back"
     SHOULDERS = "shoulders"
-    LEGS = "legs"
-    ARMS = "arms"
+    QUADS= "quads"
+    HAMSTRINGS = "hamstrings"
+    CALVES = "calves"
+    BICEPS = "biceps"
+    TRICEPS = "triceps"
     CORE = "core"
 
 
@@ -44,8 +47,11 @@ SPLIT_TEMPLATES: dict[SplitType, list[list[MuscleGroup]]] = {
             MuscleGroup.CHEST,
             MuscleGroup.BACK,
             MuscleGroup.SHOULDERS,
-            MuscleGroup.LEGS,
-            MuscleGroup.ARMS,
+            MuscleGroup.BICEPS,
+            MuscleGroup.TRICEPS,
+            MuscleGroup.QUADS,
+            MuscleGroup.HAMSTRINGS,
+            MuscleGroup.CALVES,
             MuscleGroup.CORE,
         ],
     ],
@@ -55,17 +61,23 @@ SPLIT_TEMPLATES: dict[SplitType, list[list[MuscleGroup]]] = {
             MuscleGroup.CHEST,
             MuscleGroup.BACK,
             MuscleGroup.SHOULDERS,
-            MuscleGroup.ARMS,
+            MuscleGroup.BICEPS,
+            MuscleGroup.TRICEPS,
         ],
         # Lower day
-        [MuscleGroup.LEGS, MuscleGroup.CORE],
+        [
+            MuscleGroup.QUADS,
+            MuscleGroup.HAMSTRINGS,
+            MuscleGroup.CALVES,
+            MuscleGroup.CORE,
+        ],
     ],
     SplitType.PUSH_PULL_LEGS: [
         # Push day
-        [MuscleGroup.CHEST, MuscleGroup.SHOULDERS],
+        [MuscleGroup.CHEST, MuscleGroup.SHOULDERS, MuscleGroup.TRICEPS],
         # Pull day
-        [MuscleGroup.BACK, MuscleGroup.ARMS],
+        [MuscleGroup.BACK, MuscleGroup.BICEPS],
         # Legs day
-        [MuscleGroup.LEGS, MuscleGroup.CORE],
+        [MuscleGroup.QUADS, MuscleGroup.HAMSTRINGS, MuscleGroup.CALVES, MuscleGroup.CORE],
     ],
 }

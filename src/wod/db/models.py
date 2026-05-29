@@ -206,6 +206,20 @@ class Exercise(Base):
         Enum(EffortType, name="effort_type_enum"),
         nullable=False,
     )
+    weight: Mapped[int] = mapped_column(
+        Integer,
+        default=1,
+        server_default="1",
+        nullable=False,
+        comment="1 for primary/compound, 2 for secondary/isolation",
+    )
+    tier: Mapped[str] = mapped_column(
+        String(1),
+        default="C",
+        server_default="C",
+        nullable=False,
+        comment="Exercise tier: A, B, or C",
+    )
     description: Mapped[Optional[str]] = mapped_column(
         Text,
         nullable=True,
@@ -305,8 +319,13 @@ class WorkoutExercise(Base):
         nullable=True,
         comment="FK to catalogue; SET NULL if exercise is deleted",
     )
+    day_label: Mapped[Optional[str]] = mapped_column(
+        String(64),
+        nullable=True,
+        comment="Label of the training day this exercise belongs to",
+    )
     sets: Mapped[int] = mapped_column(Integer, nullable=False)
-    reps: Mapped[int] = mapped_column(Integer, nullable=False)
+    reps: Mapped[str] = mapped_column(String(16), nullable=False)
     order_index: Mapped[int] = mapped_column(
         Integer,
         nullable=False,

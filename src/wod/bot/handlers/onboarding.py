@@ -162,6 +162,18 @@ async def equipment_callback(
         # Save everything to DB
         return await _finalize_onboarding(query, context)
 
+    eq_list = context.user_data["equipment_list"]
+
+    if data == "all":
+        all_ids = {eq_id for eq_id, _ in eq_list}
+        context.user_data["selected_equipment"] = all_ids
+        await query.edit_message_text(
+            "Seleziona l'attrezzatura disponibile nella tua Home Gym.\n"
+            "Tocca per selezionare/deselezionare, poi conferma:",
+            reply_markup=equipment_keyboard(eq_list, all_ids),
+        )
+        return EQUIPMENT
+
     # Toggle equipment selection
     eq_id = int(data)
     selected: set[int] = context.user_data["selected_equipment"]
@@ -171,7 +183,6 @@ async def equipment_callback(
         selected.add(eq_id)
     context.user_data["selected_equipment"] = selected
 
-    eq_list = context.user_data["equipment_list"]
     await query.edit_message_text(
         "Seleziona l'attrezzatura disponibile nella tua Home Gym.\n"
         "Tocca per selezionare/deselezionare, poi conferma:",

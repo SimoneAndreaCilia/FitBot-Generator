@@ -19,7 +19,7 @@ class TestEnums:
         assert ExperienceLevel("beginner") == ExperienceLevel.BEGINNER
 
     def test_muscle_groups(self) -> None:
-        assert len(MuscleGroup) == 6
+        assert len(MuscleGroup) == 9
         assert MuscleGroup("chest") == MuscleGroup.CHEST
 
     def test_effort_types(self) -> None:

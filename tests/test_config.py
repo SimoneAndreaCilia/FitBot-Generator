@@ -17,7 +17,7 @@ class TestSettings:
         """Settings should fail without TELEGRAM_BOT_TOKEN."""
         with patch.dict(os.environ, {}, clear=True):
             with pytest.raises(Exception):
-                Settings()
+                Settings(_env_file=None)
 
     def test_loads_from_env(self) -> None:
         """Settings should load TELEGRAM_BOT_TOKEN from env vars."""

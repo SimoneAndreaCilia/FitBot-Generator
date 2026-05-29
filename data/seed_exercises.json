@@ -13,11 +13,13 @@
             "name": "Barbell Bench Press",
             "muscle_group": "chest",
             "effort_type": "compound",
-            "description": "Flat barbell bench press — primary chest builder",
+            "description": "Flat barbell bench press \u2014 primary chest builder",
             "equipment": [
                 "barbell",
                 "bench"
-            ]
+            ],
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Incline Press",
@@ -27,7 +29,9 @@
             "equipment": [
                 "dumbbell",
                 "bench"
-            ]
+            ],
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Push-Up",
@@ -36,7 +40,9 @@
             "description": "Bodyweight push-up",
             "equipment": [
                 "bodyweight"
-            ]
+            ],
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Dumbbell Fly",
@@ -46,7 +52,9 @@
             "equipment": [
                 "dumbbell",
                 "bench"
-            ]
+            ],
+            "weight": 2,
+            "tier": "B"
         },
         {
             "name": "Barbell Row",
@@ -55,7 +63,9 @@
             "description": "Bent-over barbell row",
             "equipment": [
                 "barbell"
-            ]
+            ],
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Row",
@@ -65,7 +75,9 @@
             "equipment": [
                 "dumbbell",
                 "bench"
-            ]
+            ],
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Pull-Up",
@@ -74,7 +86,9 @@
             "description": "Overhand grip bodyweight pull-up",
             "equipment": [
                 "pull_up_bar"
-            ]
+            ],
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Chin-Up",
@@ -83,7 +97,9 @@
             "description": "Underhand grip bodyweight chin-up",
             "equipment": [
                 "pull_up_bar"
-            ]
+            ],
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Band Pull-Apart",
@@ -92,7 +108,9 @@
             "description": "Resistance band pull-apart for rear delts and upper back",
             "equipment": [
                 "resistance_band"
-            ]
+            ],
+            "weight": 2,
+            "tier": "C"
         },
         {
             "name": "Overhead Press",
@@ -101,7 +119,9 @@
             "description": "Standing barbell overhead press",
             "equipment": [
                 "barbell"
-            ]
+            ],
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Lateral Raise",
@@ -110,7 +130,9 @@
             "description": "Standing dumbbell lateral raise for medial deltoids",
             "equipment": [
                 "dumbbell"
-            ]
+            ],
+            "weight": 2,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Shoulder Press",
@@ -119,7 +141,9 @@
             "description": "Seated or standing dumbbell shoulder press",
             "equipment": [
                 "dumbbell"
-            ]
+            ],
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Pike Push-Up",
@@ -128,125 +152,153 @@
             "description": "Bodyweight pike push-up emphasizing shoulders",
             "equipment": [
                 "bodyweight"
-            ]
+            ],
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Barbell Back Squat",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
-            "description": "Barbell back squat — king of leg exercises",
+            "description": "Barbell back squat \u2014 king of leg exercises",
             "equipment": [
                 "barbell"
-            ]
+            ],
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Goblet Squat",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
             "description": "Dumbbell or kettlebell goblet squat",
             "equipment": [
                 "dumbbell"
-            ]
+            ],
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Bodyweight Squat",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
-            "description": "Air squat — no equipment needed",
+            "description": "Air squat \u2014 no equipment needed",
             "equipment": [
                 "bodyweight"
-            ]
+            ],
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Romanian Deadlift",
-            "muscle_group": "legs",
+            "muscle_group": "hamstrings",
             "effort_type": "compound",
             "description": "Barbell Romanian deadlift for hamstrings and glutes",
             "equipment": [
                 "barbell"
-            ]
+            ],
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Lunge",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
             "description": "Walking or stationary dumbbell lunges",
             "equipment": [
                 "dumbbell"
-            ]
+            ],
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Kettlebell Swing",
-            "muscle_group": "legs",
+            "muscle_group": "hamstrings",
             "effort_type": "compound",
-            "description": "Russian kettlebell swing — hips, glutes,hamstrings",
+            "description": "Russian kettlebell swing \u2014 hips, glutes,hamstrings",
             "equipment": [
                 "kettlebell"
-            ]
+            ],
+            "weight": 1,
+            "tier": "B"
         },
         {
             "name": "Bulgarian Split Squat",
-            "muscle_group": "legs",
+            "muscle_group": "quads",
             "effort_type": "compound",
             "description": "Rear-foot elevated split squat",
             "equipment": [
                 "dumbbell",
                 "bench"
-            ]
+            ],
+            "weight": 1,
+            "tier": "A"
         },
         {
             "name": "Barbell Curl",
-            "muscle_group": "arms",
+            "muscle_group": "biceps",
             "effort_type": "isolation",
             "description": "Standing barbell bicep curl",
             "equipment": [
                 "barbell"
-            ]
+            ],
+            "weight": 2,
+            "tier": "A"
         },
         {
             "name": "Dumbbell Bicep Curl",
-            "muscle_group": "arms",
+            "muscle_group": "biceps",
             "effort_type": "isolation",
             "description": "Standing dumbbell bicep curl",
             "equipment": [
                 "dumbbell"
-            ]
+            ],
+            "weight": 2,
+            "tier": "B"
         },
         {
             "name": "Dumbbell Tricep Extension",
-            "muscle_group": "arms",
+            "muscle_group": "triceps",
             "effort_type": "isolation",
             "description": "Overhead dumbbell tricep extension",
             "equipment": [
                 "dumbbell"
-            ]
+            ],
+            "weight": 2,
+            "tier": "A"
         },
         {
             "name": "Diamond Push-Up",
-            "muscle_group": "arms",
+            "muscle_group": "triceps",
             "effort_type": "compound",
             "description": "Close-grip push-up targeting triceps",
             "equipment": [
                 "bodyweight"
-            ]
+            ],
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Hammer Curl",
-            "muscle_group": "arms",
+            "muscle_group": "biceps",
             "effort_type": "isolation",
             "description": "Neutral-grip dumbbell curl for brachialis",
             "equipment": [
                 "dumbbell"
-            ]
+            ],
+            "weight": 2,
+            "tier": "B"
         },
         {
             "name": "Plank",
             "muscle_group": "core",
             "effort_type": "isolation",
-            "description": "Front plank hold — isometric core strength",
+            "description": "Front plank hold \u2014 isometric core strength",
             "equipment": [
                 "bodyweight"
-            ]
+            ],
+            "weight": 2,
+            "tier": "B"
         },
         {
             "name": "Russian Twist",
@@ -255,7 +307,9 @@
             "description": "Seated Russian twist with or without weight",
             "equipment": [
                 "bodyweight"
-            ]
+            ],
+            "weight": 2,
+            "tier": "C"
         },
         {
             "name": "Hanging Leg Raise",
@@ -264,7 +318,9 @@
             "description": "Hanging leg raise on pull-up bar",
             "equipment": [
                 "pull_up_bar"
-            ]
+            ],
+            "weight": 2,
+            "tier": "A"
         },
         {
             "name": "Kettlebell Turkish Get-Up",
@@ -273,16 +329,20 @@
             "description": "Full-body movement emphasizing core stability",
             "equipment": [
                 "kettlebell"
-            ]
+            ],
+            "weight": 1,
+            "tier": "C"
         },
         {
             "name": "Dead Bug",
             "muscle_group": "core",
             "effort_type": "isolation",
-            "description": "Supine dead bug — anti-extension core drill",
+            "description": "Supine dead bug \u2014 anti-extension core drill",
             "equipment": [
                 "bodyweight"
-            ]
+            ],
+            "weight": 2,
+            "tier": "B"
         }
     ]
 }

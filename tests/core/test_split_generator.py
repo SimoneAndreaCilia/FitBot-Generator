@@ -20,7 +20,7 @@ class TestGenerateWeeklySplit:
         for i, day in enumerate(days, start=1):
             assert day.day_number == i
             assert "Full Body" in day.label
-            assert len(day.muscle_groups) == 6  # all muscle groups
+            assert len(day.muscle_groups) == 9  # all muscle groups
 
     def test_full_body_single_day(self) -> None:
         """1-day Full Body should still hit all groups."""
@@ -44,9 +44,10 @@ class TestGenerateWeeklySplit:
         days = generate_weekly_split(SplitType.UPPER_LOWER, 2)
         upper_day = days[0]
         lower_day = days[1]
-        assert MuscleGroup.LEGS not in upper_day.muscle_groups
+        assert MuscleGroup.QUADS not in upper_day.muscle_groups
         assert MuscleGroup.CHEST not in lower_day.muscle_groups
-        assert MuscleGroup.LEGS in lower_day.muscle_groups
+        assert MuscleGroup.QUADS in lower_day.muscle_groups
+        assert MuscleGroup.HAMSTRINGS in lower_day.muscle_groups
 
     # --- Push/Pull/Legs ---
 
