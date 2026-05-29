@@ -40,6 +40,30 @@ pylint src/wod/
 mypy src/wod/
 ```
 
+## Sviluppo e Qualità del Codice
+
+Questo progetto utilizza `pre-commit` per garantire che il codice rispetti gli standard di formattazione e qualità prima di ogni commit.
+
+### Installazione dei ganci (hooks)
+
+Dopo aver clonato il repository e attivato l'ambiente virtuale, installa i ganci di pre-commit:
+
+```bash
+# Installa pre-commit
+pip install pre-commit
+
+# Installa i ganci di pre-commit nel repository locale
+pre-commit install
+```
+
+### Esecuzione manuale
+
+È possibile eseguire manualmente i controlli su tutti i file in qualsiasi momento senza dover fare un commit:
+
+```bash
+pre-commit run --all-files
+```
+
 ## Architecture
 
 | Layer | Path | Purpose |
@@ -49,7 +73,3 @@ mypy src/wod/
 | **Bot** | `src/wod/bot/` | Telegram interface — handlers & keyboards |
 
 See the [implementation plan](docs/implementation_plan.md) for full details.
-
-## License
-
-MIT
