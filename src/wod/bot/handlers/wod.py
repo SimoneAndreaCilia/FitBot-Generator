@@ -97,7 +97,7 @@ async def wod_command(  # pylint: disable=too-many-locals
 
         prescribed = []
         global_order = 1
-        
+
         for training_day in weekly_plan:
             # 3. Filter exercises by today's muscle groups
             day_exercises = filter_exercises_by_muscle_groups(
@@ -107,10 +107,10 @@ async def wod_command(  # pylint: disable=too-many-locals
             # 4. Select and prescribe exercises
             selected = _select_exercises(day_exercises, training_day)
             day_prescribed = _prescribe_exercises(
-                selected, 
-                user.experience_level, 
-                day_label=training_day.label, 
-                start_order=global_order
+                selected,
+                user.experience_level,
+                day_label=training_day.label,
+                start_order=global_order,
             )
             prescribed.extend(day_prescribed)
             global_order += len(day_prescribed)
@@ -196,6 +196,7 @@ def _select_exercises(
 
     _SINGLE_EXERCISE_GROUPS = {MuscleGroup.BICEPS, MuscleGroup.TRICEPS}
     selected: list[Exercise] = []
+
     def _pick_best(ex_list: list[Exercise]) -> Exercise | None:
         if not ex_list:
             return None
@@ -225,7 +226,7 @@ def _select_exercises(
             best_1 = _pick_best(weight_1)
             if best_1:
                 selected.append(best_1)
-            
+
             best_2 = _pick_best(weight_2)
             if best_2:
                 selected.append(best_2)

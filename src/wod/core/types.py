@@ -17,7 +17,7 @@ class MuscleGroup(str, Enum):
     CHEST = "chest"
     BACK = "back"
     SHOULDERS = "shoulders"
-    QUADS= "quads"
+    QUADS = "quads"
     HAMSTRINGS = "hamstrings"
     CALVES = "calves"
     BICEPS = "biceps"
@@ -78,6 +78,11 @@ SPLIT_TEMPLATES: dict[SplitType, list[list[MuscleGroup]]] = {
         # Pull day
         [MuscleGroup.BACK, MuscleGroup.BICEPS],
         # Legs day
-        [MuscleGroup.QUADS, MuscleGroup.HAMSTRINGS, MuscleGroup.CALVES, MuscleGroup.CORE],
+        [
+            MuscleGroup.QUADS,
+            MuscleGroup.HAMSTRINGS,
+            MuscleGroup.CALVES,
+            MuscleGroup.CORE,
+        ],
     ],
 }

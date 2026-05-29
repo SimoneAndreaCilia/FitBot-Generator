@@ -72,7 +72,9 @@ def workout_to_text(workout: FormattedWorkout) -> str:
             lines.append(f"\n--- {ex.day_label} ---")
             current_day = ex.day_label
         note = ex.notes or ""
-        lines.append(f"{ex.order:<3} {ex.name:<25} {ex.sets:>3} × {ex.reps:<10} {ex.intensity:<20} {note}")
+        lines.append(
+            f"{ex.order:<3} {ex.name:<25} {ex.sets:>3} × {ex.reps:<10} {ex.intensity:<20} {note}"
+        )
 
     lines.append(sep)
     return "\n".join(lines)
@@ -148,9 +150,11 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
         ("ALIGN", (0, 0), (0, -1), "CENTER"),
         ("ALIGN", (2, 0), (3, -1), "CENTER"),
     ]
-    
+
     for row in day_rows:
-        style_commands.append(("BACKGROUND", (0, row), (-1, row), colors.HexColor("#e0e0e0")))
+        style_commands.append(
+            ("BACKGROUND", (0, row), (-1, row), colors.HexColor("#e0e0e0"))
+        )
         style_commands.append(("FONTNAME", (0, row), (-1, row), "Helvetica-Bold"))
         style_commands.append(("ALIGN", (0, row), (-1, row), "CENTER"))
         style_commands.append(("SPAN", (0, row), (-1, row)))

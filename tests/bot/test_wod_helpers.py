@@ -123,16 +123,19 @@ class TestPrescribeExercises:
     """Tests for _prescribe_exercises."""
 
     def test_returns_formatted_exercises(self, mixed_exercises: list[Exercise]) -> None:
-        result = _prescribe_exercises(mixed_exercises[:2], ExperienceLevel.BEGINNER, "Day 1")
+        result = _prescribe_exercises(
+            mixed_exercises[:2], ExperienceLevel.BEGINNER, "Day 1"
+        )
         assert len(result) == 2
         assert all(isinstance(ex, FormattedExercise) for ex in result)
 
     def test_order_is_sequential(self, mixed_exercises: list[Exercise]) -> None:
-        result = _prescribe_exercises(mixed_exercises[:3], ExperienceLevel.INTERMEDIATE, "Day 1")
+        result = _prescribe_exercises(
+            mixed_exercises[:3], ExperienceLevel.INTERMEDIATE, "Day 1"
+        )
         for i, ex in enumerate(result, start=1):
             assert ex.order == i
 
     def test_empty_list(self) -> None:
         result = _prescribe_exercises([], ExperienceLevel.BEGINNER, "Day 1")
         assert result == []
-
