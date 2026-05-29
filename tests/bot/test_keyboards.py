@@ -27,6 +27,7 @@ class TestExperienceKeyboard:
         kb = experience_keyboard()
         for row in kb.inline_keyboard:
             for btn in row:
+                assert isinstance(btn.callback_data, str)
                 assert btn.callback_data.startswith("exp:")
 
 
@@ -39,6 +40,7 @@ class TestFrequencyKeyboard:
         kb = frequency_keyboard()
         for row in kb.inline_keyboard:
             for btn in row:
+                assert isinstance(btn.callback_data, str)
                 assert btn.callback_data.startswith("freq:")
 
 
@@ -51,6 +53,7 @@ class TestSplitKeyboard:
         kb = split_keyboard()
         for row in kb.inline_keyboard:
             for btn in row:
+                assert isinstance(btn.callback_data, str)
                 assert btn.callback_data.startswith("split:")
 
 
@@ -106,24 +109,32 @@ class TestWorkoutActionsKeyboard:
 
 class TestHistoryKeyboard:
     def test_one_item(self) -> None:
-        workouts = [(1, "Upper Body", "15/06/2025", False)]
+        workouts: list[tuple[int, str, str, bool]] = [
+            (1, "Upper Body", "15/06/2025", False)
+        ]
         kb = history_keyboard(workouts)
         assert len(kb.inline_keyboard) == 1
         assert kb.inline_keyboard[0][0].callback_data == "view:1"
 
     def test_favorite_star(self) -> None:
-        workouts = [(1, "Upper Body", "15/06/2025", True)]
+        workouts: list[tuple[int, str, str, bool]] = [
+            (1, "Upper Body", "15/06/2025", True)
+        ]
         kb = history_keyboard(workouts)
         assert "⭐" in kb.inline_keyboard[0][0].text
 
     def test_no_star_for_non_fav(self) -> None:
-        workouts = [(1, "Upper Body", "15/06/2025", False)]
+        workouts: list[tuple[int, str, str, bool]] = [
+            (1, "Upper Body", "15/06/2025", False)
+        ]
         kb = history_keyboard(workouts)
         assert "⭐" not in kb.inline_keyboard[0][0].text
 
     def test_long_label_truncated(self) -> None:
         long_title = "A" * 100
-        workouts = [(1, long_title, "15/06/2025", False)]
+        workouts: list[tuple[int, str, str, bool]] = [
+            (1, long_title, "15/06/2025", False)
+        ]
         kb = history_keyboard(workouts)
         label = kb.inline_keyboard[0][0].text
         assert len(label) <= 64
