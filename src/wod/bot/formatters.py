@@ -73,7 +73,8 @@ def workout_to_text(workout: FormattedWorkout) -> str:
             current_day = ex.day_label
         note = ex.notes or ""
         lines.append(
-            f"{ex.order:<3} {ex.name:<25} {ex.sets:>3} × {ex.reps:<10} {ex.intensity:<20} {note}"
+            f"{ex.order:<3} {ex.name:<25} {ex.sets:>3} × {ex.reps:<10} "
+            f"{ex.intensity:<20} {note}"
         )
 
     lines.append(sep)
@@ -126,7 +127,7 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
             day_rows.append(len(table_data) - 1)
             current_day = ex.day_label
         table_data.append(
-            [str(ex.order), ex.name, str(ex.sets), str(ex.reps), ex.notes or ""]
+            [str(ex.order), ex.name, str(ex.sets), ex.reps, ex.notes or ""]
         )
 
     table = Table(table_data, colWidths=[1.2 * cm, 7 * cm, 2 * cm, 2 * cm, 4 * cm])
@@ -134,7 +135,7 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
         colors.white,
         colors.HexColor("#f0f0f0"),
     ]
-    style_commands = [
+    style_commands: list[tuple[Any, ...]] = [
         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#16213e")),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
         ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
