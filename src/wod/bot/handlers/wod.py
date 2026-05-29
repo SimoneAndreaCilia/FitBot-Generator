@@ -30,7 +30,7 @@ from wod.core.engine import (
 )
 from wod.core.intensity import calculate_intensity
 from wod.core.split_generator import TrainingDay, generate_weekly_split
-from wod.core.types import ExperienceLevel, SplitType
+from wod.core.types import ExperienceLevel
 from wod.db.models import Exercise
 from wod.db.repositories import (
     get_all_exercises,
@@ -124,7 +124,8 @@ async def wod_command(  # pylint: disable=too-many-locals
 
         # 5. Format
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        workout_title = f"Scheda Settimanale — {user.preferred_split.value.title().replace('_', ' ')}"
+        split_name = user.preferred_split.value.title().replace('_', ' ')
+        workout_title = f"Scheda Settimanale — {split_name}"
         formatted = FormattedWorkout(
             title=workout_title,
             date=now,
