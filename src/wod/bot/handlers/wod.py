@@ -124,7 +124,7 @@ async def wod_command(  # pylint: disable=too-many-locals
 
         # 5. Format
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        split_name = user.preferred_split.value.title().replace('_', ' ')
+        split_name = user.preferred_split.value.title().replace("_", " ")
         workout_title = f"Scheda Settimanale — {split_name}"
         formatted = FormattedWorkout(
             title=workout_title,
