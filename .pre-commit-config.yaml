@@ -18,3 +18,9 @@ repos:
     rev: 7.0.0
     hooks:
     -   id: flake8
+-   repo: https://github.com/PyCQA/pylint
+    rev: v3.1.0
+    hooks:
+    -   id: pylint
+        args: [--rcfile=.pylintrc]
+        additional_dependencies: [sqlalchemy, pydantic, pydantic-settings, python-telegram-bot, reportlab, pytest]

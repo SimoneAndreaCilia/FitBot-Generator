@@ -121,7 +121,7 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
     table_data = [["#", "Esercizio", "Serie", "Reps", "Note"]]
     day_rows = []
     current_day = None
-    for row_idx, ex in enumerate(workout.exercises, start=1):
+    for ex in workout.exercises:
         if ex.day_label and ex.day_label != current_day:
             table_data.append(["", f"--- {ex.day_label} ---", "", "", ""])
             day_rows.append(len(table_data) - 1)

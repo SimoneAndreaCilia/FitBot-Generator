@@ -30,7 +30,7 @@ from wod.core.engine import (
 )
 from wod.core.intensity import calculate_intensity
 from wod.core.split_generator import TrainingDay, generate_weekly_split
-from wod.core.types import ExperienceLevel
+from wod.core.types import ExperienceLevel, MuscleGroup
 from wod.db.models import Exercise
 from wod.db.repositories import (
     get_all_exercises,
@@ -193,9 +193,8 @@ def _select_exercises(
     - Most muscle groups: 1 weight=1 (compound) + 1 weight=2 (isolation).
     - Biceps & Triceps: 1 exercise only, preferring weight=2 (max stretch).
     """
-    from wod.core.types import MuscleGroup
 
-    _SINGLE_EXERCISE_GROUPS = {MuscleGroup.BICEPS, MuscleGroup.TRICEPS}
+    single_exercise_groups = {MuscleGroup.BICEPS, MuscleGroup.TRICEPS}
     selected: list[Exercise] = []
 
     def _pick_best(ex_list: list[Exercise]) -> Exercise | None:
@@ -213,7 +212,7 @@ def _select_exercises(
         weight_1 = [ex for ex in group_exercises if getattr(ex, "weight", 1) == 1]
         weight_2 = [ex for ex in group_exercises if getattr(ex, "weight", 1) == 2]
 
-        if group in _SINGLE_EXERCISE_GROUPS:
+        if group in single_exercise_groups:
             # Arms: pick 1 exercise, prefer isolation (max stretch)
             best_2 = _pick_best(weight_2)
             if best_2:
