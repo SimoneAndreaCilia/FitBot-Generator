@@ -113,7 +113,7 @@ class TestSelectExercises:
             muscle_groups=[MuscleGroup.CHEST],
         )
         selected = _select_exercises([], day)
-        assert selected == []
+        assert not selected
 
 
 class TestPrescribeExercises:
@@ -135,4 +135,4 @@ class TestPrescribeExercises:
 
     def test_empty_list(self) -> None:
         result = _prescribe_exercises([], ExperienceLevel.BEGINNER, "Day 1")
-        assert result == []
+        assert not result

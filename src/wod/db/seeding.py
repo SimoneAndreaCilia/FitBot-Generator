@@ -69,8 +69,9 @@ async def seed_database() -> None:
         await session.commit()
 
     logger.info(
-        f"[OK] Seeded {len(data['equipment'])} equipment items "
-        f"and {len(data['exercises'])} exercises."
+        "[OK] Seeded %d equipment items and %d exercises.",
+        len(data["equipment"]),
+        len(data["exercises"]),
     )
 
 

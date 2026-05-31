@@ -452,7 +452,8 @@ disable=raw-checker-failed,
         redefined-outer-name,
         unused-argument,
         too-many-locals,
-        no-name-in-module
+        no-name-in-module,
+        unknown-option-value
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
