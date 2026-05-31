@@ -19,6 +19,7 @@ from wod.bot.handlers.history import (
 from wod.bot.handlers.onboarding import build_onboarding_handler
 from wod.bot.handlers.wod import build_wod_handler
 from wod.config import get_settings
+from wod.db.seeding import auto_seed_if_empty
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -27,10 +28,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+async def initialize_database(
+    application: Application[Any, Any, Any, Any, Any, Any]
+) -> None:
+    """Initialize and seed database if it is empty."""
+    await auto_seed_if_empty()
+
+
 def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     """Build the Telegram Application with all handlers registered."""
     settings = get_settings()
-    app = Application.builder().token(settings.telegram_bot_token).build()
+    app = (
+        Application.builder()
+        .token(settings.telegram_bot_token)
+        .post_init(initialize_database)
+        .build()
+    )
 
     # Conversation handler (must be added first — it consumes updates)
     app.add_handler(build_onboarding_handler())
