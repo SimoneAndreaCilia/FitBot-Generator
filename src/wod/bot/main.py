@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 async def initialize_database(
-    application: Application[Any, Any, Any, Any, Any, Any]
+    application: Application[Any, Any, Any, Any, Any, Any],
 ) -> None:
     """Initialize and seed database if it is empty."""
     await auto_seed_if_empty()
