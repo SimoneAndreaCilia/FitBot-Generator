@@ -5,7 +5,7 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from telegram import Update
+from telegram import Message, Update
 
 from wod.bot.utils import send_workout_text, split_message_text
 
@@ -110,7 +110,7 @@ class TestSendWorkoutText:
         update = MagicMock(spec=Update)
         query = AsyncMock()
         update.callback_query = query
-        query.message = AsyncMock()
+        query.message = AsyncMock(spec=Message)
 
         text = "Hello workout"
         reply_markup = MagicMock()
@@ -132,7 +132,7 @@ class TestSendWorkoutText:
         update = MagicMock(spec=Update)
         query = AsyncMock()
         update.callback_query = query
-        query.message = AsyncMock()
+        query.message = AsyncMock(spec=Message)
 
         chunks = ["Part 1", "Part 2", "Part 3"]
         reply_markup = MagicMock()

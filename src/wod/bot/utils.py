@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from telegram import Update
+from telegram import Message, Update
 
 logger = logging.getLogger(__name__)
 
@@ -87,13 +87,12 @@ async def send_workout_text(
         for i in range(1, total_chunks):
             is_last = i == total_chunks - 1
             assert query.message is not None
-            # query.message could be an InaccessibleMessage in newer PTB versions,
-            # so we type ignore the reply_text call or handle safely
-            await query.message.reply_text(  # type: ignore[union-attr]
-                text=formatted_chunks[i],
-                parse_mode=parse_mode,
-                reply_markup=reply_markup if is_last else None,
-            )
+            if isinstance(query.message, Message):
+                await query.message.reply_text(
+                    text=formatted_chunks[i],
+                    parse_mode=parse_mode,
+                    reply_markup=reply_markup if is_last else None,
+                )
     else:
         # Direct command message
         assert update.message is not None
