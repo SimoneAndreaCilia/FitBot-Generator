@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -109,7 +110,7 @@ async def _get_or_create_equipment(session: AsyncSession, name: str) -> Equipmen
 
 async def _get_or_create_exercise(
     session: AsyncSession,
-    ex_data: dict,
+    ex_data: dict[str, Any],
     eq_map: dict[str, Equipment],
 ) -> Exercise:
     """Fetch or create an exercise entry with its equipment links."""
