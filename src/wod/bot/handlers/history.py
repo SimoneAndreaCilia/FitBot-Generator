@@ -132,7 +132,7 @@ async def download_pdf_callback(
                     else f"Esercizio #{we.order_index + 1}"
                 ),
                 sets=we.sets,
-                reps=str(we.reps),
+                reps=we.reps,
                 notes=we.notes,
                 day_label=we.day_label,
             )
@@ -156,7 +156,7 @@ async def download_pdf_callback(
 
 def build_history_handler() -> CommandHandler[ContextTypes.DEFAULT_TYPE, None]:
     """Build the /history command handler."""
-    return CommandHandler("history", history_command)
+    return CommandHandler(["history", "mie_schede"], history_command)
 
 
 def build_view_callback_handler() -> (

@@ -5,6 +5,8 @@ from __future__ import annotations
 import os
 from unittest.mock import patch
 
+from telegram.ext import CommandHandler
+
 from wod.bot.main import create_application
 
 
@@ -24,3 +26,14 @@ class TestCreateApplication:
             # Should have at least: onboarding conversation, wod, history,
             # favorites command, view/download/fav callbacks
             assert len(app.handlers[0]) >= 7
+
+            history_handler = next(
+                (
+                    h
+                    for h in app.handlers[0]
+                    if isinstance(h, CommandHandler) and "history" in h.commands
+                ),
+                None,
+            )
+            assert history_handler is not None
+            assert "mie_schede" in history_handler.commands
