@@ -103,3 +103,22 @@ async def send_workout_text(
                 parse_mode=parse_mode,
                 reply_markup=reply_markup if is_last else None,
             )
+
+
+def handle_equipment_toggle(user_data: dict[str, Any], data: str) -> None:
+    """Handle equipment selection toggle logic for onboarding and profile editing."""
+    eq_list = user_data["equipment_list"]
+
+    if data == "all":
+        all_ids = {eq_id for eq_id, _ in eq_list}
+        user_data["selected_equipment"] = all_ids
+    elif data == "none":
+        user_data["selected_equipment"] = set()
+    else:
+        eq_id = int(data)
+        selected: set[int] = user_data["selected_equipment"]
+        if eq_id in selected:
+            selected.discard(eq_id)
+        else:
+            selected.add(eq_id)
+        user_data["selected_equipment"] = selected

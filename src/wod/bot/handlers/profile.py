@@ -6,8 +6,6 @@ Provides:
   regenerate the workout when equipment changes.
 """
 
-# pylint: disable=duplicate-code
-
 from __future__ import annotations
 
 import logging
@@ -33,6 +31,7 @@ from wod.bot.keyboards import (
     regenerate_keyboard,
     split_keyboard,
 )
+from wod.bot.utils import handle_equipment_toggle
 from wod.core.bmi import calculate_bmi
 from wod.core.types import BodyType, ExperienceLevel, SplitType
 from wod.db.repositories import (
@@ -508,21 +507,7 @@ async def edit_equipment_callback(
         return REGEN_CONFIRM
 
     eq_list = context.user_data["equipment_list"]
-
-    if data == "all":
-        all_ids = {eq_id for eq_id, _ in eq_list}
-        context.user_data["selected_equipment"] = all_ids
-    elif data == "none":
-        context.user_data["selected_equipment"] = set()
-    else:
-        eq_id = int(data)
-        selected: set[int] = context.user_data["selected_equipment"]
-        if eq_id in selected:
-            selected.discard(eq_id)
-        else:
-            selected.add(eq_id)
-        context.user_data["selected_equipment"] = selected
-
+    handle_equipment_toggle(context.user_data, data)
     selected_set = context.user_data["selected_equipment"]
     try:
         await query.edit_message_text(

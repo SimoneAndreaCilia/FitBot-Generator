@@ -1,5 +1,7 @@
 """Tests for the weekly split generator."""
 
+# pylint: disable=duplicate-code
+
 from __future__ import annotations
 
 import pytest

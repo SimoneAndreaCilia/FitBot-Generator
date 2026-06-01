@@ -38,6 +38,7 @@ from wod.bot.keyboards import (
     frequency_keyboard,
     split_keyboard,
 )
+from wod.bot.utils import handle_equipment_toggle
 from wod.core.bmi import calculate_bmi
 from wod.core.types import BodyType, ExperienceLevel, SplitType
 from wod.db.models import Base
@@ -358,24 +359,10 @@ async def equipment_callback(
         # Save everything to DB
         return await _finalize_onboarding(query, context)
 
-    eq_list = context.user_data["equipment_list"]
-
-    if data == "all":
-        all_ids = {eq_id for eq_id, _ in eq_list}
-        context.user_data["selected_equipment"] = all_ids
-    elif data == "none":
-        context.user_data["selected_equipment"] = set()
-    else:
-        # Toggle equipment selection
-        eq_id = int(data)
-        selected: set[int] = context.user_data["selected_equipment"]
-        if eq_id in selected:
-            selected.discard(eq_id)
-        else:
-            selected.add(eq_id)
-        context.user_data["selected_equipment"] = selected
+    handle_equipment_toggle(context.user_data, data)
 
     selected = context.user_data["selected_equipment"]
+    eq_list = context.user_data["equipment_list"]
     try:
         await query.edit_message_text(
             "Seleziona l'attrezzatura disponibile nella tua Home Gym.\n"
