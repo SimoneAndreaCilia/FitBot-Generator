@@ -11,6 +11,14 @@ class ExperienceLevel(str, Enum):
     ADVANCED = "advanced"
 
 
+class BodyType(str, Enum):
+    """Body type classification (somatotype)."""
+
+    ECTOMORPH = "ectomorph"
+    MESOMORPH = "mesomorph"
+    ENDOMORPH = "endomorph"
+
+
 class MuscleGroup(str, Enum):
     """Primary muscle groups targeted by exercises."""
 

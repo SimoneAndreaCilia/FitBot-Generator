@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from wod.core.types import ExperienceLevel, SplitType
+from wod.core.types import BodyType, ExperienceLevel, SplitType
 from wod.db.models import (
     Equipment,
     Exercise,
@@ -40,15 +40,46 @@ async def get_or_create_user(
     return user
 
 
+async def get_user_with_equipment(
+    session: AsyncSession,
+    telegram_id: int,
+) -> Optional[User]:
+    """Fetch a user with equipment eagerly loaded.
+
+    Returns:
+        The ``User`` instance or ``None`` if the user does not exist.
+    """
+    stmt = (
+        select(User)
+        .options(selectinload(User.equipment))
+        .where(User.telegram_id == telegram_id)
+    )
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 async def update_user_profile(
     session: AsyncSession,
     user: User,
     *,
+    name: Optional[str] = None,
+    height_cm: Optional[float] = None,
+    weight_kg: Optional[float] = None,
+    body_type: Optional[BodyType] = None,
     experience_level: Optional[ExperienceLevel] = None,
     training_frequency: Optional[int] = None,
     preferred_split: Optional[SplitType] = None,
 ) -> User:
-    """Update a user's training preferences."""
+    """Update a user's profile and training preferences."""
+    if name is not None:
+        user.name = name
+    if height_cm is not None:
+        user.height_cm = height_cm
+    if weight_kg is not None:
+        user.weight_kg = weight_kg
+    if body_type is not None:
+        user.body_type = body_type
     if experience_level is not None:
         user.experience_level = experience_level
     if training_frequency is not None:
