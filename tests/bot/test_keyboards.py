@@ -5,10 +5,15 @@ from __future__ import annotations
 from telegram import InlineKeyboardMarkup
 
 from wod.bot.keyboards import (
+    bmi_continue_keyboard,
+    body_type_keyboard,
+    edit_field_keyboard,
     equipment_keyboard,
     experience_keyboard,
     frequency_keyboard,
     history_keyboard,
+    profile_keyboard,
+    regenerate_keyboard,
     split_keyboard,
     workout_actions_keyboard,
 )
@@ -159,3 +164,88 @@ class TestHistoryKeyboard:
     def test_empty_list(self) -> None:
         kb = history_keyboard([])
         assert len(kb.inline_keyboard) == 0
+
+
+class TestBodyTypeKeyboard:
+    def test_returns_markup(self) -> None:
+        kb = body_type_keyboard()
+        assert isinstance(kb, InlineKeyboardMarkup)
+
+    def test_has_three_options(self) -> None:
+        kb = body_type_keyboard()
+        assert len(kb.inline_keyboard) == 3
+
+    def test_callback_data_prefixed(self) -> None:
+        kb = body_type_keyboard()
+        for row in kb.inline_keyboard:
+            for btn in row:
+                assert isinstance(btn.callback_data, str)
+                assert btn.callback_data.startswith("body:")
+
+    def test_callback_values(self) -> None:
+        kb = body_type_keyboard()
+        values = {row[0].callback_data for row in kb.inline_keyboard}
+        assert values == {"body:ectomorph", "body:mesomorph", "body:endomorph"}
+
+
+class TestBmiContinueKeyboard:
+    def test_returns_markup(self) -> None:
+        kb = bmi_continue_keyboard()
+        assert isinstance(kb, InlineKeyboardMarkup)
+
+    def test_has_one_button(self) -> None:
+        kb = bmi_continue_keyboard()
+        assert len(kb.inline_keyboard) == 1
+
+    def test_callback_data(self) -> None:
+        kb = bmi_continue_keyboard()
+        assert kb.inline_keyboard[0][0].callback_data == "bmi:continue"
+
+
+class TestProfileKeyboard:
+    def test_returns_markup(self) -> None:
+        kb = profile_keyboard()
+        assert isinstance(kb, InlineKeyboardMarkup)
+
+    def test_has_edit_button(self) -> None:
+        kb = profile_keyboard()
+        assert len(kb.inline_keyboard) == 1
+        assert kb.inline_keyboard[0][0].callback_data == "edit_profile"
+
+
+class TestEditFieldKeyboard:
+    def test_returns_markup(self) -> None:
+        kb = edit_field_keyboard()
+        assert isinstance(kb, InlineKeyboardMarkup)
+
+    def test_has_nine_options(self) -> None:
+        """8 editable fields + 1 cancel button."""
+        kb = edit_field_keyboard()
+        assert len(kb.inline_keyboard) == 9
+
+    def test_callback_data_prefixed(self) -> None:
+        kb = edit_field_keyboard()
+        for row in kb.inline_keyboard:
+            for btn in row:
+                assert isinstance(btn.callback_data, str)
+                assert btn.callback_data.startswith("editf:")
+
+    def test_cancel_button_present(self) -> None:
+        kb = edit_field_keyboard()
+        last_btn = kb.inline_keyboard[-1][0]
+        assert last_btn.callback_data == "editf:cancel"
+
+
+class TestRegenerateKeyboard:
+    def test_returns_markup(self) -> None:
+        kb = regenerate_keyboard()
+        assert isinstance(kb, InlineKeyboardMarkup)
+
+    def test_has_two_options(self) -> None:
+        kb = regenerate_keyboard()
+        assert len(kb.inline_keyboard) == 2
+
+    def test_callback_values(self) -> None:
+        kb = regenerate_keyboard()
+        values = {row[0].callback_data for row in kb.inline_keyboard}
+        assert values == {"regen:yes", "regen:no"}

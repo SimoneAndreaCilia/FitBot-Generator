@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from wod.core.types import (
     SPLIT_TEMPLATES,
+    BodyType,
     EffortType,
     ExperienceLevel,
     MuscleGroup,
@@ -17,6 +18,12 @@ class TestEnums:
     def test_experience_levels(self) -> None:
         assert len(ExperienceLevel) == 3
         assert ExperienceLevel("beginner") == ExperienceLevel.BEGINNER
+
+    def test_body_types(self) -> None:
+        assert len(BodyType) == 3
+        assert BodyType("ectomorph") == BodyType.ECTOMORPH
+        assert BodyType("mesomorph") == BodyType.MESOMORPH
+        assert BodyType("endomorph") == BodyType.ENDOMORPH
 
     def test_muscle_groups(self) -> None:
         assert len(MuscleGroup) == 9

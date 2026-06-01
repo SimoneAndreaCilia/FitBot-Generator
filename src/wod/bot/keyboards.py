@@ -114,6 +114,57 @@ def equipment_keyboard(
     return InlineKeyboardMarkup(buttons)
 
 
+def body_type_keyboard() -> InlineKeyboardMarkup:
+    """Build a keyboard for selecting body type (somatotype)."""
+    buttons = [
+        [InlineKeyboardButton("🦴 Ectomorfo", callback_data="body:ectomorph")],
+        [InlineKeyboardButton("💪 Mesomorfo", callback_data="body:mesomorph")],
+        [InlineKeyboardButton("🐻 Endomorfo", callback_data="body:endomorph")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def bmi_continue_keyboard() -> InlineKeyboardMarkup:
+    """Build a keyboard with a 'Continue' button after BMI display."""
+    buttons = [
+        [InlineKeyboardButton("Avanti ➡️", callback_data="bmi:continue")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def profile_keyboard() -> InlineKeyboardMarkup:
+    """Build a keyboard with the 'Edit profile' button."""
+    buttons = [
+        [InlineKeyboardButton("✏️ Modifica profilo", callback_data="edit_profile")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def edit_field_keyboard() -> InlineKeyboardMarkup:
+    """Build a keyboard for selecting which profile field to edit."""
+    buttons = [
+        [InlineKeyboardButton("📛 Nome", callback_data="editf:name")],
+        [InlineKeyboardButton("📏 Altezza", callback_data="editf:height")],
+        [InlineKeyboardButton("⚖️ Peso", callback_data="editf:weight")],
+        [InlineKeyboardButton("🦴 Corporatura", callback_data="editf:body_type")],
+        [InlineKeyboardButton("📊 Livello", callback_data="editf:experience")],
+        [InlineKeyboardButton("📅 Frequenza", callback_data="editf:frequency")],
+        [InlineKeyboardButton("🔀 Split", callback_data="editf:split")],
+        [InlineKeyboardButton("🔧 Attrezzatura", callback_data="editf:equipment")],
+        [InlineKeyboardButton("❌ Annulla", callback_data="editf:cancel")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def regenerate_keyboard() -> InlineKeyboardMarkup:
+    """Build a keyboard to offer workout regeneration."""
+    buttons = [
+        [InlineKeyboardButton("🔄 Rigenera scheda", callback_data="regen:yes")],
+        [InlineKeyboardButton("❌ No, grazie", callback_data="regen:no")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
 # ---------------------------------------------------------------------------
 # Workout keyboards
 # ---------------------------------------------------------------------------

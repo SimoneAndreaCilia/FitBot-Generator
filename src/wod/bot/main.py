@@ -20,6 +20,10 @@ from wod.bot.handlers.history import (
     build_view_callback_handler,
 )
 from wod.bot.handlers.onboarding import build_onboarding_handler
+from wod.bot.handlers.profile import (
+    build_edit_profile_handler,
+    build_profile_command_handler,
+)
 from wod.bot.handlers.wod import build_wod_handler
 from wod.config import get_settings
 from wod.db.seeding import auto_seed_if_empty
@@ -31,10 +35,40 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+async def _ensure_user_profile_columns() -> None:
+    """Add profile columns to the users table if they don't exist yet.
+
+    ``create_all()`` won't alter existing tables, so we manually
+    check for and add missing columns for SQLite backwards-compatibility.
+    """
+    from wod.db.session import get_engine  # pylint: disable=import-outside-toplevel
+
+    new_columns = {
+        "name": "VARCHAR(128)",
+        "height_cm": "FLOAT",
+        "weight_kg": "FLOAT",
+        "body_type": "VARCHAR(10)",
+    }
+
+    async with get_engine().connect() as conn:
+        # Get existing column names
+        result = await conn.exec_driver_sql("PRAGMA table_info(users)")
+        existing = {row[1] for row in result}
+
+        for col_name, col_type in new_columns.items():
+            if col_name not in existing:
+                await conn.exec_driver_sql(
+                    f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"
+                )
+                logger.info("Added column 'users.%s'.", col_name)
+        await conn.commit()
+
+
 async def initialize_database(
     application: Application[Any, Any, Any, Any, Any, Any],
 ) -> None:
     """Initialize and seed database if it is empty."""
+    await _ensure_user_profile_columns()
     await auto_seed_if_empty()
 
 
@@ -85,10 +119,12 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
         .build()
     )
 
-    # Conversation handler (must be added first — it consumes updates)
+    # Conversation handlers (must be added first — they consume updates)
     app.add_handler(build_onboarding_handler())
+    app.add_handler(build_edit_profile_handler())
 
     # Command handlers
+    app.add_handler(build_profile_command_handler())
     app.add_handler(build_wod_handler())
     app.add_handler(build_history_handler())
     app.add_handler(build_favorites_command_handler())

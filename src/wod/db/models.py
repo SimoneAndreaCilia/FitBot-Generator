@@ -22,6 +22,7 @@ from sqlalchemy import (
     BigInteger,
     DateTime,
     Enum,
+    Float,
     ForeignKey,
     Integer,
     String,
@@ -36,7 +37,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from wod.core.types import EffortType, ExperienceLevel, MuscleGroup, SplitType
+from wod.core.types import BodyType, EffortType, ExperienceLevel, MuscleGroup, SplitType
 
 # ---------------------------------------------------------------------------
 # Base
@@ -104,6 +105,26 @@ class User(Base):
         String(64),
         nullable=True,
         comment="Telegram @username (may be absent)",
+    )
+    name: Mapped[Optional[str]] = mapped_column(
+        String(128),
+        nullable=True,
+        comment="User's display name",
+    )
+    height_cm: Mapped[Optional[float]] = mapped_column(
+        Float,
+        nullable=True,
+        comment="Height in centimeters",
+    )
+    weight_kg: Mapped[Optional[float]] = mapped_column(
+        Float,
+        nullable=True,
+        comment="Weight in kilograms",
+    )
+    body_type: Mapped[Optional[BodyType]] = mapped_column(
+        Enum(BodyType, name="body_type_enum"),
+        nullable=True,
+        comment="ectomorph / mesomorph / endomorph",
     )
     experience_level: Mapped[Optional[ExperienceLevel]] = mapped_column(
         Enum(ExperienceLevel, name="experience_level_enum"),
