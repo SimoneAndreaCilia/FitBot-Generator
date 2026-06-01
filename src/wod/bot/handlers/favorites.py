@@ -42,10 +42,8 @@ async def favorite_callback(
 
     status = "Aggiunta ai preferiti!" if is_now_fav else "Rimossa dai preferiti."
     await query.answer(status, show_alert=True)
-    await query.edit_message_text(
-        f"```\n{workout.content_text}\n```",
-        parse_mode="Markdown",
-        reply_markup=workout_actions_keyboard(workout_id, is_now_fav),
+    await query.edit_message_reply_markup(
+        reply_markup=workout_actions_keyboard(workout_id, is_now_fav)
     )
 
 
