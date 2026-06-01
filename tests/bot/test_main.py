@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import os
-from unittest.mock import patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+from telegram import Update
 from telegram.ext import CallbackQueryHandler, CommandHandler
 
-from wod.bot.main import create_application
+from wod.bot.main import create_application, error_handler
 
 
 class TestCreateApplication:
@@ -49,3 +51,76 @@ class TestCreateApplication:
                 None,
             )
             assert txt_handler is not None
+
+
+class TestErrorHandler:
+    """Verify that the global error handler functions correctly."""
+
+    @pytest.mark.asyncio
+    async def test_error_handler_with_message(self) -> None:
+        update = MagicMock(spec=Update)
+        update.effective_message = AsyncMock()
+        update.callback_query = None
+
+        context = MagicMock()
+        context.error = ValueError("Test error")
+
+        await error_handler(update, context)
+
+        update.effective_message.reply_text.assert_called_once_with(
+            "⚠️ Si è verificato un errore imprevisto "
+            "durante l'elaborazione del comando. "
+            "Riprova più tardi."
+        )
+
+    @pytest.mark.asyncio
+    async def test_error_handler_with_callback(self) -> None:
+        update = MagicMock(spec=Update)
+        query = AsyncMock()
+        query.message = AsyncMock()
+        update.callback_query = query
+        update.effective_message = query.message
+        update.effective_chat = None
+
+        context = MagicMock()
+        context.error = ValueError("Test callback error")
+
+        await error_handler(update, context)
+
+        query.answer.assert_called_once()
+        query.message.reply_text.assert_called_once_with(
+            "⚠️ Si è verificato un errore imprevisto "
+            "durante l'elaborazione del comando. "
+            "Riprova più tardi."
+        )
+
+    @pytest.mark.asyncio
+    async def test_error_handler_fallback_to_chat(self) -> None:
+        update = MagicMock(spec=Update)
+        update.effective_message = None
+        update.callback_query = None
+        chat = MagicMock()
+        chat.id = 12345
+        update.effective_chat = chat
+
+        context = MagicMock()
+        context.bot.send_message = AsyncMock()
+        context.error = ValueError("Test fallback error")
+
+        await error_handler(update, context)
+
+        context.bot.send_message.assert_called_once_with(
+            chat_id=12345,
+            text="⚠️ Si è verificato un errore imprevisto "
+            "durante l'elaborazione del comando. "
+            "Riprova più tardi.",
+        )
+
+    @pytest.mark.asyncio
+    async def test_error_handler_non_update(self) -> None:
+        # Non-Update object should not raise exceptions but just log
+        context = MagicMock()
+        context.error = ValueError("Test non-update error")
+
+        # Calling with an arbitrary object should not crash
+        await error_handler(object(), context)

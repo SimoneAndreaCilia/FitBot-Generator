@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import logging
+import traceback
 from typing import Any
 
-from telegram.ext import Application
+from telegram import Update
+from telegram.ext import Application, ContextTypes
 
 from wod.bot.handlers.favorites import (
     build_favorite_callback_handler,
@@ -36,6 +38,43 @@ async def initialize_database(
     await auto_seed_if_empty()
 
 
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Log the error and send a friendly warning to the user if possible."""
+    logger.error("Exception while handling an update:", exc_info=context.error)
+
+    if context.error:
+        tb_list = traceback.format_exception(
+            None, context.error, context.error.__traceback__
+        )
+        tb_string = "".join(tb_list)
+        logger.debug("Detailed traceback:\n%s", tb_string)
+
+    error_msg = (
+        "⚠️ Si è verificato un errore imprevisto durante l'elaborazione del comando. "
+        "Riprova più tardi."
+    )
+
+    if isinstance(update, Update):
+        if update.callback_query:
+            try:
+                await update.callback_query.answer()
+            except Exception:  # pylint: disable=broad-exception-caught
+                pass
+
+        if update.effective_message:
+            try:
+                await update.effective_message.reply_text(error_msg)
+            except Exception:  # pylint: disable=broad-exception-caught
+                logger.error("Failed to notify user about error", exc_info=True)
+        elif update.effective_chat:
+            try:
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id, text=error_msg
+                )
+            except Exception:  # pylint: disable=broad-exception-caught
+                logger.error("Failed to notify user about error", exc_info=True)
+
+
 def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     """Build the Telegram Application with all handlers registered."""
     settings = get_settings()
@@ -59,6 +98,9 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     app.add_handler(build_download_pdf_handler())
     app.add_handler(build_download_txt_handler())
     app.add_handler(build_favorite_callback_handler())
+
+    # Global error handler
+    app.add_error_handler(error_handler)
 
     return app
 

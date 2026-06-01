@@ -24,6 +24,7 @@ from wod.bot.formatters import (
     workout_to_text,
 )
 from wod.bot.keyboards import workout_actions_keyboard
+from wod.bot.utils import send_workout_text
 from wod.core.engine import (
     filter_exercises_by_equipment,
     filter_exercises_by_muscle_groups,
@@ -176,11 +177,12 @@ async def wod_command(  # pylint: disable=too-many-locals
         )
         await session.commit()
 
-        # 7. Send to user
-        await update.message.reply_text(
-            f"```\n{text}\n```",
-            parse_mode="Markdown",
+        # 7. Send to user safely (handling possible message too long errors)
+        await send_workout_text(
+            update,
+            text,
             reply_markup=workout_actions_keyboard(workout.id, is_favorite=False),
+            parse_mode="Markdown",
         )
 
 

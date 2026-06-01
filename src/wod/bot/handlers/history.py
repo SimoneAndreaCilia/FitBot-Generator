@@ -22,6 +22,7 @@ from wod.bot.formatters import (
     workout_to_pdf,
 )
 from wod.bot.keyboards import history_keyboard, workout_actions_keyboard
+from wod.bot.utils import send_workout_text
 from wod.config import get_settings
 from wod.db.repositories import (
     get_or_create_user,
@@ -95,10 +96,11 @@ async def view_workout_callback(
         favorites = await get_user_favorites(session, user.id)
         is_fav = any(f.workout_id == workout_id for f in favorites)
 
-    await query.edit_message_text(
-        f"```\n{workout.content_text}\n```",
-        parse_mode="Markdown",
+    await send_workout_text(
+        update,
+        workout.content_text,
         reply_markup=workout_actions_keyboard(workout_id, is_fav),
+        parse_mode="Markdown",
     )
 
 
