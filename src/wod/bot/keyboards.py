@@ -82,14 +82,27 @@ def equipment_keyboard(
                 )
             ]
         )
-    buttons.append(
-        [
-            InlineKeyboardButton(
-                "☑️ Seleziona tutti",
-                callback_data="equip:all",
-            )
-        ]
+    all_selected = len(equipment_list) > 0 and all(
+        eq_id in selected_ids for eq_id, _ in equipment_list
     )
+    if all_selected:
+        buttons.append(
+            [
+                InlineKeyboardButton(
+                    "❌ Deseleziona tutti",
+                    callback_data="equip:none",
+                )
+            ]
+        )
+    else:
+        buttons.append(
+            [
+                InlineKeyboardButton(
+                    "☑️ Seleziona tutti",
+                    callback_data="equip:all",
+                )
+            ]
+        )
     buttons.append(
         [
             InlineKeyboardButton(

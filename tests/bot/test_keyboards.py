@@ -87,6 +87,22 @@ class TestEquipmentKeyboard:
         # Select all + confirm button
         assert len(kb.inline_keyboard) == 2
 
+    def test_select_all_button_when_not_all_selected(self) -> None:
+        items = [(1, "barbell"), (2, "dumbbell")]
+        kb = equipment_keyboard(items, {1})
+        # The third button (index 2) is "Seleziona tutti"
+        select_all_btn = kb.inline_keyboard[2][0]
+        assert "seleziona tutti" in select_all_btn.text.lower()
+        assert select_all_btn.callback_data == "equip:all"
+
+    def test_deselect_all_button_when_all_selected(self) -> None:
+        items = [(1, "barbell"), (2, "dumbbell")]
+        kb = equipment_keyboard(items, {1, 2})
+        # The third button (index 2) is "Deseleziona tutti"
+        deselect_all_btn = kb.inline_keyboard[2][0]
+        assert "deseleziona tutti" in deselect_all_btn.text.lower()
+        assert deselect_all_btn.callback_data == "equip:none"
+
 
 class TestWorkoutActionsKeyboard:
     def test_favorite_button_add(self) -> None:

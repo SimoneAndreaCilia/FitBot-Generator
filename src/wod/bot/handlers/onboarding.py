@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 
 from telegram import CallbackQuery, Update
+from telegram.error import BadRequest
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
@@ -167,27 +168,29 @@ async def equipment_callback(
     if data == "all":
         all_ids = {eq_id for eq_id, _ in eq_list}
         context.user_data["selected_equipment"] = all_ids
+    elif data == "none":
+        context.user_data["selected_equipment"] = set()
+    else:
+        # Toggle equipment selection
+        eq_id = int(data)
+        selected: set[int] = context.user_data["selected_equipment"]
+        if eq_id in selected:
+            selected.discard(eq_id)
+        else:
+            selected.add(eq_id)
+        context.user_data["selected_equipment"] = selected
+
+    selected = context.user_data["selected_equipment"]
+    try:
         await query.edit_message_text(
             "Seleziona l'attrezzatura disponibile nella tua Home Gym.\n"
             "Tocca per selezionare/deselezionare, poi conferma:",
-            reply_markup=equipment_keyboard(eq_list, all_ids),
+            reply_markup=equipment_keyboard(eq_list, selected),
         )
-        return EQUIPMENT
+    except BadRequest as e:
+        if "not modified" not in str(e).lower():
+            raise
 
-    # Toggle equipment selection
-    eq_id = int(data)
-    selected: set[int] = context.user_data["selected_equipment"]
-    if eq_id in selected:
-        selected.discard(eq_id)
-    else:
-        selected.add(eq_id)
-    context.user_data["selected_equipment"] = selected
-
-    await query.edit_message_text(
-        "Seleziona l'attrezzatura disponibile nella tua Home Gym.\n"
-        "Tocca per selezionare/deselezionare, poi conferma:",
-        reply_markup=equipment_keyboard(eq_list, selected),
-    )
     return EQUIPMENT
 
 
