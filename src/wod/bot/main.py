@@ -19,7 +19,12 @@ from wod.bot.handlers.history import (
     build_history_handler,
     build_view_callback_handler,
 )
-from wod.bot.handlers.onboarding import build_onboarding_handler
+from wod.bot.handlers.menu import (
+    build_crea_scheda_existing_handler,
+    build_menu_handlers,
+    build_wod_navigation_handler,
+)
+from wod.bot.handlers.onboarding import build_onboarding_handler, build_start_handler
 from wod.bot.handlers.profile import (
     build_edit_profile_handler,
     build_profile_command_handler,
@@ -119,6 +124,9 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
         .build()
     )
 
+    # /start command (greeting + menu, not a ConversationHandler)
+    app.add_handler(build_start_handler())
+
     # Conversation handlers (must be added first — they consume updates)
     app.add_handler(build_onboarding_handler())
     app.add_handler(build_edit_profile_handler())
@@ -129,7 +137,13 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     app.add_handler(build_history_handler())
     app.add_handler(build_favorites_command_handler())
 
+    # Menu button handlers (ReplyKeyboard text messages)
+    for handler in build_menu_handlers():
+        app.add_handler(handler)
+
     # Callback query handlers
+    app.add_handler(build_crea_scheda_existing_handler())
+    app.add_handler(build_wod_navigation_handler())
     app.add_handler(build_view_callback_handler())
     app.add_handler(build_download_pdf_handler())
     app.add_handler(build_download_txt_handler())
