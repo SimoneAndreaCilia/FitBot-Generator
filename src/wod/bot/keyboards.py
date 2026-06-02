@@ -351,7 +351,11 @@ def live_set_keyboard() -> InlineKeyboardMarkup:
     """Keyboard shown during a live set to allow skipping or aborting."""
     buttons = [
         [InlineKeyboardButton("⏭️ Salta serie", callback_data="liveset:skip")],
-        [InlineKeyboardButton("❌ Abbandona Allenamento", callback_data="liveset:abort")],
+        [
+            InlineKeyboardButton(
+                "❌ Abbandona Allenamento", callback_data="liveset:abort"
+            )
+        ],
     ]
     return InlineKeyboardMarkup(buttons)
 

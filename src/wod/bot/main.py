@@ -77,10 +77,10 @@ async def initialize_database(
     """Initialize and seed database if it is empty."""
     from wod.db.models import Base
     from wod.db.session import get_engine
-    
+
     async with get_engine().begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        
+
     await _ensure_user_profile_columns()
     await auto_seed_if_empty()
 

@@ -196,9 +196,7 @@ def _build_profile_section(
     if profile.experience_level:
         info_rows.append(["Livello", _human_label(profile.experience_level)])
     if profile.training_frequency is not None:
-        info_rows.append(
-            ["Frequenza", f"{profile.training_frequency}x / settimana"]
-        )
+        info_rows.append(["Frequenza", f"{profile.training_frequency}x / settimana"])
     if profile.preferred_split:
         info_rows.append(["Split", _human_label(profile.preferred_split)])
     if profile.equipment:
@@ -287,7 +285,7 @@ def _build_session_table(
             if notes_text:
                 notes_text += "<br/><br/>"
             notes_text += "<b>Dati reali:</b><br/>" + "<br/>".join(ex.actual_data)
-            
+
         notes_element = Paragraph(notes_text, note_style) if notes_text else ""
 
         table_data.append(
@@ -302,11 +300,11 @@ def _build_session_table(
         )
 
     col_widths = [
-        1.0 * cm,   # #
-        5.5 * cm,   # Esercizio
-        1.5 * cm,   # Serie
-        1.8 * cm,   # Reps
-        3.0 * cm,   # Intensità
+        1.0 * cm,  # #
+        5.5 * cm,  # Esercizio
+        1.5 * cm,  # Serie
+        1.8 * cm,  # Reps
+        3.0 * cm,  # Intensità
         page_width - 12.8 * cm,  # Note (remaining)
     ]
 
@@ -330,8 +328,8 @@ def _build_session_table(
         ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, _ALT_ROW]),
         # Grid & alignment
         ("GRID", (0, 0), (-1, -1), 0.4, _BORDER),
-        ("ALIGN", (0, 0), (0, -1), "CENTER"),   # #
-        ("ALIGN", (2, 0), (4, -1), "CENTER"),    # Serie, Reps, Intensità
+        ("ALIGN", (0, 0), (0, -1), "CENTER"),  # #
+        ("ALIGN", (2, 0), (4, -1), "CENTER"),  # Serie, Reps, Intensità
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
     ]
 
@@ -414,14 +412,10 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
 
     if len(grouped) == 1 and "__single__" in grouped:
         # No day labels → single table without session heading
-        elements.extend(
-            _build_session_table(None, grouped["__single__"], styles)
-        )
+        elements.extend(_build_session_table(None, grouped["__single__"], styles))
     else:
         for day_label, day_exercises in grouped.items():
-            elements.extend(
-                _build_session_table(day_label, day_exercises, styles)
-            )
+            elements.extend(_build_session_table(day_label, day_exercises, styles))
 
     # ── Footer ──────────────────────────────────────────────────
     elements.append(Spacer(1, 20))
@@ -458,30 +452,34 @@ def _build_session_log_table(
 
     for row in rows:
         if row.skipped:
-            table_data.append([
-                row.exercise_name,
-                str(row.set_number),
-                "-",
-                "Saltata",
-                "-",
-                "-",
-            ])
+            table_data.append(
+                [
+                    row.exercise_name,
+                    str(row.set_number),
+                    "-",
+                    "Saltata",
+                    "-",
+                    "-",
+                ]
+            )
         else:
-            table_data.append([
-                row.exercise_name,
-                str(row.set_number),
-                row.kg,
-                row.reps,
-                row.rest,
-                row.intensity,
-            ])
+            table_data.append(
+                [
+                    row.exercise_name,
+                    str(row.set_number),
+                    row.kg,
+                    row.reps,
+                    row.rest,
+                    row.intensity,
+                ]
+            )
 
     col_widths = [
-        6.0 * cm,   # Esercizio
-        1.5 * cm,   # Serie
-        1.5 * cm,   # Kg
-        2.5 * cm,   # Ripetizioni
-        2.5 * cm,   # Recupero
+        6.0 * cm,  # Esercizio
+        1.5 * cm,  # Serie
+        1.5 * cm,  # Kg
+        2.5 * cm,  # Ripetizioni
+        2.5 * cm,  # Recupero
         page_width - 14.0 * cm,  # Intensità
     ]
 
@@ -582,7 +580,9 @@ def session_summary_to_pdf(summary: SessionSummary) -> bytes:
     if summary.rows:
         elements.extend(_build_session_log_table(summary.rows, styles))
     else:
-        elements.append(Paragraph("Nessun dato registrato per questa sessione.", subtitle_style))
+        elements.append(
+            Paragraph("Nessun dato registrato per questa sessione.", subtitle_style)
+        )
 
     # Footer
     elements.append(Spacer(1, 20))

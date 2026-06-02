@@ -302,6 +302,7 @@ async def complete_workout_session(
     if ws:
         ws.status = status
         from sqlalchemy.sql import func
+
         ws.completed_at = func.now()  # pylint: disable=not-callable
         await session.flush()
     return ws
@@ -354,7 +355,7 @@ async def get_latest_completed_session(
         select(WorkoutSession)
         .where(
             WorkoutSession.workout_id == workout_id,
-            WorkoutSession.status.in_(["completed", "abandoned"])
+            WorkoutSession.status.in_(["completed", "abandoned"]),
         )
         .order_by(WorkoutSession.completed_at.desc())
         .limit(1)

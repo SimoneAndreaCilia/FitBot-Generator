@@ -128,9 +128,7 @@ async def download_pdf_callback(
             return
 
         # Load user profile with equipment for the PDF
-        user = await get_user_with_equipment(
-            session, telegram_id=query.from_user.id
-        )
+        user = await get_user_with_equipment(session, telegram_id=query.from_user.id)
 
         user_profile = None
         if user is not None:
@@ -210,19 +208,17 @@ async def download_summary_callback(
         stmt = select(WorkoutSession).where(WorkoutSession.id == session_id)
         result = await db_session.execute(stmt)
         ws = result.scalar_one_or_none()
-        
+
         if not ws:
             await query.edit_message_text("❌ Sessione non trovata.")
             return
-            
+
         workout = await get_workout_by_id(db_session, ws.workout_id)
         if not workout:
             await query.edit_message_text("❌ Scheda non trovata.")
             return
 
-        user = await get_user_with_equipment(
-            db_session, telegram_id=query.from_user.id
-        )
+        user = await get_user_with_equipment(db_session, telegram_id=query.from_user.id)
 
         user_profile = None
         if user is not None:
@@ -243,28 +239,36 @@ async def download_summary_callback(
 
         logs = await get_session_logs(db_session, ws.id)
         session_rows = []
-        
+
         ex_by_id = {we.id: we for we in workout.exercises}
-        
+
         for log in logs:
             we = ex_by_id.get(log.workout_exercise_id)
             if not we:
                 continue
-                
-            exercise_name = we.exercise.name if we.exercise else f"Esercizio #{we.order_index + 1}"
-            
+
+            exercise_name = (
+                we.exercise.name if we.exercise else f"Esercizio #{we.order_index + 1}"
+            )
+
             intensity = "-"
             rest = "-"
             if we.exercise and user and user.experience_level:
                 try:
-                    prescription = calculate_intensity(user.experience_level, we.exercise.effort_type)
+                    prescription = calculate_intensity(
+                        user.experience_level, we.exercise.effort_type
+                    )
                     intensity = prescription.intensity
-                    rest = "120s" if we.exercise.effort_type == EffortType.COMPOUND else "60s"
+                    rest = (
+                        "120s"
+                        if we.exercise.effort_type == EffortType.COMPOUND
+                        else "60s"
+                    )
                 except KeyError:
                     pass
-                    
+
             weight_str = f"{log.weight_kg:g}" if log.weight_kg is not None else "0"
-            
+
             session_rows.append(
                 SessionLogRow(
                     order=we.order_index + 1,
@@ -277,7 +281,7 @@ async def download_summary_callback(
                     skipped=log.skipped,
                 )
             )
-            
+
         summary = SessionSummary(
             title=workout.title,
             date=ws.completed_at or ws.started_at or workout.created_at,

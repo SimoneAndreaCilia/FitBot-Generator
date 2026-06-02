@@ -39,9 +39,7 @@ logger = logging.getLogger(__name__)
 SELECT_DAY, WAIT_SET_INPUT = range(2)
 
 
-async def start_live_workout(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def start_live_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Entry point: User clicked 'Inizia Allenamento'."""
     query = update.callback_query
     assert query is not None
@@ -50,7 +48,7 @@ async def start_live_workout(
 
     parts = query.data.split(":")
     workout_id = int(parts[1])
-    
+
     day_index_str = parts[2] if len(parts) > 2 else None
 
     assert context.user_data is not None
@@ -72,7 +70,9 @@ async def start_live_workout(
     # If we have a specific day_index from the WOD view
     if day_index_str is not None:
         day_index = int(day_index_str)
-        day_label = days[day_index] if day_index < len(days) else (days[0] if days else None)
+        day_label = (
+            days[day_index] if day_index < len(days) else (days[0] if days else None)
+        )
         return await _start_session_for_day(update, context, workout, day_label)
 
     # Fallback for old inline keyboards without day_index
@@ -126,9 +126,7 @@ async def _start_session_for_day(
 
     # Filter exercises for the selected day
     exercises = [
-        ex
-        for ex in workout.exercises
-        if not day_label or ex.day_label == day_label
+        ex for ex in workout.exercises if not day_label or ex.day_label == day_label
     ]
     if not exercises:
         msg = "⚠️ Nessun esercizio trovato per questo giorno."
@@ -189,7 +187,7 @@ async def _ask_current_set(
     msg += "Se a corpo libero inserisci `0 rip` (es: `0 15`)."
 
     # Send a new message so the user's input flows naturally
-    chat_id = update.effective_chat.id if update.effective_chat else update.effective_user.id # type: ignore
+    chat_id = update.effective_chat.id if update.effective_chat else update.effective_user.id  # type: ignore
     await context.bot.send_message(
         chat_id=chat_id,
         text=msg,
@@ -207,7 +205,7 @@ async def handle_set_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     text = update.message.text.strip().lower()
     parts = text.split()
-    
+
     if len(parts) != 2:
         await update.message.reply_text(
             "⚠️ Formato non valido. Usa il formato `kg rip` (es: `60 10`).",
@@ -264,8 +262,10 @@ async def handle_live_set_action(
         async with get_session_factory()() as db_session:
             await complete_workout_session(db_session, session_id, status="abandoned")
             await db_session.commit()
-            
-        await query.edit_message_text("❌ Allenamento interrotto e salvato parzialmente.")
+
+        await query.edit_message_text(
+            "❌ Allenamento interrotto e salvato parzialmente."
+        )
         context.user_data.pop("live_session_id", None)
         return ConversationHandler.END
 
@@ -291,7 +291,7 @@ async def handle_live_set_action(
 
         # Remove the keyboard from the previous prompt
         await query.edit_message_reply_markup(reply_markup=None)
-        
+
         # Advance state
         _advance_indexes(context)
         return await _ask_current_set(update, context)
@@ -305,7 +305,7 @@ def _advance_indexes(context: ContextTypes.DEFAULT_TYPE) -> None:
     exercises: list[WorkoutExercise] = context.user_data["live_exercises"]
     ex_index: int = context.user_data["live_ex_index"]
     set_num: int = context.user_data["live_set_number"]
-    
+
     if ex_index >= len(exercises):
         return
 
@@ -324,7 +324,7 @@ async def _advance_state_and_rest(
     assert context.user_data is not None
     exercises: list[WorkoutExercise] = context.user_data["live_exercises"]
     ex_index: int = context.user_data["live_ex_index"]
-    
+
     current_ex = exercises[ex_index]
     assert current_ex.exercise is not None
 
@@ -348,7 +348,7 @@ async def _finish_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         ws = await complete_workout_session(db_session, session_id, status="completed")
         assert ws is not None
         logs = await get_session_logs(db_session, session_id)
-        
+
         # Calculate duration
         duration = ws.completed_at - ws.started_at if ws.completed_at else None
         duration_str = ""
@@ -379,10 +379,12 @@ async def _finish_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 summary += f"  Serie {log.set_number}: ⏭️ Saltata\n"
             else:
                 weight_str = f"{log.weight_kg:g}" if log.weight_kg is not None else "0"
-                summary += f"  Serie {log.set_number}: {weight_str}kg × {log.reps_done}\n"
+                summary += (
+                    f"  Serie {log.set_number}: {weight_str}kg × {log.reps_done}\n"
+                )
 
     # Send final summary
-    chat_id = update.effective_chat.id if update.effective_chat else update.effective_user.id # type: ignore
+    chat_id = update.effective_chat.id if update.effective_chat else update.effective_user.id  # type: ignore
     await context.bot.send_message(
         chat_id=chat_id,
         text=summary,
@@ -393,7 +395,7 @@ async def _finish_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     # Clean up
     context.user_data.pop("live_session_id", None)
     context.user_data.pop("live_exercises", None)
-    
+
     return ConversationHandler.END
 
 
@@ -402,7 +404,7 @@ async def cancel_live_workout(
 ) -> int:
     """Handle /cancel during a live workout."""
     assert update.message is not None
-    
+
     assert context.user_data is not None
     session_id = context.user_data.get("live_session_id")
     if session_id:
