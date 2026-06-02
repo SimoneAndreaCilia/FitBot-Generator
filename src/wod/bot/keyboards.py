@@ -1,8 +1,117 @@
-"""Inline keyboard builders for the Telegram Bot."""
+"""Keyboard builders for the Telegram Bot.
+
+Includes both InlineKeyboardMarkup (buttons attached to messages) and
+ReplyKeyboardMarkup (persistent buttons below the message bar).
+"""
 
 from __future__ import annotations
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+)
+
+# ---------------------------------------------------------------------------
+# Menu button text constants (used for matching in handlers)
+# ---------------------------------------------------------------------------
+
+BTN_CREA_SCHEDA = "🏋️Nuova scheda"
+BTN_ALTRO = "Altro"
+BTN_PROFILO = "👤 Profilo"
+BTN_STORICO = "📜 Storico"
+BTN_PREFERITI = "⭐ Preferiti"
+BTN_WOD = "🔥 WOD del giorno"
+
+
+# ---------------------------------------------------------------------------
+# Reply keyboards (persistent buttons below the message bar)
+# ---------------------------------------------------------------------------
+
+
+def main_menu_keyboard() -> ReplyKeyboardMarkup:
+    """Build the compact 3-button main menu (always visible)."""
+    buttons = [
+        [
+            KeyboardButton(BTN_CREA_SCHEDA),
+            KeyboardButton(BTN_ALTRO),
+            KeyboardButton(BTN_PROFILO),
+        ],
+    ]
+    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+
+
+def expanded_menu_keyboard() -> ReplyKeyboardMarkup:
+    """Build the expanded 5-button menu shown after pressing 'Altro'."""
+    buttons = [
+        [
+            KeyboardButton(BTN_CREA_SCHEDA),
+            KeyboardButton(BTN_STORICO),
+            KeyboardButton(BTN_PREFERITI),
+        ],
+        [
+            KeyboardButton(BTN_PROFILO),
+            KeyboardButton(BTN_WOD),
+        ],
+    ]
+    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+
+
+# ---------------------------------------------------------------------------
+# "Creati una scheda" choice keyboard
+# ---------------------------------------------------------------------------
+
+
+def crea_scheda_choice_keyboard() -> InlineKeyboardMarkup:
+    """Build a keyboard to choose between existing profile or new onboarding."""
+    buttons = [
+        [
+            InlineKeyboardButton(
+                "📋 Usa profilo esistente", callback_data="crea:existing"
+            )
+        ],
+        [InlineKeyboardButton("🆕 Crea nuovo profilo", callback_data="crea:new")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+# ---------------------------------------------------------------------------
+# WOD day navigation keyboard
+# ---------------------------------------------------------------------------
+
+
+def wod_day_navigation_keyboard(
+    day_index: int, total_days: int
+) -> InlineKeyboardMarkup:
+    """Build navigation buttons for browsing workout days.
+
+    Args:
+        day_index: Current day index (0-based).
+        total_days: Total number of training days.
+    """
+    buttons = []
+    nav_row = []
+
+    if day_index > 0:
+        nav_row.append(
+            InlineKeyboardButton("◀️ Indietro", callback_data=f"wodday:{day_index - 1}")
+        )
+
+    nav_row.append(
+        InlineKeyboardButton(
+            f"📅 {day_index + 1}/{total_days}", callback_data="wodday:noop"
+        )
+    )
+
+    if day_index < total_days - 1:
+        nav_row.append(
+            InlineKeyboardButton("Avanti ▶️", callback_data=f"wodday:{day_index + 1}")
+        )
+
+    buttons.append(nav_row)
+    return InlineKeyboardMarkup(buttons)
+
 
 # ---------------------------------------------------------------------------
 # Onboarding keyboards

@@ -1,6 +1,10 @@
-"""Onboarding handler — /start conversation flow.
+"""Onboarding handler — /start greeting and profile creation flow.
 
-Guides a new user through:
+``/start`` greets the user by name and shows the main menu.
+The onboarding profile creation flow is triggered separately
+via the "Creati una scheda" → "Crea nuovo profilo" menu path.
+
+Onboarding steps:
 1. Name input (free text)
 2. Height input (cm)
 3. Weight input (kg)
@@ -36,6 +40,7 @@ from wod.bot.keyboards import (
     equipment_keyboard,
     experience_keyboard,
     frequency_keyboard,
+    main_menu_keyboard,
     split_keyboard,
 )
 from wod.bot.utils import handle_equipment_toggle
@@ -67,12 +72,12 @@ logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
-# Step 0 — /start entry point
+# /start command — greeting + menu (NOT part of ConversationHandler)
 # ---------------------------------------------------------------------------
 
 
-async def start_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Entry point: /start — greet and ask for the user's name."""
+async def start_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /start — greet user by Telegram name and show the main menu."""
     assert update.effective_user is not None
     assert update.message is not None
 
@@ -88,10 +93,39 @@ async def start_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> 
         )
         await session.commit()
 
+    first_name = update.effective_user.first_name or "atleta"
+
     await update.message.reply_text(
-        "🏋️ *Benvenuto nel WOD Bot!*\n\n"
-        "Configuriamo il tuo profilo di allenamento.\n\n"
-        "Come ti chiami?",
+        f"Ciao {first_name}! 👋\n\n"
+        "Sono *FitBot* 🏋️, il tuo assistente personale di allenamento!\n\n"
+        "Ecco cosa posso fare per te:\n"
+        "• 🏋️ *Nuova scheda* — crea la tua scheda personalizzata\n"
+        "• 👤 *Profilo* — visualizza e modifica il tuo profilo\n"
+        "• 🔥 *WOD del giorno* — consulta il tuo allenamento quotidiano\n"
+        "• 📜 *Storico* — rivedi le schede passate\n"
+        "• ⭐ *Preferiti* — accedi alle schede salvate\n\n"
+        "Usa i pulsanti qui sotto per iniziare! 👇",
+        parse_mode="Markdown",
+        reply_markup=main_menu_keyboard(),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Onboarding entry point (triggered via menu, not /start)
+# ---------------------------------------------------------------------------
+
+
+async def begin_onboarding(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Begin the onboarding flow — ask for the user's name.
+
+    Triggered by the 'crea:new' callback from the menu choice keyboard.
+    """
+    query = update.callback_query
+    assert query is not None
+    await query.answer()
+
+    await query.edit_message_text(
+        "🏋️ *Configuriamo il tuo profilo di allenamento!*\n\nCome ti chiami?",
         parse_mode="Markdown",
     )
     return NAME
@@ -431,11 +465,19 @@ async def _finalize_onboarding(
         f"• Frequenza: {freq} giorni/settimana\n"
         f"• Split: {split_label}\n"
         f"• Attrezzatura: {eq_count} elementi\n\n"
-        "Usa /wod per generare il tuo allenamento del giorno!\n"
-        "Usa /profilo per visualizzare il tuo profilo.\n"
-        "Usa /history per vedere le schede passate.",
+        "Usa i pulsanti del menu per continuare! 👇",
         parse_mode="Markdown",
     )
+
+    # Re-show the main menu keyboard
+    assert query.message is not None
+    from telegram import Message  # pylint: disable=import-outside-toplevel
+
+    if isinstance(query.message, Message):
+        await query.message.reply_text(
+            "📋 Menu principale:",
+            reply_markup=main_menu_keyboard(),
+        )
     return ConversationHandler.END
 
 
@@ -458,10 +500,20 @@ async def cancel_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) ->
 # ---------------------------------------------------------------------------
 
 
+def build_start_handler() -> CommandHandler:
+    """Build the /start command handler (greeting + menu)."""
+    return CommandHandler("start", start_command)
+
+
 def build_onboarding_handler() -> ConversationHandler[ContextTypes.DEFAULT_TYPE]:
-    """Build and return the ConversationHandler for onboarding."""
+    """Build and return the ConversationHandler for onboarding.
+
+    Entry point is the ``crea:new`` callback from the menu choice keyboard.
+    """
     return ConversationHandler(
-        entry_points=[CommandHandler("start", start_command)],
+        entry_points=[
+            CallbackQueryHandler(begin_onboarding, pattern=r"^crea:new$"),
+        ],
         states={
             NAME: [
                 MessageHandler(
