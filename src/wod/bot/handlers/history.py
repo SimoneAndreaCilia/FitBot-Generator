@@ -198,11 +198,12 @@ async def download_summary_callback(
     session_id = int(query.data.split(":")[1])
 
     async with get_session_factory()() as db_session:
-        from wod.db.repositories import get_session_logs
-        from wod.db.models import WorkoutSession
         from sqlalchemy import select
+
         from wod.core.intensity import calculate_intensity
         from wod.core.types import EffortType
+        from wod.db.models import WorkoutSession
+        from wod.db.repositories import get_session_logs
 
         # Get the session
         stmt = select(WorkoutSession).where(WorkoutSession.id == session_id)
