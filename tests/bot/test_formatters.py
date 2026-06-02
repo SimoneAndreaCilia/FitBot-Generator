@@ -7,6 +7,10 @@ import datetime
 from wod.bot.formatters import (
     FormattedExercise,
     FormattedWorkout,
+    SessionLogRow,
+    SessionSummary,
+    UserProfile,
+    session_summary_to_pdf,
     workout_to_pdf,
     workout_to_text,
 )
@@ -95,4 +99,43 @@ class TestWorkoutToPdf:
             exercises=[],
         )
         pdf = workout_to_pdf(workout)
+        assert pdf[:5] == b"%PDF-"
+
+    def test_with_user_profile(self) -> None:
+        workout = _make_workout()
+        workout.user_profile = UserProfile(
+            name="John", height_cm=180, weight_kg=80, body_type="Ectomorph", equipment=["Dumbbell"]
+        )
+        pdf = workout_to_pdf(workout)
+        assert b"%PDF-" in pdf
+
+class TestSessionSummaryToPdf:
+    def test_returns_bytes(self) -> None:
+        summary = SessionSummary(
+            title="My Workout",
+            date=datetime.datetime.now(tz=datetime.timezone.utc),
+            user_profile=UserProfile(name="Alice"),
+            rows=[
+                SessionLogRow(
+                    order=1,
+                    exercise_name="Squat",
+                    set_number=1,
+                    kg="60.5",
+                    reps="10",
+                    rest="90s",
+                    intensity="8 RPE"
+                )
+            ]
+        )
+        pdf = session_summary_to_pdf(summary)
+        assert isinstance(pdf, bytes)
+        assert pdf[:5] == b"%PDF-"
+
+    def test_empty_rows(self) -> None:
+        summary = SessionSummary(
+            title="Empty Workout",
+            date=datetime.datetime.now(tz=datetime.timezone.utc),
+            rows=[]
+        )
+        pdf = session_summary_to_pdf(summary)
         assert pdf[:5] == b"%PDF-"
