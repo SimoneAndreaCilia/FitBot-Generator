@@ -88,6 +88,22 @@ class TestWorkoutToPdf:
         pdf = workout_to_pdf(_make_workout())
         assert pdf[:5] == b"%PDF-"
 
+    def test_workout_to_pdf_multiple_days(self) -> None:
+        workout = _make_workout()
+        from wod.bot.formatters import FormattedExercise
+        workout.exercises.append(
+            FormattedExercise(
+                order=2,
+                name="Squat",
+                sets=3,
+                reps=10,
+                day_label="Day 2",
+            )
+        )
+        pdf = workout_to_pdf(workout)
+        assert isinstance(pdf, bytes)
+        assert pdf[:5] == b"%PDF-"
+
     def test_pdf_not_empty(self) -> None:
         pdf = workout_to_pdf(_make_workout())
         assert len(pdf) > 100
@@ -123,7 +139,18 @@ class TestSessionSummaryToPdf:
                     kg="60.5",
                     reps="10",
                     rest="90s",
-                    intensity="8 RPE"
+                    intensity="8 RPE",
+                    skipped=False
+                ),
+                SessionLogRow(
+                    order=2,
+                    exercise_name="Bench Press",
+                    set_number=2,
+                    kg="0",
+                    reps="0",
+                    rest="90s",
+                    intensity="",
+                    skipped=True
                 )
             ]
         )
