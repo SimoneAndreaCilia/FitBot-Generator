@@ -370,12 +370,12 @@ def rest_timer_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-def end_workout_keyboard(workout_id: int) -> InlineKeyboardMarkup:
+def end_workout_keyboard(session_id: int) -> InlineKeyboardMarkup:
     """Keyboard shown when a workout is completed."""
     buttons = [
         [
             InlineKeyboardButton(
-                "📕 Scarica riepilogo PDF", callback_data=f"dl_pdf:{workout_id}"
+                "📕 Scarica riepilogo PDF", callback_data=f"dl_sum:{session_id}"
             )
         ],
     ]

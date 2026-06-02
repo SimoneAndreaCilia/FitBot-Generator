@@ -33,6 +33,7 @@ class FormattedExercise:
     intensity: str = ""
     notes: Optional[str] = None
     day_label: Optional[str] = None
+    actual_data: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -47,6 +48,30 @@ class UserProfile:
     training_frequency: Optional[int] = None
     preferred_split: Optional[str] = None
     equipment: list[str] = field(default_factory=list)
+
+
+@dataclass
+class SessionLogRow:
+    """Data needed to render a single performed set in the summary PDF."""
+
+    order: int
+    exercise_name: str
+    set_number: int
+    kg: str
+    reps: str
+    rest: str
+    intensity: str
+    skipped: bool
+
+
+@dataclass
+class SessionSummary:
+    """Data needed to render a complete session summary PDF."""
+
+    title: str
+    date: datetime.datetime
+    rows: list[SessionLogRow]
+    user_profile: Optional[UserProfile] = None
 
 
 @dataclass
@@ -248,7 +273,23 @@ def _build_session_table(
     # Table header + data rows
     header = ["#", "Esercizio", "Serie", "Reps", "Intensità", "Note"]
     table_data: list[list[str]] = [header]
+    note_style = ParagraphStyle(
+        "NoteStyle",
+        parent=styles["Normal"],
+        fontSize=8,
+        leading=10,
+        textColor=_TEXT_DARK,
+    )
+
     for ex in exercises:
+        notes_text = ex.notes or ""
+        if ex.actual_data:
+            if notes_text:
+                notes_text += "<br/><br/>"
+            notes_text += "<b>Dati reali:</b><br/>" + "<br/>".join(ex.actual_data)
+            
+        notes_element = Paragraph(notes_text, note_style) if notes_text else ""
+
         table_data.append(
             [
                 str(ex.order),
@@ -256,7 +297,7 @@ def _build_session_table(
                 str(ex.sets),
                 ex.reps,
                 ex.intensity or "",
-                ex.notes or "",
+                notes_element,
             ]
         )
 
@@ -383,6 +424,167 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
             )
 
     # ── Footer ──────────────────────────────────────────────────
+    elements.append(Spacer(1, 20))
+    elements.append(
+        HRFlowable(
+            width="100%",
+            thickness=0.5,
+            color=colors.HexColor("#dddddd"),
+            spaceBefore=0,
+            spaceAfter=6,
+        )
+    )
+    elements.append(
+        Paragraph(
+            "Generato con WOD Bot — Il tuo personal trainer digitale 💪",
+            footer_style,
+        )
+    )
+
+    doc.build(elements)
+    return buffer.getvalue()
+
+
+def _build_session_log_table(
+    rows: list[SessionLogRow],
+    styles: Any,
+) -> list[Any]:
+    """Build PDF elements for a performed session log table."""
+    elements: list[Any] = []
+    page_width = A4[0] - 4 * cm
+
+    header = ["Esercizio", "Serie", "Kg", "Ripetizioni", "Recupero", "Intensità (CT)"]
+    table_data: list[list[str]] = [header]
+
+    for row in rows:
+        if row.skipped:
+            table_data.append([
+                row.exercise_name,
+                str(row.set_number),
+                "-",
+                "Saltata",
+                "-",
+                "-",
+            ])
+        else:
+            table_data.append([
+                row.exercise_name,
+                str(row.set_number),
+                row.kg,
+                row.reps,
+                row.rest,
+                row.intensity,
+            ])
+
+    col_widths = [
+        6.0 * cm,   # Esercizio
+        1.5 * cm,   # Serie
+        1.5 * cm,   # Kg
+        2.5 * cm,   # Ripetizioni
+        2.5 * cm,   # Recupero
+        page_width - 14.0 * cm,  # Intensità
+    ]
+
+    table = Table(table_data, colWidths=col_widths)
+    style_commands: list[tuple[Any, ...]] = [
+        # Header row
+        ("BACKGROUND", (0, 0), (-1, 0), _DARK_NAVY),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 9),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+        ("TOPPADDING", (0, 0), (-1, 0), 8),
+        # Data rows
+        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+        ("FONTSIZE", (0, 1), (-1, -1), 9),
+        ("TOPPADDING", (0, 1), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 1), (-1, -1), 5),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        # Alternating row colours
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, _ALT_ROW]),
+        # Grid & alignment
+        ("GRID", (0, 0), (-1, -1), 0.4, _BORDER),
+        ("ALIGN", (1, 0), (-1, -1), "CENTER"),  # Center align data cols
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    ]
+
+    table.setStyle(TableStyle(style_commands))
+    elements.append(table)
+    elements.append(Spacer(1, 10))
+    return elements
+
+
+def session_summary_to_pdf(summary: SessionSummary) -> bytes:
+    """Generate a PDF document from a SessionSummary.
+
+    Args:
+        summary: The structured data representing a completed workout session.
+
+    Returns:
+        The generated PDF as a byte string.
+    """
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=2 * cm,
+        leftMargin=2 * cm,
+        topMargin=2 * cm,
+        bottomMargin=2 * cm,
+    )
+
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        "WorkoutTitle",
+        parent=styles["Heading1"],
+        fontSize=20,
+        textColor=_DARK_NAVY,
+        spaceAfter=6,
+    )
+    subtitle_style = ParagraphStyle(
+        "WorkoutSubtitle",
+        parent=styles["Normal"],
+        fontSize=11,
+        textColor=_TEXT_MUTED,
+        spaceAfter=6,
+    )
+    footer_style = ParagraphStyle(
+        "FooterNote",
+        parent=styles["Normal"],
+        fontSize=8,
+        textColor=colors.HexColor("#999999"),
+        alignment=1,  # center
+    )
+
+    elements: list[Any] = []
+
+    # Title & date
+    elements.append(Paragraph(summary.title, title_style))
+    date_str = summary.date.strftime("%d/%m/%Y — %H:%M")
+    elements.append(Paragraph(f"📅 Riepilogo Sessione — {date_str}", subtitle_style))
+    elements.append(
+        HRFlowable(
+            width="100%",
+            thickness=1,
+            color=_BORDER,
+            spaceBefore=4,
+            spaceAfter=12,
+        )
+    )
+
+    # User profile
+    if summary.user_profile is not None:
+        elements.extend(_build_profile_section(summary.user_profile, styles))
+
+    # The log table
+    if summary.rows:
+        elements.extend(_build_session_log_table(summary.rows, styles))
+    else:
+        elements.append(Paragraph("Nessun dato registrato per questa sessione.", subtitle_style))
+
+    # Footer
     elements.append(Spacer(1, 20))
     elements.append(
         HRFlowable(

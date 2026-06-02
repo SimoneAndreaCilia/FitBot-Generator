@@ -376,7 +376,7 @@ async def _finish_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         chat_id=chat_id,
         text=summary,
         parse_mode="Markdown",
-        reply_markup=end_workout_keyboard(workout_id),
+        reply_markup=end_workout_keyboard(session_id),
     )
 
     # Clean up

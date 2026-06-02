@@ -15,6 +15,7 @@ from wod.bot.handlers.favorites import (
 )
 from wod.bot.handlers.history import (
     build_download_pdf_handler,
+    build_download_summary_handler,
     build_download_txt_handler,
     build_history_handler,
     build_view_callback_handler,
@@ -154,6 +155,7 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     app.add_handler(build_wod_navigation_handler())
     app.add_handler(build_view_callback_handler())
     app.add_handler(build_download_pdf_handler())
+    app.add_handler(build_download_summary_handler())
     app.add_handler(build_download_txt_handler())
     app.add_handler(build_favorite_callback_handler())
 

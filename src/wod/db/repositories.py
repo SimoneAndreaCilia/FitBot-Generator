@@ -343,3 +343,21 @@ async def get_session_logs(
     )
     result = await session.execute(stmt)
     return result.scalars().all()
+
+
+async def get_latest_completed_session(
+    session: AsyncSession,
+    workout_id: int,
+) -> Optional[WorkoutSession]:
+    """Return the most recently completed session for a workout."""
+    stmt = (
+        select(WorkoutSession)
+        .where(
+            WorkoutSession.workout_id == workout_id,
+            WorkoutSession.status.in_(["completed", "abandoned"])
+        )
+        .order_by(WorkoutSession.completed_at.desc())
+        .limit(1)
+    )
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
