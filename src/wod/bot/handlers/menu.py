@@ -294,6 +294,7 @@ async def handle_wod_navigation(
     text = _format_day_text(days[day_index], day_index, len(days))
 
     workout_id = context.user_data.get("wod_workout_id")
+    assert isinstance(workout_id, int)
     # Edit the existing message (replaces content in-place, keeping it clean)
     await query.edit_message_text(
         text,

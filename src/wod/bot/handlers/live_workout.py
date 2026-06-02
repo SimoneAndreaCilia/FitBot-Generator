@@ -374,7 +374,8 @@ async def _finish_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         current_ex_id = -1
         for log in logs:
             if log.workout_exercise_id != current_ex_id:
-                summary += f"\n🏋️ *{log.workout_exercise.exercise.name}*\n"
+                if log.workout_exercise and log.workout_exercise.exercise:
+                    summary += f"\n🏋️ *{log.workout_exercise.exercise.name}*\n"
                 current_ex_id = log.workout_exercise_id
 
             if log.skipped:
