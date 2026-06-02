@@ -286,6 +286,12 @@ def workout_actions_keyboard(
     """Actions available for a generated workout."""
     fav_text = "💔 Rimuovi dai preferiti" if is_favorite else "⭐ Aggiungi ai preferiti"
     buttons = [
+        [
+            InlineKeyboardButton(
+                "▶️ Inizia Allenamento",
+                callback_data=f"startw:{workout_id}",
+            )
+        ],
         [InlineKeyboardButton(fav_text, callback_data=f"fav:{workout_id}")],
         [
             InlineKeyboardButton(
@@ -317,4 +323,49 @@ def history_keyboard(
         if len(label) > 64:
             label = label[:61] + "..."
         buttons.append([InlineKeyboardButton(label, callback_data=f"view:{wid}")])
+    return InlineKeyboardMarkup(buttons)
+
+
+# ---------------------------------------------------------------------------
+# Live workout session keyboards
+# ---------------------------------------------------------------------------
+
+
+def select_day_keyboard(days: list[str]) -> InlineKeyboardMarkup:
+    """Keyboard to select which day to train."""
+    buttons = []
+    for day in days:
+        buttons.append(
+            [InlineKeyboardButton(f"📅 {day}", callback_data=f"selday:{day}")]
+        )
+    buttons.append([InlineKeyboardButton("❌ Annulla", callback_data="selday:cancel")])
+    return InlineKeyboardMarkup(buttons)
+
+
+def live_set_keyboard() -> InlineKeyboardMarkup:
+    """Keyboard shown during a live set to allow skipping or aborting."""
+    buttons = [
+        [InlineKeyboardButton("⏭️ Salta serie", callback_data="liveset:skip")],
+        [InlineKeyboardButton("❌ Abbandona Allenamento", callback_data="liveset:abort")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def rest_timer_keyboard() -> InlineKeyboardMarkup:
+    """Keyboard shown during rest timer."""
+    buttons = [
+        [InlineKeyboardButton("⏩ Salta recupero", callback_data="liverest:skip")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def end_workout_keyboard(workout_id: int) -> InlineKeyboardMarkup:
+    """Keyboard shown when a workout is completed."""
+    buttons = [
+        [
+            InlineKeyboardButton(
+                "📕 Scarica riepilogo PDF", callback_data=f"dl_pdf:{workout_id}"
+            )
+        ],
+    ]
     return InlineKeyboardMarkup(buttons)

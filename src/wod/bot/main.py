@@ -19,6 +19,7 @@ from wod.bot.handlers.history import (
     build_history_handler,
     build_view_callback_handler,
 )
+from wod.bot.handlers.live_workout import build_live_workout_handler
 from wod.bot.handlers.menu import (
     build_crea_scheda_existing_handler,
     build_menu_handlers,
@@ -73,6 +74,12 @@ async def initialize_database(
     application: Application[Any, Any, Any, Any, Any, Any],
 ) -> None:
     """Initialize and seed database if it is empty."""
+    from wod.db.models import Base
+    from wod.db.session import get_engine
+    
+    async with get_engine().begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+        
     await _ensure_user_profile_columns()
     await auto_seed_if_empty()
 
@@ -128,6 +135,7 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     app.add_handler(build_start_handler())
 
     # Conversation handlers (must be added first — they consume updates)
+    app.add_handler(build_live_workout_handler())
     app.add_handler(build_onboarding_handler())
     app.add_handler(build_edit_profile_handler())
 
