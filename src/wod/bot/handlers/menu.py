@@ -260,7 +260,7 @@ async def handle_wod_giorno(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     await update.message.reply_text(
         text,
         parse_mode="Markdown",
-        reply_markup=wod_day_navigation_keyboard(0, len(days)),
+        reply_markup=wod_day_navigation_keyboard(0, len(days), workout.id),
     )
 
 
@@ -293,11 +293,12 @@ async def handle_wod_navigation(
 
     text = _format_day_text(days[day_index], day_index, len(days))
 
+    workout_id = context.user_data.get("wod_workout_id")
     # Edit the existing message (replaces content in-place, keeping it clean)
     await query.edit_message_text(
         text,
         parse_mode="Markdown",
-        reply_markup=wod_day_navigation_keyboard(day_index, len(days)),
+        reply_markup=wod_day_navigation_keyboard(day_index, len(days), workout_id),
     )
 
 

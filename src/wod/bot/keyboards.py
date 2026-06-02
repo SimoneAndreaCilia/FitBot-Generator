@@ -82,7 +82,7 @@ def crea_scheda_choice_keyboard() -> InlineKeyboardMarkup:
 
 
 def wod_day_navigation_keyboard(
-    day_index: int, total_days: int
+    day_index: int, total_days: int, workout_id: int
 ) -> InlineKeyboardMarkup:
     """Build navigation buttons for browsing workout days.
 
@@ -109,7 +109,18 @@ def wod_day_navigation_keyboard(
             InlineKeyboardButton("Avanti ▶️", callback_data=f"wodday:{day_index + 1}")
         )
 
-    buttons.append(nav_row)
+    buttons.append(
+        [
+            InlineKeyboardButton(
+                "▶️ Inizia Allenamento",
+                callback_data=f"startw:{workout_id}",
+            )
+        ]
+    )
+
+    if len(nav_row) > 1:
+        buttons.append(nav_row)
+
     return InlineKeyboardMarkup(buttons)
 
 
