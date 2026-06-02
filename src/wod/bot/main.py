@@ -15,10 +15,12 @@ from wod.bot.handlers.favorites import (
 )
 from wod.bot.handlers.history import (
     build_download_pdf_handler,
+    build_download_summary_handler,
     build_download_txt_handler,
     build_history_handler,
     build_view_callback_handler,
 )
+from wod.bot.handlers.live_workout import build_live_workout_handler
 from wod.bot.handlers.menu import (
     build_crea_scheda_existing_handler,
     build_menu_handlers,
@@ -31,7 +33,9 @@ from wod.bot.handlers.profile import (
 )
 from wod.bot.handlers.wod import build_wod_handler
 from wod.config import get_settings
+from wod.db.models import Base
 from wod.db.seeding import auto_seed_if_empty
+from wod.db.session import get_engine
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -46,8 +50,6 @@ async def _ensure_user_profile_columns() -> None:
     ``create_all()`` won't alter existing tables, so we manually
     check for and add missing columns for SQLite backwards-compatibility.
     """
-    from wod.db.session import get_engine  # pylint: disable=import-outside-toplevel
-
     new_columns = {
         "name": "VARCHAR(128)",
         "height_cm": "FLOAT",
@@ -73,6 +75,9 @@ async def initialize_database(
     application: Application[Any, Any, Any, Any, Any, Any],
 ) -> None:
     """Initialize and seed database if it is empty."""
+    async with get_engine().begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     await _ensure_user_profile_columns()
     await auto_seed_if_empty()
 
@@ -128,6 +133,7 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     app.add_handler(build_start_handler())
 
     # Conversation handlers (must be added first — they consume updates)
+    app.add_handler(build_live_workout_handler())
     app.add_handler(build_onboarding_handler())
     app.add_handler(build_edit_profile_handler())
 
@@ -146,6 +152,7 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     app.add_handler(build_wod_navigation_handler())
     app.add_handler(build_view_callback_handler())
     app.add_handler(build_download_pdf_handler())
+    app.add_handler(build_download_summary_handler())
     app.add_handler(build_download_txt_handler())
     app.add_handler(build_favorite_callback_handler())
 

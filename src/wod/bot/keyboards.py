@@ -82,7 +82,7 @@ def crea_scheda_choice_keyboard() -> InlineKeyboardMarkup:
 
 
 def wod_day_navigation_keyboard(
-    day_index: int, total_days: int
+    day_index: int, total_days: int, workout_id: int
 ) -> InlineKeyboardMarkup:
     """Build navigation buttons for browsing workout days.
 
@@ -109,7 +109,18 @@ def wod_day_navigation_keyboard(
             InlineKeyboardButton("Avanti ▶️", callback_data=f"wodday:{day_index + 1}")
         )
 
-    buttons.append(nav_row)
+    buttons.append(
+        [
+            InlineKeyboardButton(
+                "▶️ Inizia Allenamento",
+                callback_data=f"startw:{workout_id}:{day_index}",
+            )
+        ]
+    )
+
+    if len(nav_row) > 1:
+        buttons.append(nav_row)
+
     return InlineKeyboardMarkup(buttons)
 
 
@@ -317,4 +328,53 @@ def history_keyboard(
         if len(label) > 64:
             label = label[:61] + "..."
         buttons.append([InlineKeyboardButton(label, callback_data=f"view:{wid}")])
+    return InlineKeyboardMarkup(buttons)
+
+
+# ---------------------------------------------------------------------------
+# Live workout session keyboards
+# ---------------------------------------------------------------------------
+
+
+def select_day_keyboard(days: list[str]) -> InlineKeyboardMarkup:
+    """Keyboard to select which day to train."""
+    buttons = []
+    for day in days:
+        buttons.append(
+            [InlineKeyboardButton(f"📅 {day}", callback_data=f"selday:{day}")]
+        )
+    buttons.append([InlineKeyboardButton("❌ Annulla", callback_data="selday:cancel")])
+    return InlineKeyboardMarkup(buttons)
+
+
+def live_set_keyboard() -> InlineKeyboardMarkup:
+    """Keyboard shown during a live set to allow skipping or aborting."""
+    buttons = [
+        [InlineKeyboardButton("⏭️ Salta serie", callback_data="liveset:skip")],
+        [
+            InlineKeyboardButton(
+                "❌ Abbandona Allenamento", callback_data="liveset:abort"
+            )
+        ],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def rest_timer_keyboard() -> InlineKeyboardMarkup:
+    """Keyboard shown during rest timer."""
+    buttons = [
+        [InlineKeyboardButton("⏩ Salta recupero", callback_data="liverest:skip")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def end_workout_keyboard(session_id: int) -> InlineKeyboardMarkup:
+    """Keyboard shown when a workout is completed."""
+    buttons = [
+        [
+            InlineKeyboardButton(
+                "📕 Scarica riepilogo PDF", callback_data=f"dl_sum:{session_id}"
+            )
+        ],
+    ]
     return InlineKeyboardMarkup(buttons)

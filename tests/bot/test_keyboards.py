@@ -112,6 +112,7 @@ class TestEquipmentKeyboard:
 class TestWorkoutActionsKeyboard:
     def test_favorite_button_add(self) -> None:
         kb = workout_actions_keyboard(1, is_favorite=False)
+        # Row 0: Favorite
         fav_btn = kb.inline_keyboard[0][0]
         assert "preferiti" in fav_btn.text.lower()
         assert fav_btn.callback_data == "fav:1"
@@ -123,6 +124,7 @@ class TestWorkoutActionsKeyboard:
 
     def test_download_buttons(self) -> None:
         kb = workout_actions_keyboard(42, is_favorite=False)
+        # Row 1: Downloads
         download_row = kb.inline_keyboard[1]
         assert len(download_row) == 2
         assert download_row[0].callback_data == "dl_pdf:42"

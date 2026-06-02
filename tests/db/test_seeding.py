@@ -29,6 +29,13 @@ class TestSeeding:
         assert path.exists()
         assert path.name == "seed_exercises.json"
 
+    def test_locate_seed_file_not_found(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        from pathlib import Path
+
+        monkeypatch.setattr(Path, "exists", lambda self: False)
+        with pytest.raises(FileNotFoundError):
+            locate_seed_file()
+
     @pytest.mark.asyncio
     async def test_seed_database(self) -> None:
         """Verify that seed_database creates tables and populates data."""
@@ -42,6 +49,16 @@ class TestSeeding:
             ex_res = await session.execute(select(Exercise))
             exs = ex_res.scalars().all()
             assert len(exs) > 0
+
+    @pytest.mark.asyncio
+    async def test_seed_database_file_not_found(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from pathlib import Path
+
+        monkeypatch.setattr(Path, "exists", lambda self: False)
+        # Should catch the error and return silently
+        await seed_database()
 
     @pytest.mark.asyncio
     async def test_auto_seed_if_empty(self) -> None:

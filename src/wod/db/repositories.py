@@ -7,6 +7,7 @@ from typing import Any, Optional, Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.sql import func
 
 from wod.core.types import BodyType, ExperienceLevel, SplitType
 from wod.db.models import (
@@ -14,9 +15,11 @@ from wod.db.models import (
     Exercise,
     FavoriteWorkout,
     GeneratedWorkout,
+    SetLog,
     User,
     UserEquipment,
     WorkoutExercise,
+    WorkoutSession,
 )
 
 # ---------------------------------------------------------------------------
@@ -265,3 +268,96 @@ async def get_user_favorites(
     )
     result = await session.execute(stmt)
     return result.scalars().all()
+
+
+# ---------------------------------------------------------------------------
+# Live workout session repository
+# ---------------------------------------------------------------------------
+
+
+async def create_workout_session(
+    session: AsyncSession,
+    user_id: int,
+    workout_id: int,
+) -> WorkoutSession:
+    """Create a new live workout session."""
+    ws = WorkoutSession(
+        user_id=user_id,
+        workout_id=workout_id,
+        status="in_progress",
+    )
+    session.add(ws)
+    await session.flush()
+    return ws
+
+
+async def complete_workout_session(
+    session: AsyncSession,
+    session_id: int,
+    status: str = "completed",
+) -> Optional[WorkoutSession]:
+    """Mark a workout session as completed or abandoned."""
+    stmt = select(WorkoutSession).where(WorkoutSession.id == session_id)
+    result = await session.execute(stmt)
+    ws = result.scalar_one_or_none()
+    if ws:
+        ws.status = status
+        ws.completed_at = func.now()  # pylint: disable=not-callable
+        await session.flush()
+    return ws
+
+
+async def log_set(
+    session: AsyncSession,
+    session_id: int,
+    workout_exercise_id: int,
+    set_number: int,
+    weight_kg: Optional[float] = None,
+    reps_done: Optional[int] = None,
+    skipped: bool = False,
+) -> SetLog:
+    """Log a single set for a workout session."""
+    log = SetLog(
+        session_id=session_id,
+        workout_exercise_id=workout_exercise_id,
+        set_number=set_number,
+        weight_kg=weight_kg,
+        reps_done=reps_done,
+        skipped=skipped,
+    )
+    session.add(log)
+    await session.flush()
+    return log
+
+
+async def get_session_logs(
+    session: AsyncSession,
+    session_id: int,
+) -> Sequence[SetLog]:
+    """Return all set logs for a session, ordered by time."""
+    stmt = (
+        select(SetLog)
+        .options(selectinload(SetLog.workout_exercise))
+        .where(SetLog.session_id == session_id)
+        .order_by(SetLog.logged_at)
+    )
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+
+async def get_latest_completed_session(
+    session: AsyncSession,
+    workout_id: int,
+) -> Optional[WorkoutSession]:
+    """Return the most recently completed session for a workout."""
+    stmt = (
+        select(WorkoutSession)
+        .where(
+            WorkoutSession.workout_id == workout_id,
+            WorkoutSession.status.in_(["completed", "abandoned"]),
+        )
+        .order_by(WorkoutSession.completed_at.desc())
+        .limit(1)
+    )
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
