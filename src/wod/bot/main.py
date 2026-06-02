@@ -33,7 +33,9 @@ from wod.bot.handlers.profile import (
 )
 from wod.bot.handlers.wod import build_wod_handler
 from wod.config import get_settings
+from wod.db.models import Base
 from wod.db.seeding import auto_seed_if_empty
+from wod.db.session import get_engine
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -48,8 +50,6 @@ async def _ensure_user_profile_columns() -> None:
     ``create_all()`` won't alter existing tables, so we manually
     check for and add missing columns for SQLite backwards-compatibility.
     """
-    from wod.db.session import get_engine  # pylint: disable=import-outside-toplevel
-
     new_columns = {
         "name": "VARCHAR(128)",
         "height_cm": "FLOAT",
@@ -75,9 +75,6 @@ async def initialize_database(
     application: Application[Any, Any, Any, Any, Any, Any],
 ) -> None:
     """Initialize and seed database if it is empty."""
-    from wod.db.models import Base
-    from wod.db.session import get_engine
-
     async with get_engine().begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

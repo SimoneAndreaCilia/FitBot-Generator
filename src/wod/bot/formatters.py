@@ -23,7 +23,7 @@ from reportlab.platypus import (
 
 
 @dataclass
-class FormattedExercise:
+class FormattedExercise:  # pylint: disable=too-many-instance-attributes
     """Data needed to render a single exercise line."""
 
     order: int
@@ -37,7 +37,7 @@ class FormattedExercise:
 
 
 @dataclass
-class UserProfile:
+class UserProfile:  # pylint: disable=too-many-instance-attributes
     """User profile data for rendering in PDF header."""
 
     name: Optional[str] = None
@@ -51,7 +51,7 @@ class UserProfile:
 
 
 @dataclass
-class SessionLogRow:
+class SessionLogRow:  # pylint: disable=too-many-instance-attributes
     """Data needed to render a single performed set in the summary PDF."""
 
     order: int

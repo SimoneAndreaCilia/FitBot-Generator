@@ -9,6 +9,7 @@ from __future__ import annotations
 import io
 import logging
 
+from sqlalchemy import select
 from telegram import Message, Update
 from telegram.ext import (
     CallbackQueryHandler,
@@ -28,8 +29,12 @@ from wod.bot.formatters import (
 from wod.bot.keyboards import history_keyboard, workout_actions_keyboard
 from wod.bot.utils import send_workout_text
 from wod.config import get_settings
+from wod.core.intensity import calculate_intensity
+from wod.core.types import EffortType
+from wod.db.models import WorkoutSession
 from wod.db.repositories import (
     get_or_create_user,
+    get_session_logs,
     get_user_favorites,
     get_user_with_equipment,
     get_user_workouts,
@@ -185,7 +190,7 @@ async def download_pdf_callback(
     )
 
 
-async def download_summary_callback(
+async def download_summary_callback(  # pylint: disable=too-many-statements
     update: Update, _context: ContextTypes.DEFAULT_TYPE
 ) -> None:
     """Handle dl_sum:<session_id> — send session summary as .pdf file."""
@@ -198,13 +203,6 @@ async def download_summary_callback(
     session_id = int(query.data.split(":")[1])
 
     async with get_session_factory()() as db_session:
-        from sqlalchemy import select
-
-        from wod.core.intensity import calculate_intensity
-        from wod.core.types import EffortType
-        from wod.db.models import WorkoutSession
-        from wod.db.repositories import get_session_logs
-
         # Get the session
         stmt = select(WorkoutSession).where(WorkoutSession.id == session_id)
         result = await db_session.execute(stmt)

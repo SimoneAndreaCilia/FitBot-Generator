@@ -7,6 +7,7 @@ from typing import Any, Optional, Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.sql import func
 
 from wod.core.types import BodyType, ExperienceLevel, SplitType
 from wod.db.models import (
@@ -301,8 +302,6 @@ async def complete_workout_session(
     ws = result.scalar_one_or_none()
     if ws:
         ws.status = status
-        from sqlalchemy.sql import func
-
         ws.completed_at = func.now()  # pylint: disable=not-callable
         await session.flush()
     return ws
