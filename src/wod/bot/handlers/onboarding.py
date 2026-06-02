@@ -38,6 +38,7 @@ from wod.bot.keyboards import (
     bmi_continue_keyboard,
     body_type_keyboard,
     equipment_keyboard,
+    expanded_menu_keyboard,
     experience_keyboard,
     frequency_keyboard,
     main_menu_keyboard,
@@ -465,7 +466,7 @@ async def _finalize_onboarding(
         f"• Frequenza: {freq} giorni/settimana\n"
         f"• Split: {split_label}\n"
         f"• Attrezzatura: {eq_count} elementi\n\n"
-        "Usa i pulsanti del menu per continuare! 👇",
+        "⏳ *Generazione della scheda in corso...*",
         parse_mode="Markdown",
     )
 
@@ -474,9 +475,31 @@ async def _finalize_onboarding(
     from telegram import Message  # pylint: disable=import-outside-toplevel
 
     if isinstance(query.message, Message):
+        try:
+            update_id = int(query.id)
+        except (ValueError, TypeError):
+            update_id = 0
+
+        # Delegate to wod_command to generate a workout for the new profile
+        fake_update = Update(
+            update_id=update_id,
+            message=query.message,
+        )
+        # Set effective_user manually
+        # pylint: disable=protected-access
+        fake_update._effective_user = query.from_user
+        # pylint: enable=protected-access
+
+        # pylint: disable=import-outside-toplevel
+        from wod.bot.handlers.wod import wod_command
+
+        await wod_command(fake_update, context)
+
+        # Show the expanded menu keyboard so they have options ready
         await query.message.reply_text(
-            "📋 Menu principale:",
-            reply_markup=main_menu_keyboard(),
+            "📋 *Menu completo:*",
+            parse_mode="Markdown",
+            reply_markup=expanded_menu_keyboard(),
         )
     return ConversationHandler.END
 
