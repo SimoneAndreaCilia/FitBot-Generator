@@ -39,33 +39,6 @@ logger = logging.getLogger(__name__)
 SELECT_DAY, WAIT_SET_INPUT = range(2)
 
 
-async def rest_timer_task(
-    chat_id: int,
-    rest_seconds: int,
-    bot: Any,
-) -> None:
-    """Background task to wait and then notify the user that rest is over."""
-    try:
-        await asyncio.sleep(rest_seconds)
-        await bot.send_message(
-            chat_id=chat_id,
-            text="⏰ *Recupero terminato!*\nÈ ora di ripartire con la prossima serie 💪",
-            parse_mode="Markdown",
-        )
-    except asyncio.CancelledError:
-        # Task was cancelled because user skipped or entered data early
-        pass
-
-
-def _cancel_timer(context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Cancel any active rest timer."""
-    assert context.user_data is not None
-    task: Optional[asyncio.Task[Any]] = context.user_data.get("live_timer_task")
-    if task and not task.done():
-        task.cancel()
-    context.user_data["live_timer_task"] = None
-
-
 async def start_live_workout(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -164,7 +137,6 @@ async def _start_session_for_day(
     context.user_data["live_exercises"] = exercises
     context.user_data["live_ex_index"] = 0
     context.user_data["live_set_number"] = 1
-    context.user_data["live_timer_task"] = None
 
     if update.callback_query:
         await update.callback_query.edit_message_text(
@@ -179,7 +151,6 @@ async def _start_session_for_day(
 async def _ask_current_set(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
-    rest_seconds: Optional[int] = None,
 ) -> int:
     """Prompt the user for the current set's data."""
     assert context.user_data is not None
@@ -195,9 +166,8 @@ async def _ask_current_set(
     assert ex.exercise is not None
 
     msg = ""
-    if rest_seconds:
-        msg += f"⏳ *Recupero suggerito: {rest_seconds}s*\n"
-        msg += "_(Ti invierò un promemoria quando il tempo sarà scaduto)_\n\n"
+    if set_num > 1 or ex_index > 0:
+        msg += "⏳ *Recupero consigliato:* 3 minuti (se hai raggiunto il cedimento)\n\n"
 
     msg += f"🏋️ *{ex.exercise.name}*\n"
     if ex.notes:
@@ -244,8 +214,6 @@ async def handle_set_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         )
         return WAIT_SET_INPUT
 
-    _cancel_timer(context)
-
     # Save to DB
     session_id = context.user_data["live_session_id"]
     exercises: list[WorkoutExercise] = context.user_data["live_exercises"]
@@ -279,7 +247,6 @@ async def handle_live_set_action(
     assert context.user_data is not None
 
     action = query.data.split(":")[1]
-    _cancel_timer(context)
 
     if action == "abort":
         session_id = context.user_data["live_session_id"]
@@ -305,6 +272,8 @@ async def handle_live_set_action(
                 session_id=session_id,
                 workout_exercise_id=ex.id,
                 set_number=set_num,
+                weight_kg=0,
+                reps_done=0,
                 skipped=True,
             )
             await db_session.commit()
@@ -312,9 +281,9 @@ async def handle_live_set_action(
         # Remove the keyboard from the previous prompt
         await query.edit_message_reply_markup(reply_markup=None)
         
-        # Advance state, but pass rest_seconds=None because we skipped
-        await _advance_indexes(context)
-        return await _ask_current_set(update, context, rest_seconds=None)
+        # Advance state
+        _advance_indexes(context)
+        return await _ask_current_set(update, context)
 
     return WAIT_SET_INPUT
 
@@ -355,16 +324,7 @@ async def _advance_state_and_rest(
         # Workout finished
         return await _finish_workout(update, context)
 
-    # Calculate rest based on the exercise JUST COMPLETED
-    is_compound = current_ex.exercise.effort_type == EffortType.COMPOUND
-    rest_time = 120 if is_compound else 60
-
-    # Start timer task
-    chat_id = update.effective_chat.id if update.effective_chat else update.effective_user.id # type: ignore
-    task = asyncio.create_task(rest_timer_task(chat_id, rest_time, context.bot))
-    context.user_data["live_timer_task"] = task
-
-    return await _ask_current_set(update, context, rest_seconds=rest_time)
+    return await _ask_current_set(update, context)
 
 
 async def _finish_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -431,7 +391,6 @@ async def cancel_live_workout(
 ) -> int:
     """Handle /cancel during a live workout."""
     assert update.message is not None
-    _cancel_timer(context)
     
     assert context.user_data is not None
     session_id = context.user_data.get("live_session_id")
