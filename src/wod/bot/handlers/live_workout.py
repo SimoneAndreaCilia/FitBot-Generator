@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any, Optional
 
@@ -21,7 +20,6 @@ from wod.bot.keyboards import (
     live_set_keyboard,
     select_day_keyboard,
 )
-from wod.core.types import EffortType
 from wod.db.models import WorkoutExercise
 from wod.db.repositories import (
     complete_workout_session,
@@ -187,7 +185,11 @@ async def _ask_current_set(
     msg += "Se a corpo libero inserisci `0 rip` (es: `0 15`)."
 
     # Send a new message so the user's input flows naturally
-    chat_id = update.effective_chat.id if update.effective_chat else update.effective_user.id  # type: ignore
+    chat_id = (
+        update.effective_chat.id
+        if update.effective_chat
+        else update.effective_user.id  # type: ignore
+    )
     await context.bot.send_message(
         chat_id=chat_id,
         text=msg,
@@ -342,7 +344,6 @@ async def _finish_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     """End the workout, save status, and show summary."""
     assert context.user_data is not None
     session_id = context.user_data["live_session_id"]
-    workout_id = context.user_data["live_workout_id"]
 
     async with get_session_factory()() as db_session:
         ws = await complete_workout_session(db_session, session_id, status="completed")
@@ -365,7 +366,8 @@ async def _finish_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             f"🎉 *Allenamento Completato!*\n"
             f"Bravissimo! Hai portato a termine la tua sessione.\n\n"
             f"{duration_str}\n"
-            f"📊 *Totale:* {total_sets} serie | {completed_sets} completate | {skipped_sets} saltate\n\n"
+            f"📊 *Totale:* {total_sets} serie | "
+            f"{completed_sets} completate | {skipped_sets} saltate\n\n"
             f"*Dettaglio:* \n"
         )
 
@@ -384,7 +386,11 @@ async def _finish_workout(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 )
 
     # Send final summary
-    chat_id = update.effective_chat.id if update.effective_chat else update.effective_user.id  # type: ignore
+    chat_id = (
+        update.effective_chat.id
+        if update.effective_chat
+        else update.effective_user.id  # type: ignore
+    )
     await context.bot.send_message(
         chat_id=chat_id,
         text=summary,
