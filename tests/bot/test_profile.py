@@ -560,6 +560,26 @@ class TestEditEquipmentCallback:
         assert next_state == REGEN_CONFIRM
         set_eq_mock.assert_called_once_with(session_mock, user, [1, 2])
         query.edit_message_text.assert_called_once()
+        query.answer.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_edit_equipment_done_empty(self) -> None:
+        update = MagicMock(spec=Update)
+        query = AsyncMock()
+        query.data = "equip:done"
+        query.from_user.id = 123
+        update.callback_query = query
+
+        context = MagicMock()
+        context.user_data = {"selected_equipment": set()}
+
+        next_state = await edit_equipment_callback(update, context)
+
+        assert next_state == EDIT_EQUIPMENT
+        query.answer.assert_called_once_with(
+            text="⚠️ Seleziona almeno un attrezzo per confermare!",
+            show_alert=True,
+        )
 
     @pytest.mark.asyncio
     async def test_edit_equipment_toggle(self) -> None:

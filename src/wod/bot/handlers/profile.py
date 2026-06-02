@@ -482,7 +482,6 @@ async def edit_equipment_callback(
     """Handle equipment toggle or confirmation during profile editing."""
     query = update.callback_query
     assert query is not None
-    await query.answer()
     assert query.data is not None
     assert context.user_data is not None
     assert query.from_user is not None
@@ -490,8 +489,16 @@ async def edit_equipment_callback(
     data = query.data.split(":")[1]
 
     if data == "done":
-        # Save equipment to DB
         selected_ids = list(context.user_data.get("selected_equipment", set()))
+        if not selected_ids:
+            await query.answer(
+                text="⚠️ Seleziona almeno un attrezzo per confermare!",
+                show_alert=True,
+            )
+            return EDIT_EQUIPMENT
+
+        await query.answer()
+        # Save equipment to DB
         async with get_session_factory()() as session:
             user = await get_or_create_user(session, telegram_id=query.from_user.id)
             await set_user_equipment(session, user, selected_ids)
@@ -506,6 +513,7 @@ async def edit_equipment_callback(
         )
         return REGEN_CONFIRM
 
+    await query.answer()
     eq_list = context.user_data["equipment_list"]
     handle_equipment_toggle(context.user_data, data)
     selected_set = context.user_data["selected_equipment"]
