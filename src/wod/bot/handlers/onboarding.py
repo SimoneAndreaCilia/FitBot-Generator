@@ -384,16 +384,24 @@ async def equipment_callback(
     """Handle equipment toggle or confirmation."""
     query = update.callback_query
     assert query is not None
-    await query.answer()
     assert query.data is not None
     assert context.user_data is not None
 
     data = query.data.split(":")[1]
 
     if data == "done":
+        selected = context.user_data.get("selected_equipment", set())
+        if not selected:
+            await query.answer(
+                text="⚠️ Seleziona almeno un attrezzo per procedere!",
+                show_alert=True,
+            )
+            return EQUIPMENT
+        await query.answer()
         # Save everything to DB
         return await _finalize_onboarding(query, context)
 
+    await query.answer()
     handle_equipment_toggle(context.user_data, data)
 
     selected = context.user_data["selected_equipment"]
