@@ -113,7 +113,7 @@ def wod_day_navigation_keyboard(
         [
             InlineKeyboardButton(
                 "▶️ Inizia Allenamento",
-                callback_data=f"startw:{workout_id}",
+                callback_data=f"startw:{workout_id}:{day_index}",
             )
         ]
     )
@@ -297,12 +297,6 @@ def workout_actions_keyboard(
     """Actions available for a generated workout."""
     fav_text = "💔 Rimuovi dai preferiti" if is_favorite else "⭐ Aggiungi ai preferiti"
     buttons = [
-        [
-            InlineKeyboardButton(
-                "▶️ Inizia Allenamento",
-                callback_data=f"startw:{workout_id}",
-            )
-        ],
         [InlineKeyboardButton(fav_text, callback_data=f"fav:{workout_id}")],
         [
             InlineKeyboardButton(

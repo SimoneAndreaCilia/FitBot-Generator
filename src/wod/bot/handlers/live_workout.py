@@ -48,7 +48,11 @@ async def start_live_workout(
     await query.answer()
     assert query.data is not None
 
-    workout_id = int(query.data.split(":")[1])
+    parts = query.data.split(":")
+    workout_id = int(parts[1])
+    
+    day_index_str = parts[2] if len(parts) > 2 else None
+
     assert context.user_data is not None
     context.user_data["live_workout_id"] = workout_id
 
@@ -59,12 +63,19 @@ async def start_live_workout(
         await query.edit_message_text("⚠️ Impossibile caricare la scheda.")
         return ConversationHandler.END
 
-    # Check if workout has multiple days
+    # Get ordered unique day labels
     days = []
     for ex in workout.exercises:
         if ex.day_label and ex.day_label not in days:
             days.append(ex.day_label)
 
+    # If we have a specific day_index from the WOD view
+    if day_index_str is not None:
+        day_index = int(day_index_str)
+        day_label = days[day_index] if day_index < len(days) else (days[0] if days else None)
+        return await _start_session_for_day(update, context, workout, day_label)
+
+    # Fallback for old inline keyboards without day_index
     if len(days) > 1:
         await query.edit_message_text(
             "📅 Quale giorno della scheda vuoi allenare oggi?",
