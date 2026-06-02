@@ -31,6 +31,7 @@ class TestSeeding:
 
     def test_locate_seed_file_not_found(self, monkeypatch: pytest.MonkeyPatch) -> None:
         from pathlib import Path
+
         monkeypatch.setattr(Path, "exists", lambda self: False)
         with pytest.raises(FileNotFoundError):
             locate_seed_file()
@@ -50,8 +51,11 @@ class TestSeeding:
             assert len(exs) > 0
 
     @pytest.mark.asyncio
-    async def test_seed_database_file_not_found(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    async def test_seed_database_file_not_found(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         from pathlib import Path
+
         monkeypatch.setattr(Path, "exists", lambda self: False)
         # Should catch the error and return silently
         await seed_database()

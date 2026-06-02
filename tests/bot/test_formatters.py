@@ -91,6 +91,7 @@ class TestWorkoutToPdf:
     def test_workout_to_pdf_multiple_days(self) -> None:
         workout = _make_workout()
         from wod.bot.formatters import FormattedExercise
+
         workout.exercises.append(
             FormattedExercise(
                 order=2,
@@ -120,10 +121,15 @@ class TestWorkoutToPdf:
     def test_with_user_profile(self) -> None:
         workout = _make_workout()
         workout.user_profile = UserProfile(
-            name="John", height_cm=180, weight_kg=80, body_type="Ectomorph", equipment=["Dumbbell"]
+            name="John",
+            height_cm=180,
+            weight_kg=80,
+            body_type="Ectomorph",
+            equipment=["Dumbbell"],
         )
         pdf = workout_to_pdf(workout)
         assert b"%PDF-" in pdf
+
 
 class TestSessionSummaryToPdf:
     def test_returns_bytes(self) -> None:
@@ -140,7 +146,7 @@ class TestSessionSummaryToPdf:
                     reps="10",
                     rest="90s",
                     intensity="8 RPE",
-                    skipped=False
+                    skipped=False,
                 ),
                 SessionLogRow(
                     order=2,
@@ -150,9 +156,9 @@ class TestSessionSummaryToPdf:
                     reps="0",
                     rest="90s",
                     intensity="",
-                    skipped=True
-                )
-            ]
+                    skipped=True,
+                ),
+            ],
         )
         pdf = session_summary_to_pdf(summary)
         assert isinstance(pdf, bytes)
@@ -162,7 +168,7 @@ class TestSessionSummaryToPdf:
         summary = SessionSummary(
             title="Empty Workout",
             date=datetime.datetime.now(tz=datetime.timezone.utc),
-            rows=[]
+            rows=[],
         )
         pdf = session_summary_to_pdf(summary)
         assert pdf[:5] == b"%PDF-"

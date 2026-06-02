@@ -4,21 +4,21 @@ from __future__ import annotations
 
 from wod.core.types import ExperienceLevel, SplitType
 from wod.db.repositories import (
+    complete_workout_session,
+    create_workout_session,
     get_all_equipment,
     get_all_exercises,
+    get_latest_completed_session,
     get_or_create_user,
+    get_session_logs,
     get_user_favorites,
     get_user_workouts,
     get_workout_by_id,
+    log_set,
     save_workout,
     set_user_equipment,
     toggle_favorite,
     update_user_profile,
-    create_workout_session,
-    complete_workout_session,
-    log_set,
-    get_session_logs,
-    get_latest_completed_session,
 )
 
 # ---------------------------------------------------------------------------
@@ -294,6 +294,7 @@ class TestFavoritesRepository:
         favs = await get_user_favorites(db_session, user.id)
         assert len(favs) == 0
 
+
 class TestSessionRepository:
     """Tests for live workout session operations."""
 
@@ -305,7 +306,9 @@ class TestSessionRepository:
             title="Session Test Workout",
             content_json="{}",
             content_text="",
-            exercise_entries=[{"exercise_id": None, "sets": 3, "reps": "10", "order_index": 0}],
+            exercise_entries=[
+                {"exercise_id": None, "sets": 3, "reps": "10", "order_index": 0}
+            ],
         )
         return user, workout
 
@@ -319,8 +322,10 @@ class TestSessionRepository:
     async def test_complete_workout_session(self, db_session) -> None:
         user, workout = await self._create_user_and_workout(db_session)
         ws = await create_workout_session(db_session, user.id, workout.id)
-        
-        completed = await complete_workout_session(db_session, ws.id, status="completed")
+
+        completed = await complete_workout_session(
+            db_session, ws.id, status="completed"
+        )
         assert completed is not None
         await db_session.refresh(completed)
         assert completed.status == "completed"
@@ -329,7 +334,7 @@ class TestSessionRepository:
     async def test_log_set(self, db_session) -> None:
         user, workout = await self._create_user_and_workout(db_session)
         ws = await create_workout_session(db_session, user.id, workout.id)
-        
+
         # Reload workout to get exercises
         workout = await get_workout_by_id(db_session, workout.id)
         ex = workout.exercises[0]
@@ -341,7 +346,7 @@ class TestSessionRepository:
             set_number=1,
             weight_kg=50.5,
             reps_done=10,
-            skipped=False
+            skipped=False,
         )
         assert log.id is not None
         assert log.weight_kg == 50.5
@@ -366,10 +371,10 @@ class TestSessionRepository:
         user, workout = await self._create_user_and_workout(db_session)
         ws = await create_workout_session(db_session, user.id, workout.id)
         await complete_workout_session(db_session, ws.id, "completed")
-        
+
         fetched = await get_latest_completed_session(db_session, workout.id)
         assert fetched is not None
         assert fetched.id == ws.id
-        
+
         fetched_none = await get_latest_completed_session(db_session, 99999)
         assert fetched_none is None

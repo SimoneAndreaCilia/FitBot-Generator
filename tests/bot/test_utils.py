@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from telegram import Message, Update
 
-from wod.bot.utils import send_workout_text, split_message_text, handle_equipment_toggle
+from wod.bot.utils import handle_equipment_toggle, send_workout_text, split_message_text
 
 
 class TestSplitMessageText:
@@ -169,13 +169,14 @@ class TestSendWorkoutText:
             reply_markup=reply_markup,
         )
 
+
 class TestHandleEquipmentToggle:
     """Tests for handle_equipment_toggle."""
 
     def test_toggle_all(self) -> None:
         user_data = {
             "equipment_list": [(1, "barbell"), (2, "dumbbell")],
-            "selected_equipment": set()
+            "selected_equipment": set(),
         }
         handle_equipment_toggle(user_data, "all")
         assert user_data["selected_equipment"] == {1, 2}
@@ -183,7 +184,7 @@ class TestHandleEquipmentToggle:
     def test_toggle_none(self) -> None:
         user_data = {
             "equipment_list": [(1, "barbell"), (2, "dumbbell")],
-            "selected_equipment": {1, 2}
+            "selected_equipment": {1, 2},
         }
         handle_equipment_toggle(user_data, "none")
         assert user_data["selected_equipment"] == set()
@@ -191,7 +192,7 @@ class TestHandleEquipmentToggle:
     def test_toggle_add(self) -> None:
         user_data = {
             "equipment_list": [(1, "barbell"), (2, "dumbbell")],
-            "selected_equipment": {1}
+            "selected_equipment": {1},
         }
         handle_equipment_toggle(user_data, "2")
         assert user_data["selected_equipment"] == {1, 2}
@@ -199,7 +200,7 @@ class TestHandleEquipmentToggle:
     def test_toggle_remove(self) -> None:
         user_data = {
             "equipment_list": [(1, "barbell"), (2, "dumbbell")],
-            "selected_equipment": {1, 2}
+            "selected_equipment": {1, 2},
         }
         handle_equipment_toggle(user_data, "1")
         assert user_data["selected_equipment"] == {2}
