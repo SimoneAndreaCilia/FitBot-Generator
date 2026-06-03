@@ -9,7 +9,13 @@ import pytest
 from telegram import Update
 from telegram.ext import CallbackQueryHandler, CommandHandler
 
-from wod.bot.main import create_application, error_handler
+from wod.bot.main import (
+    _ensure_user_profile_columns,
+    create_application,
+    error_handler,
+    initialize_database,
+    main,
+)
 
 
 class TestCreateApplication:
@@ -124,3 +130,46 @@ class TestErrorHandler:
 
         # Calling with an arbitrary object should not crash
         await error_handler(object(), context)
+
+
+class TestDatabaseInitialization:
+    @pytest.mark.asyncio
+    @patch("wod.bot.main.get_engine")
+    async def test_ensure_user_profile_columns(self, mock_engine):
+        mock_conn = AsyncMock()
+        # Mock pragma result
+        mock_conn.exec_driver_sql.return_value = [("0", "id")]
+
+        mock_engine.return_value.connect.return_value.__aenter__.return_value = (
+            mock_conn
+        )
+
+        await _ensure_user_profile_columns()
+
+        assert mock_conn.exec_driver_sql.call_count == 5  # 1 for PRAGMA, 4 for columns
+        mock_conn.commit.assert_called_once()
+
+    @pytest.mark.asyncio
+    @patch("wod.bot.main.get_engine")
+    @patch("wod.bot.main._ensure_user_profile_columns")
+    @patch("wod.bot.main.auto_seed_if_empty")
+    async def test_initialize_database(self, mock_seed, mock_ensure, mock_engine):
+        mock_conn = AsyncMock()
+        mock_engine.return_value.begin.return_value.__aenter__.return_value = mock_conn
+
+        await initialize_database(MagicMock())
+
+        mock_conn.run_sync.assert_called_once()
+        mock_ensure.assert_called_once()
+        mock_seed.assert_called_once()
+
+
+class TestMain:
+    @patch("wod.bot.main.create_application")
+    def test_main(self, mock_create):
+        mock_app = MagicMock()
+        mock_create.return_value = mock_app
+
+        main()
+
+        mock_app.run_polling.assert_called_once_with(drop_pending_updates=True)
