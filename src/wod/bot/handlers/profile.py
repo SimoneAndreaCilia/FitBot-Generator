@@ -252,8 +252,9 @@ async def field_selection_callback(
 
             # Load current user equipment
             assert query.from_user is not None
-            user = await get_user_with_equipment(session, query.from_user.id)
-            current_ids = {eq.id for eq in user.equipment} if user else set()
+            user_with_eq = await get_user_with_equipment(session, query.from_user.id)
+            assert user_with_eq is not None
+            current_ids = {eq.id for eq in user_with_eq.equipment}
 
         context.user_data["equipment_list"] = eq_list
         context.user_data["selected_equipment"] = current_ids
@@ -437,7 +438,7 @@ async def edit_frequency_callback(
     freq = int(query.data.split(":")[1])
 
     # Minimum days required for each split type
-    _SPLIT_MIN_DAYS = {
+    split_min_days = {
         SplitType.FULL_BODY: 1,
         SplitType.UPPER_LOWER: 2,
         SplitType.PUSH_PULL_LEGS: 3,
@@ -450,10 +451,7 @@ async def edit_frequency_callback(
         current_split = user.preferred_split
 
     # Check if the current split is still compatible with the new frequency
-    if (
-        current_split is not None
-        and freq < _SPLIT_MIN_DAYS.get(current_split, 1)
-    ):
+    if current_split is not None and freq < split_min_days.get(current_split, 1):
         await query.edit_message_text(
             f"✅ Frequenza aggiornata a: *{freq} giorni/settimana*\n\n"
             "⚠️ Lo split attuale non è compatibile con la nuova frequenza.\n"

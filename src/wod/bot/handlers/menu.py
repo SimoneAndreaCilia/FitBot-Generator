@@ -15,8 +15,8 @@ from typing import Any
 from telegram import Message, Update
 from telegram.ext import (
     CallbackQueryHandler,
-    ConversationHandler,
     ContextTypes,
+    ConversationHandler,
     MessageHandler,
     filters,
 )
@@ -400,7 +400,9 @@ def build_menu_handlers() -> list[MessageHandler]:
     ]
 
 
-def build_crea_scheda_existing_handler() -> ConversationHandler[ContextTypes.DEFAULT_TYPE]:
+def build_crea_scheda_existing_handler() -> (
+    ConversationHandler[ContextTypes.DEFAULT_TYPE]
+):
     """Build the ConversationHandler for 'use existing profile' choice.
 
     Flow: choose frequency → choose split (filtered) → generate.

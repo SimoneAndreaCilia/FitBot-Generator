@@ -90,7 +90,6 @@ class TestWorkoutToPdf:
 
     def test_workout_to_pdf_multiple_days(self) -> None:
         workout = _make_workout()
-        from wod.bot.formatters import FormattedExercise
 
         workout.exercises.append(
             FormattedExercise(
