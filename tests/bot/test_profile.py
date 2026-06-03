@@ -542,9 +542,7 @@ class TestSelectionCallbacks:
                 return_value=MagicMock(return_value=session_mock),
             ),
             patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
-            patch(
-                "wod.bot.handlers.profile.update_user_profile", return_value=user
-            ),
+            patch("wod.bot.handlers.profile.update_user_profile", return_value=user),
         ):
             next_state = await edit_frequency_callback(update, context)
 
