@@ -208,7 +208,6 @@ class TestFieldSelectionCallback:
             ("body_type", EDIT_BODY_TYPE),
             ("experience", EDIT_EXPERIENCE),
             ("frequency", EDIT_FREQUENCY),
-            ("split", EDIT_SPLIT),
         ]
 
         for field_name, expected_state in fields:
@@ -220,6 +219,35 @@ class TestFieldSelectionCallback:
             next_state = await field_selection_callback(update, context)
             assert next_state == expected_state
             query.edit_message_text.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_split_field_loads_user_frequency(self) -> None:
+        context = MagicMock()
+        context.user_data = {}
+
+        update = MagicMock(spec=Update)
+        query = AsyncMock()
+        query.data = "editf:split"
+        query.from_user.id = 123
+        update.callback_query = query
+
+        session_mock = MagicMock()
+        session_mock.__aenter__ = AsyncMock(return_value=session_mock)
+        session_mock.__aexit__ = AsyncMock(return_value=False)
+
+        user = MockUser(training_frequency=3)
+
+        with (
+            patch(
+                "wod.bot.handlers.profile.get_session_factory",
+                return_value=MagicMock(return_value=session_mock),
+            ),
+            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
+        ):
+            next_state = await field_selection_callback(update, context)
+
+        assert next_state == EDIT_SPLIT
+        query.edit_message_text.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_equipment_loading(self) -> None:
@@ -490,6 +518,39 @@ class TestSelectionCallbacks:
         assert next_state == REGEN_CONFIRM
         update_mock.assert_called_once_with(session_mock, user, training_frequency=4)
         query.edit_message_text.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_edit_frequency_incompatible_split_redirects(self) -> None:
+        """Reducing frequency below split minimum redirects to EDIT_SPLIT."""
+        update = MagicMock(spec=Update)
+        query = AsyncMock()
+        query.data = "freq:1"  # 1 day — incompatible with PPL (needs 3)
+        query.from_user.id = 123
+        update.callback_query = query
+        context = MagicMock()
+
+        session_mock = MagicMock()
+        session_mock.__aenter__ = AsyncMock(return_value=session_mock)
+        session_mock.__aexit__ = AsyncMock(return_value=False)
+        session_mock.commit = AsyncMock()
+
+        user = MockUser(preferred_split=SplitType.PUSH_PULL_LEGS)
+
+        with (
+            patch(
+                "wod.bot.handlers.profile.get_session_factory",
+                return_value=MagicMock(return_value=session_mock),
+            ),
+            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
+            patch(
+                "wod.bot.handlers.profile.update_user_profile", return_value=user
+            ),
+        ):
+            next_state = await edit_frequency_callback(update, context)
+
+        assert next_state == EDIT_SPLIT
+        call_text = query.edit_message_text.call_args[0][0]
+        assert "non è compatibile" in call_text
 
     @pytest.mark.asyncio
     async def test_edit_split(self) -> None:

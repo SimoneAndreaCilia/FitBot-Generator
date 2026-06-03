@@ -15,6 +15,7 @@ from typing import Any
 from telegram import Message, Update
 from telegram.ext import (
     CallbackQueryHandler,
+    ConversationHandler,
     ContextTypes,
     MessageHandler,
     filters,
@@ -29,12 +30,16 @@ from wod.bot.keyboards import (
     BTN_WOD,
     crea_scheda_choice_keyboard,
     expanded_menu_keyboard,
+    frequency_keyboard,
+    split_keyboard,
     wod_day_navigation_keyboard,
 )
+from wod.core.types import SplitType
 from wod.db.repositories import (
     get_or_create_user,
     get_user_with_equipment,
     get_user_workouts,
+    update_user_profile,
 )
 from wod.db.session import get_session_factory
 
@@ -83,39 +88,92 @@ async def handle_crea_scheda(
         )
 
 
-async def handle_crea_scheda_existing(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
-    """Handle 'crea:existing' callback — generate a new workout with existing profile.
+# Conversation states for "crea scheda con profilo esistente"
+(
+    CREA_FREQ,
+    CREA_SPLIT,
+) = range(2)
 
-    Delegates to the wod_command logic.
-    """
+
+async def handle_crea_scheda_existing(
+    update: Update, _context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handle 'crea:existing' callback — ask frequency before generating."""
     query = update.callback_query
     assert query is not None
     await query.answer()
-    assert query.from_user is not None
 
-    # Import wod_command lazily to avoid circular imports
+    await query.edit_message_text(
+        "📅 Quanti giorni a settimana vuoi allenarti?",
+        reply_markup=frequency_keyboard(),
+    )
+    return CREA_FREQ
+
+
+async def _crea_freq_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handle frequency selection during existing-profile workout creation."""
+    query = update.callback_query
+    assert query is not None
+    await query.answer()
+    assert query.data is not None
+    assert context.user_data is not None
+
+    freq = int(query.data.split(":")[1])
+    context.user_data["crea_frequency"] = freq
+
+    await query.edit_message_text(
+        f"✅ Frequenza: *{freq} giorni/settimana*\n\n"
+        "Scegli il tipo di split settimanale:",
+        parse_mode="Markdown",
+        reply_markup=split_keyboard(frequency=freq),
+    )
+    return CREA_SPLIT
+
+
+async def _crea_split_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handle split selection, update profile, then generate workout."""
+    query = update.callback_query
+    assert query is not None
+    await query.answer()
+    assert query.data is not None
+    assert query.from_user is not None
+    assert context.user_data is not None
+
+    split_str = query.data.split(":")[1]
+    split_type = SplitType(split_str)
+    freq = context.user_data.get("crea_frequency", 3)
+
+    # Persist the new frequency + split to the user's profile
+    async with get_session_factory()() as session:
+        user = await get_or_create_user(session, telegram_id=query.from_user.id)
+        await update_user_profile(
+            session, user, training_frequency=freq, preferred_split=split_type
+        )
+        await session.commit()
+
+    await query.edit_message_text("⏳ Generazione della scheda in corso...")
+
+    # Delegate to wod_command
     from wod.bot.handlers.wod import (  # pylint: disable=import-outside-toplevel
         wod_command,
     )
 
-    await query.edit_message_text("⏳ Generazione della scheda in corso...")
-
-    # Create a fake Update with a message so wod_command can reply
-    # We need to send as a new message since wod_command expects update.message
     assert query.message is not None
     if isinstance(query.message, Message):
-        # Use the chat to send the generated workout
         fake_update = Update(
             update_id=update.update_id,
             message=query.message,
         )
-        # Set effective_user manually
         # pylint: disable=protected-access
         fake_update._effective_user = query.from_user  # noqa: SLF001
         # pylint: enable=protected-access
         await wod_command(fake_update, context)
+
+    return ConversationHandler.END
 
 
 # ---------------------------------------------------------------------------
@@ -342,9 +400,28 @@ def build_menu_handlers() -> list[MessageHandler]:
     ]
 
 
-def build_crea_scheda_existing_handler() -> CallbackQueryHandler:
-    """Build the callback handler for 'use existing profile' choice."""
-    return CallbackQueryHandler(handle_crea_scheda_existing, pattern=r"^crea:existing$")
+def build_crea_scheda_existing_handler() -> ConversationHandler[ContextTypes.DEFAULT_TYPE]:
+    """Build the ConversationHandler for 'use existing profile' choice.
+
+    Flow: choose frequency → choose split (filtered) → generate.
+    """
+    return ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(
+                handle_crea_scheda_existing, pattern=r"^crea:existing$"
+            ),
+        ],
+        states={
+            CREA_FREQ: [
+                CallbackQueryHandler(_crea_freq_callback, pattern=r"^freq:"),
+            ],
+            CREA_SPLIT: [
+                CallbackQueryHandler(_crea_split_callback, pattern=r"^split:"),
+            ],
+        },
+        fallbacks=[],
+        per_message=False,
+    )
 
 
 def build_wod_navigation_handler() -> CallbackQueryHandler:

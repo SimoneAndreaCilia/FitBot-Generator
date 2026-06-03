@@ -136,6 +136,7 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     app.add_handler(build_live_workout_handler())
     app.add_handler(build_onboarding_handler())
     app.add_handler(build_edit_profile_handler())
+    app.add_handler(build_crea_scheda_existing_handler())
 
     # Command handlers
     app.add_handler(build_profile_command_handler())
@@ -148,7 +149,6 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
         app.add_handler(handler)
 
     # Callback query handlers
-    app.add_handler(build_crea_scheda_existing_handler())
     app.add_handler(build_wod_navigation_handler())
     app.add_handler(build_view_callback_handler())
     app.add_handler(build_download_pdf_handler())

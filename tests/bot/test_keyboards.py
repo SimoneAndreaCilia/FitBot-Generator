@@ -61,6 +61,22 @@ class TestSplitKeyboard:
                 assert isinstance(btn.callback_data, str)
                 assert btn.callback_data.startswith("split:")
 
+    def test_one_day_only_full_body(self) -> None:
+        kb = split_keyboard(frequency=1)
+        assert len(kb.inline_keyboard) == 1
+        assert kb.inline_keyboard[0][0].callback_data == "split:full_body"
+
+    def test_two_days_full_body_and_upper_lower(self) -> None:
+        kb = split_keyboard(frequency=2)
+        assert len(kb.inline_keyboard) == 2
+        values = {row[0].callback_data for row in kb.inline_keyboard}
+        assert values == {"split:full_body", "split:upper_lower"}
+
+    def test_three_plus_days_all_splits(self) -> None:
+        for freq in (3, 4, 5, 6):
+            kb = split_keyboard(frequency=freq)
+            assert len(kb.inline_keyboard) == 3
+
 
 class TestEquipmentKeyboard:
     def test_shows_all_items_plus_confirm(self) -> None:
