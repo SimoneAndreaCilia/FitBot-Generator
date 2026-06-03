@@ -232,9 +232,15 @@ async def field_selection_callback(
         return EDIT_FREQUENCY
 
     if field == "split":
+        # Fetch user's current frequency to filter compatible splits
+        assert query.from_user is not None
+        async with get_session_factory()() as session:
+            user = await get_or_create_user(session, telegram_id=query.from_user.id)
+            user_freq = user.training_frequency
+
         await query.edit_message_text(
             "🔀 Scegli il tipo di split settimanale:",
-            reply_markup=split_keyboard(),
+            reply_markup=split_keyboard(frequency=user_freq),
         )
         return EDIT_SPLIT
 
@@ -430,10 +436,32 @@ async def edit_frequency_callback(
 
     freq = int(query.data.split(":")[1])
 
+    # Minimum days required for each split type
+    _SPLIT_MIN_DAYS = {
+        SplitType.FULL_BODY: 1,
+        SplitType.UPPER_LOWER: 2,
+        SplitType.PUSH_PULL_LEGS: 3,
+    }
+
     async with get_session_factory()() as session:
         user = await get_or_create_user(session, telegram_id=query.from_user.id)
         await update_user_profile(session, user, training_frequency=freq)
         await session.commit()
+        current_split = user.preferred_split
+
+    # Check if the current split is still compatible with the new frequency
+    if (
+        current_split is not None
+        and freq < _SPLIT_MIN_DAYS.get(current_split, 1)
+    ):
+        await query.edit_message_text(
+            f"✅ Frequenza aggiornata a: *{freq} giorni/settimana*\n\n"
+            "⚠️ Lo split attuale non è compatibile con la nuova frequenza.\n"
+            "Scegli un nuovo tipo di split:",
+            parse_mode="Markdown",
+            reply_markup=split_keyboard(frequency=freq),
+        )
+        return EDIT_SPLIT
 
     await query.edit_message_text(
         f"✅ Frequenza aggiornata a: *{freq} giorni/settimana*\n\n"

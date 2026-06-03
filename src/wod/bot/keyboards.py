@@ -155,16 +155,27 @@ def frequency_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-def split_keyboard() -> InlineKeyboardMarkup:
-    """Build a keyboard for selecting the training split."""
+def split_keyboard(frequency: int | None = None) -> InlineKeyboardMarkup:
+    """Build a keyboard for selecting the training split.
+
+    When *frequency* is provided, only splits compatible with that number
+    of training days are shown:
+    - 1 day  → Full Body only
+    - 2 days → Full Body + Upper/Lower
+    - 3+ days → all three splits
+
+    Args:
+        frequency: Training days per week (1-6). ``None`` shows every option.
+    """
+    all_splits = [
+        ("💪 Full Body", "split:full_body", 1),
+        ("⬆️⬇️ Upper/Lower", "split:upper_lower", 2),
+        ("🔄 Push/Pull/Legs", "split:push_pull_legs", 3),
+    ]
     buttons = [
-        [InlineKeyboardButton("💪 Full Body", callback_data="split:full_body")],
-        [InlineKeyboardButton("⬆️⬇️ Upper/Lower", callback_data="split:upper_lower")],
-        [
-            InlineKeyboardButton(
-                "🔄 Push/Pull/Legs", callback_data="split:push_pull_legs"
-            )
-        ],
+        [InlineKeyboardButton(label, callback_data=cb)]
+        for label, cb, min_days in all_splits
+        if frequency is None or frequency >= min_days
     ]
     return InlineKeyboardMarkup(buttons)
 

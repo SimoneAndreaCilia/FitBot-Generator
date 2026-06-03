@@ -332,7 +332,7 @@ async def frequency_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
         f"✅ Frequenza: *{freq} giorni/settimana*\n\n"
         "Scegli il tipo di split settimanale:",
         parse_mode="Markdown",
-        reply_markup=split_keyboard(),
+        reply_markup=split_keyboard(frequency=freq),
     )
     return SPLIT
 
