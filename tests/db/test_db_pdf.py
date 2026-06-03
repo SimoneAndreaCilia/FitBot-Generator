@@ -1,5 +1,7 @@
 """Tests for database and PDF generation."""
 
+# pylint: disable=duplicate-code
+
 import asyncio
 import traceback
 

@@ -74,6 +74,9 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+filterwarnings = [
+    "ignore:If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message:telegram.warnings.PTBUserWarning",
+]
 addopts = [
     "--strict-markers",
     "--cov=src/wod",
