@@ -1,6 +1,10 @@
+"""Database diagnostic script."""
+
 import asyncio
+
+from wod.db.repositories import get_latest_completed_session, get_session_logs
 from wod.db.session import get_session_factory
-from wod.db.repositories import get_session_logs, get_latest_completed_session
+
 
 async def main():
     async with get_session_factory()() as session:
@@ -9,9 +13,15 @@ async def main():
         if ws:
             logs = await get_session_logs(session, ws.id)
             for log in logs:
-                print(f"Ex ID: {log.workout_exercise_id}, Set: {log.set_number}, Skipped: {log.skipped}, Reps: {log.reps_done}")
+                print(
+                    f"Ex ID: {log.workout_exercise_id}, "
+                    f"Set: {log.set_number}, "
+                    f"Skipped: {log.skipped}, "
+                    f"Reps: {log.reps_done}"
+                )
         else:
             print("No session found")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

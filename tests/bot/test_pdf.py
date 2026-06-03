@@ -1,5 +1,15 @@
+"""Tests for PDF generation."""
+
 import datetime
-from wod.bot.formatters import SessionSummary, SessionLogRow, UserProfile, session_summary_to_pdf
+import traceback
+
+from wod.bot.formatters import (
+    SessionLogRow,
+    SessionSummary,
+    UserProfile,
+    session_summary_to_pdf,
+)
+
 
 def test_pdf():
     summary = SessionSummary(
@@ -25,16 +35,16 @@ def test_pdf():
                 rest="-",
                 intensity="-",
                 skipped=True,
-            )
+            ),
         ],
-        user_profile=UserProfile(name="Test User", height_cm=180, weight_kg=80)
+        user_profile=UserProfile(name="Test User", height_cm=180, weight_kg=80),
     )
     try:
         pdf_bytes = session_summary_to_pdf(summary)
         print("Success! PDF generated, size:", len(pdf_bytes))
-    except Exception as e:
-        import traceback
+    except Exception:  # pylint: disable=broad-exception-caught
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_pdf()
