@@ -72,7 +72,7 @@ async def _ensure_user_profile_columns() -> None:
 
 
 async def initialize_database(
-    application: Application[Any, Any, Any, Any, Any, Any],
+    _application: Application[Any, Any, Any, Any, Any, Any],
 ) -> None:
     """Initialize and seed database if it is empty."""
     async with get_engine().begin() as conn:

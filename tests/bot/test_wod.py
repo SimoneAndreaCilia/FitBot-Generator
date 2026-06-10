@@ -1,6 +1,6 @@
 """Tests for the WOD command handler."""
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, redefined-outer-name
 
 from __future__ import annotations
 

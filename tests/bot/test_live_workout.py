@@ -1,6 +1,6 @@
 """Tests for the live workout session handler."""
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, redefined-outer-name
 
 from __future__ import annotations
 
@@ -570,7 +570,7 @@ class TestCancelLiveWorkout:
     @patch("wod.bot.handlers.live_workout.get_session_factory")
     @patch("wod.bot.handlers.live_workout.complete_workout_session")
     async def test_cancel_inactive(
-        self, mock_complete, mock_session_factory, mock_update, mock_context
+        self, mock_complete, _mock_session_factory, mock_update, mock_context
     ):
         result = await cancel_live_workout(mock_update, mock_context)
         assert result == ConversationHandler.END
