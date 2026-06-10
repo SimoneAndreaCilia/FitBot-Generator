@@ -441,7 +441,7 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
 
 def _build_session_log_table(
     rows: list[SessionLogRow],
-    styles: Any,
+    _styles: Any,
 ) -> list[Any]:
     """Build PDF elements for a performed session log table."""
     elements: list[Any] = []

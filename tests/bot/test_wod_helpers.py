@@ -1,5 +1,7 @@
 """Tests for the WOD handler's pure helper functions."""
 
+# pylint: disable=redefined-outer-name
+
 from __future__ import annotations
 
 import pytest

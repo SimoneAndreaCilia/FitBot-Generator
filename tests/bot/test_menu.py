@@ -229,7 +229,7 @@ class TestMenuHandlers:
     @patch("wod.bot.handlers.menu.get_or_create_user")
     @patch("wod.bot.handlers.menu.get_user_workouts")
     async def test_handle_wod_giorno_no_workouts(
-        self, mock_get_workouts, mock_get_user, mock_session_factory
+        self, mock_get_workouts, _mock_get_user, mock_session_factory
     ):
         update = MagicMock(spec=Update)
         update.effective_user.id = 123
@@ -256,7 +256,7 @@ class TestMenuHandlers:
     @patch("wod.bot.handlers.menu.get_or_create_user")
     @patch("wod.bot.handlers.menu.get_user_workouts")
     async def test_handle_wod_giorno_with_workouts(
-        self, mock_get_workouts, mock_get_user, mock_session_factory
+        self, mock_get_workouts, _mock_get_user, mock_session_factory
     ):
         update = MagicMock(spec=Update)
         update.effective_user.id = 123
@@ -289,7 +289,7 @@ class TestMenuHandlers:
     @patch("wod.bot.handlers.menu.get_or_create_user")
     @patch("wod.bot.handlers.menu.get_user_workouts")
     async def test_handle_wod_giorno_no_days(
-        self, mock_get_workouts, mock_get_user, mock_session_factory
+        self, mock_get_workouts, _mock_get_user, mock_session_factory
     ):
         update = MagicMock(spec=Update)
         update.effective_user.id = 123

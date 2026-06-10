@@ -1,5 +1,7 @@
 """Shared pytest fixtures for the WOD test suite."""
 
+# pylint: disable=redefined-outer-name
+
 from __future__ import annotations
 
 import pytest
