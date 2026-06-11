@@ -6,7 +6,7 @@ from wod.db.repositories import get_latest_completed_session, get_session_logs
 from wod.db.session import get_session_factory
 
 
-async def main():
+async def main() -> None:
     async with get_session_factory()() as session:
         # Assuming workout_id 1
         ws = await get_latest_completed_session(session, 1)
