@@ -1,157 +1,51 @@
-"""Profile handler — /profilo command and profile editing.
-
-Provides:
-* ``/profilo`` — Display the user's complete profile with a "Modifica" button.
-* Edit conversation — Pick a field to modify, update it, and optionally
-  regenerate the workout when equipment changes.
-"""
+"""Profile field editing — text inputs and inline keyboard callbacks."""
 
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from telegram import Update
-from telegram.error import BadRequest
-from telegram.ext import (
-    CallbackQueryHandler,
-    CommandHandler,
-    ContextTypes,
-    ConversationHandler,
-    MessageHandler,
-    filters,
-)
+from telegram.ext import ContextTypes, ConversationHandler
 
+from wod.bot.handlers.profile.constants import (
+    BODY_TYPE_LABELS,
+    CHOOSE_FIELD,
+    EDIT_BODY_TYPE,
+    EDIT_EQUIPMENT,
+    EDIT_EXPERIENCE,
+    EDIT_FREQUENCY,
+    EDIT_HEIGHT,
+    EDIT_NAME,
+    EDIT_SPLIT,
+    EDIT_WEIGHT,
+    EXPERIENCE_LABELS,
+    REGEN_CONFIRM,
+    SPLIT_LABELS,
+)
 from wod.bot.keyboards import (
     body_type_keyboard,
     edit_field_keyboard,
     equipment_keyboard,
     experience_keyboard,
     frequency_keyboard,
-    profile_keyboard,
     regenerate_keyboard,
     split_keyboard,
 )
-from wod.bot.utils import handle_equipment_toggle
 from wod.core.bmi import calculate_bmi
 from wod.core.types import BodyType, ExperienceLevel, SplitType
 from wod.db.repositories import (
     get_all_equipment,
     get_or_create_user,
     get_user_with_equipment,
-    set_user_equipment,
     update_user_profile,
 )
 from wod.db.session import get_session_factory
 
 logger = logging.getLogger(__name__)
 
-# Body type display labels
-_BODY_TYPE_LABELS = {
-    BodyType.ECTOMORPH: "Ectomorfo",
-    BodyType.MESOMORPH: "Mesomorfo",
-    BodyType.ENDOMORPH: "Endomorfo",
-}
-
-# Experience level display labels
-_EXPERIENCE_LABELS = {
-    ExperienceLevel.BEGINNER: "Principiante",
-    ExperienceLevel.INTERMEDIATE: "Intermedio",
-    ExperienceLevel.ADVANCED: "Avanzato",
-}
-
-# Split type display labels
-_SPLIT_LABELS = {
-    SplitType.FULL_BODY: "Full Body",
-    SplitType.UPPER_LOWER: "Upper/Lower",
-    SplitType.PUSH_PULL_LEGS: "Push/Pull/Legs",
-}
 
 # ---------------------------------------------------------------------------
-# Edit conversation states
-# ---------------------------------------------------------------------------
-
-(
-    CHOOSE_FIELD,
-    EDIT_NAME,
-    EDIT_HEIGHT,
-    EDIT_WEIGHT,
-    EDIT_BODY_TYPE,
-    EDIT_EXPERIENCE,
-    EDIT_FREQUENCY,
-    EDIT_SPLIT,
-    EDIT_EQUIPMENT,
-    REGEN_CONFIRM,
-) = range(10)
-
-
-# ---------------------------------------------------------------------------
-# /profilo command
-# ---------------------------------------------------------------------------
-
-
-def _format_profile_text(user) -> str:  # type: ignore[no-untyped-def]
-    """Build the profile display text from a User model instance."""
-    name = user.name or "—"
-    height = f"{user.height_cm:.0f} cm" if user.height_cm else "—"
-    weight = f"{user.weight_kg:.1f} kg" if user.weight_kg else "—"
-
-    if user.height_cm and user.weight_kg:
-        bmi_val, bmi_cat = calculate_bmi(user.weight_kg, user.height_cm)
-        bmi_str = f"{bmi_val} ({bmi_cat})"
-    else:
-        bmi_str = "—"
-
-    body = _BODY_TYPE_LABELS.get(user.body_type, "—")
-    level = _EXPERIENCE_LABELS.get(user.experience_level, "—")
-    freq = (
-        f"{user.training_frequency} giorni/settimana"
-        if user.training_frequency
-        else "—"
-    )
-    split = _SPLIT_LABELS.get(user.preferred_split, "—")
-
-    eq_names = sorted(eq.name.replace("_", " ").title() for eq in user.equipment)
-    eq_str = ", ".join(eq_names) if eq_names else "Nessuna"
-
-    return (
-        "👤 *Il tuo profilo*\n\n"
-        f"📛 Nome: {name}\n"
-        f"📏 Altezza: {height}\n"
-        f"⚖️ Peso: {weight}\n"
-        f"📊 BMI: {bmi_str}\n"
-        f"🦴 Corporatura: {body}\n"
-        f"📊 Livello: {level}\n"
-        f"📅 Frequenza: {freq}\n"
-        f"🔀 Split: {split}\n"
-        f"🔧 Attrezzatura: {eq_str}"
-    )
-
-
-async def profile_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle /profilo — display the user's profile."""
-    assert update.effective_user is not None
-    assert update.message is not None
-
-    async with get_session_factory()() as session:
-        user = await get_user_with_equipment(session, update.effective_user.id)
-
-    if user is None:
-        await update.message.reply_text(
-            "⚠️ Non hai ancora un profilo. Usa /start per configurarlo."
-        )
-        return
-
-    text = _format_profile_text(user)
-    await update.message.reply_text(
-        text,
-        parse_mode="Markdown",
-        reply_markup=profile_keyboard(),
-    )
-
-
-# ---------------------------------------------------------------------------
-# Edit profile — entry point (callback from profile message)
+# Entry point (callback from profile message)
 # ---------------------------------------------------------------------------
 
 
@@ -391,7 +285,7 @@ async def edit_body_type_callback(
         await update_user_profile(session, user, body_type=body)
         await session.commit()
 
-    label = _BODY_TYPE_LABELS[body]
+    label = BODY_TYPE_LABELS[body]
     await query.edit_message_text(
         f"✅ Corporatura aggiornata a: *{label}*\n\n"
         "Usa /profilo per vedere il profilo aggiornato.",
@@ -417,7 +311,7 @@ async def edit_experience_callback(
         await update_user_profile(session, user, experience_level=level)
         await session.commit()
 
-    label = _EXPERIENCE_LABELS[level]
+    label = EXPERIENCE_LABELS[level]
     await query.edit_message_text(
         f"✅ Livello aggiornato a: *{label}*\n\n"
         "Usa /profilo per vedere il profilo aggiornato.",
@@ -488,7 +382,7 @@ async def edit_split_callback(
         await update_user_profile(session, user, preferred_split=split)
         await session.commit()
 
-    label = _SPLIT_LABELS[split]
+    label = SPLIT_LABELS[split]
     await query.edit_message_text(
         f"✅ Split aggiornato a: *{label}*\n\n"
         "Vuoi rigenerare la scheda di allenamento con i nuovi dati?",
@@ -496,159 +390,3 @@ async def edit_split_callback(
         reply_markup=regenerate_keyboard(),
     )
     return REGEN_CONFIRM
-
-
-# ---------------------------------------------------------------------------
-# Edit equipment (toggle-based, with regenerate offer)
-# ---------------------------------------------------------------------------
-
-
-async def edit_equipment_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Handle equipment toggle or confirmation during profile editing."""
-    query = update.callback_query
-    assert query is not None
-    assert query.data is not None
-    assert context.user_data is not None
-    assert query.from_user is not None
-
-    data = query.data.split(":")[1]
-
-    if data == "done":
-        selected_ids = list(context.user_data.get("selected_equipment", set()))
-        if not selected_ids:
-            await query.answer(
-                text="⚠️ Seleziona almeno un attrezzo per confermare!",
-                show_alert=True,
-            )
-            return EDIT_EQUIPMENT
-
-        await query.answer()
-        # Save equipment to DB
-        async with get_session_factory()() as session:
-            user = await get_or_create_user(session, telegram_id=query.from_user.id)
-            await set_user_equipment(session, user, selected_ids)
-            await session.commit()
-
-        eq_count = len(selected_ids)
-        await query.edit_message_text(
-            f"✅ Attrezzatura aggiornata: *{eq_count} elementi*\n\n"
-            "Vuoi rigenerare la scheda di allenamento con la nuova attrezzatura?",
-            parse_mode="Markdown",
-            reply_markup=regenerate_keyboard(),
-        )
-        return REGEN_CONFIRM
-
-    await query.answer()
-    eq_list = context.user_data["equipment_list"]
-    handle_equipment_toggle(context.user_data, data)
-    selected_set = context.user_data["selected_equipment"]
-    try:
-        await query.edit_message_text(
-            "🔧 Modifica la tua attrezzatura.\n"
-            "Tocca per selezionare/deselezionare, poi conferma:",
-            reply_markup=equipment_keyboard(eq_list, selected_set),
-        )
-    except BadRequest as e:
-        if "not modified" not in str(e).lower():
-            raise
-
-    return EDIT_EQUIPMENT
-
-
-# ---------------------------------------------------------------------------
-# Regenerate workout confirmation
-# ---------------------------------------------------------------------------
-
-
-async def regen_callback(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle the regenerate workout confirmation."""
-    query = update.callback_query
-    assert query is not None
-    await query.answer()
-    assert query.data is not None
-
-    choice = query.data.split(":")[1]
-
-    if choice == "yes":
-        await query.edit_message_text(
-            "🔄 Usa il comando /wod per generare una nuova scheda "
-            "con i tuoi dati aggiornati!"
-        )
-    else:
-        await query.edit_message_text(
-            "👍 Perfetto! Usa /profilo per rivedere il tuo profilo."
-        )
-
-    return ConversationHandler.END
-
-
-# ---------------------------------------------------------------------------
-# Cancel
-# ---------------------------------------------------------------------------
-
-
-async def edit_cancel_command(
-    update: Update, _context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Cancel the edit conversation."""
-    assert update.message is not None
-    await update.message.reply_text("❌ Modifica annullata.")
-    return ConversationHandler.END
-
-
-# ---------------------------------------------------------------------------
-# ConversationHandler builders
-# ---------------------------------------------------------------------------
-
-
-def build_profile_command_handler() -> CommandHandler[Any, Any]:
-    """Build the /profilo command handler."""
-    return CommandHandler("profilo", profile_command)
-
-
-def build_edit_profile_handler() -> ConversationHandler[ContextTypes.DEFAULT_TYPE]:
-    """Build the ConversationHandler for profile editing.
-
-    Entry point is the ``edit_profile`` callback from the profile message.
-    """
-    return ConversationHandler(
-        entry_points=[
-            CallbackQueryHandler(edit_profile_entry, pattern=r"^edit_profile$"),
-        ],
-        states={
-            CHOOSE_FIELD: [
-                CallbackQueryHandler(field_selection_callback, pattern=r"^editf:"),
-            ],
-            EDIT_NAME: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, edit_name_input),
-            ],
-            EDIT_HEIGHT: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, edit_height_input),
-            ],
-            EDIT_WEIGHT: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, edit_weight_input),
-            ],
-            EDIT_BODY_TYPE: [
-                CallbackQueryHandler(edit_body_type_callback, pattern=r"^body:"),
-            ],
-            EDIT_EXPERIENCE: [
-                CallbackQueryHandler(edit_experience_callback, pattern=r"^exp:"),
-            ],
-            EDIT_FREQUENCY: [
-                CallbackQueryHandler(edit_frequency_callback, pattern=r"^freq:"),
-            ],
-            EDIT_SPLIT: [
-                CallbackQueryHandler(edit_split_callback, pattern=r"^split:"),
-            ],
-            EDIT_EQUIPMENT: [
-                CallbackQueryHandler(edit_equipment_callback, pattern=r"^equip:"),
-            ],
-            REGEN_CONFIRM: [
-                CallbackQueryHandler(regen_callback, pattern=r"^regen:"),
-            ],
-        },
-        fallbacks=[CommandHandler("cancel", edit_cancel_command)],
-        per_message=False,
-    )

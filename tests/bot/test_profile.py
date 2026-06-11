@@ -119,11 +119,12 @@ class TestProfileCommand:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.display.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
             patch(
-                "wod.bot.handlers.profile.get_user_with_equipment", return_value=None
+                "wod.bot.handlers.profile.display.get_user_with_equipment",
+                return_value=None,
             ),
         ):
             await profile_command(update, context)
@@ -149,11 +150,12 @@ class TestProfileCommand:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.display.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
             patch(
-                "wod.bot.handlers.profile.get_user_with_equipment", return_value=user
+                "wod.bot.handlers.profile.display.get_user_with_equipment",
+                return_value=user,
             ),
         ):
             await profile_command(update, context)
@@ -239,10 +241,13 @@ class TestFieldSelectionCallback:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.get_or_create_user",
+                return_value=user,
+            ),
         ):
             next_state = await field_selection_callback(update, context)
 
@@ -269,12 +274,16 @@ class TestFieldSelectionCallback:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_all_equipment", return_value=[eq1]),
             patch(
-                "wod.bot.handlers.profile.get_user_with_equipment", return_value=user
+                "wod.bot.handlers.profile.edit_fields.get_all_equipment",
+                return_value=[eq1],
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.get_user_with_equipment",
+                return_value=user,
             ),
         ):
             next_state = await field_selection_callback(update, context)
@@ -304,12 +313,16 @@ class TestTextInputs:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
             patch(
-                "wod.bot.handlers.profile.update_user_profile", return_value=user
+                "wod.bot.handlers.profile.edit_fields.get_or_create_user",
+                return_value=user,
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.update_user_profile",
+                return_value=user,
             ) as update_mock,
         ):
             next_state = await edit_name_input(update, context)
@@ -346,12 +359,16 @@ class TestTextInputs:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
             patch(
-                "wod.bot.handlers.profile.update_user_profile", return_value=user
+                "wod.bot.handlers.profile.edit_fields.get_or_create_user",
+                return_value=user,
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.update_user_profile",
+                return_value=user,
             ) as update_mock,
         ):
             next_state = await edit_height_input(update, context)
@@ -389,12 +406,16 @@ class TestTextInputs:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
             patch(
-                "wod.bot.handlers.profile.update_user_profile", return_value=user
+                "wod.bot.handlers.profile.edit_fields.get_or_create_user",
+                return_value=user,
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.update_user_profile",
+                return_value=user,
             ) as update_mock,
         ):
             next_state = await edit_weight_input(update, context)
@@ -437,12 +458,16 @@ class TestSelectionCallbacks:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
             patch(
-                "wod.bot.handlers.profile.update_user_profile", return_value=user
+                "wod.bot.handlers.profile.edit_fields.get_or_create_user",
+                return_value=user,
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.update_user_profile",
+                return_value=user,
             ) as update_mock,
         ):
             next_state = await edit_body_type_callback(update, context)
@@ -471,12 +496,16 @@ class TestSelectionCallbacks:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
             patch(
-                "wod.bot.handlers.profile.update_user_profile", return_value=user
+                "wod.bot.handlers.profile.edit_fields.get_or_create_user",
+                return_value=user,
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.update_user_profile",
+                return_value=user,
             ) as update_mock,
         ):
             next_state = await edit_experience_callback(update, context)
@@ -505,12 +534,16 @@ class TestSelectionCallbacks:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
             patch(
-                "wod.bot.handlers.profile.update_user_profile", return_value=user
+                "wod.bot.handlers.profile.edit_fields.get_or_create_user",
+                return_value=user,
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.update_user_profile",
+                return_value=user,
             ) as update_mock,
         ):
             next_state = await edit_frequency_callback(update, context)
@@ -538,11 +571,17 @@ class TestSelectionCallbacks:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
-            patch("wod.bot.handlers.profile.update_user_profile", return_value=user),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.get_or_create_user",
+                return_value=user,
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.update_user_profile",
+                return_value=user,
+            ),
         ):
             next_state = await edit_frequency_callback(update, context)
 
@@ -568,12 +607,16 @@ class TestSelectionCallbacks:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_fields.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
             patch(
-                "wod.bot.handlers.profile.update_user_profile", return_value=user
+                "wod.bot.handlers.profile.edit_fields.get_or_create_user",
+                return_value=user,
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_fields.update_user_profile",
+                return_value=user,
             ) as update_mock,
         ):
             next_state = await edit_split_callback(update, context)
@@ -608,11 +651,16 @@ class TestEditEquipmentCallback:
 
         with (
             patch(
-                "wod.bot.handlers.profile.get_session_factory",
+                "wod.bot.handlers.profile.edit_equipment.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.profile.get_or_create_user", return_value=user),
-            patch("wod.bot.handlers.profile.set_user_equipment") as set_eq_mock,
+            patch(
+                "wod.bot.handlers.profile.edit_equipment.get_or_create_user",
+                return_value=user,
+            ),
+            patch(
+                "wod.bot.handlers.profile.edit_equipment.set_user_equipment"
+            ) as set_eq_mock,
         ):
             next_state = await edit_equipment_callback(update, context)
 

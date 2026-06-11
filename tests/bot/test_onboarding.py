@@ -80,12 +80,17 @@ class TestOnboardingEquipmentCallback:
 
         with (
             patch(
-                "wod.bot.handlers.onboarding.get_session_factory",
+                "wod.bot.handlers.onboarding.finalize.get_session_factory",
                 return_value=MagicMock(return_value=session_mock),
             ),
-            patch("wod.bot.handlers.onboarding.get_or_create_user", return_value=user),
-            patch("wod.bot.handlers.onboarding.update_user_profile"),
-            patch("wod.bot.handlers.onboarding.set_user_equipment") as set_eq_mock,
+            patch(
+                "wod.bot.handlers.onboarding.finalize.get_or_create_user",
+                return_value=user,
+            ),
+            patch("wod.bot.handlers.onboarding.finalize.update_user_profile"),
+            patch(
+                "wod.bot.handlers.onboarding.finalize.set_user_equipment"
+            ) as set_eq_mock,
             patch("wod.bot.handlers.wod.wod_command"),
         ):
             next_state = await equipment_callback(update, context)
