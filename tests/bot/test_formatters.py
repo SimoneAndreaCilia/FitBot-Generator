@@ -22,11 +22,11 @@ def _make_workout() -> FormattedWorkout:
         title="Upper Body — Day 1",
         date=datetime.datetime(2025, 6, 15, 14, 30, tzinfo=datetime.timezone.utc),
         exercises=[
-            FormattedExercise(order=1, name="Bench Press", sets=4, reps=10),
+            FormattedExercise(order=1, name="Bench Press", sets=4, reps="10"),
             FormattedExercise(
-                order=2, name="Dumbbell Row", sets=4, reps=10, notes="Slow"
+                order=2, name="Dumbbell Row", sets=4, reps="10", notes="Slow"
             ),
-            FormattedExercise(order=3, name="Bicep Curl", sets=3, reps=12),
+            FormattedExercise(order=3, name="Bicep Curl", sets=3, reps="12"),
         ],
     )
 
@@ -96,7 +96,7 @@ class TestWorkoutToPdf:
                 order=2,
                 name="Squat",
                 sets=3,
-                reps=10,
+                reps="10",
                 day_label="Day 2",
             )
         )
@@ -126,6 +126,14 @@ class TestWorkoutToPdf:
             body_type="Ectomorph",
             equipment=["Dumbbell"],
         )
+        pdf = workout_to_pdf(workout)
+        assert b"%PDF-" in pdf
+
+    def test_with_actual_data(self) -> None:
+        workout = _make_workout()
+        workout.exercises[0].actual_data = ["Set 1: 100kg x 10"]
+        workout.exercises[1].notes = "Some notes"
+        workout.exercises[1].actual_data = ["Set 1: 50kg x 10"]
         pdf = workout_to_pdf(workout)
         assert b"%PDF-" in pdf
 

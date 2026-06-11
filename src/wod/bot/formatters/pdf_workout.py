@@ -66,8 +66,8 @@ def _build_session_table(
         elements.append(Paragraph(f"🏋️ {session_label}", heading_style))
 
     # Table header + data rows
-    header = ["#", "Esercizio", "Serie", "Reps", "Intensità", "Note"]
-    table_data: list[list[str]] = [header]
+    header: list[Any] = ["#", "Esercizio", "Serie", "Reps", "Intensità", "Note"]
+    table_data: list[list[Any]] = [header]
     note_style = ParagraphStyle(
         "NoteStyle",
         parent=styles["Normal"],
