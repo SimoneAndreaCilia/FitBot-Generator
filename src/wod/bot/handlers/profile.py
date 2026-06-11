@@ -9,6 +9,7 @@ Provides:
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from telegram import Update
 from telegram.error import BadRequest
@@ -602,7 +603,7 @@ async def edit_cancel_command(
 # ---------------------------------------------------------------------------
 
 
-def build_profile_command_handler() -> CommandHandler:
+def build_profile_command_handler() -> CommandHandler[Any, Any]:
     """Build the /profilo command handler."""
     return CommandHandler("profilo", profile_command)
 

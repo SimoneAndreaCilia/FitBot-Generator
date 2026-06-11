@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import io
 import logging
+from typing import cast
 
 from sqlalchemy import select
 from telegram import Message, Update
@@ -182,7 +183,7 @@ async def download_pdf_callback(
     filename = f"WOD_{title_slug}_{date_str}.pdf"
 
     assert query.message is not None
-    msg: Message = query.message  # type: ignore[assignment]
+    msg: Message = cast(Message, query.message)
     await msg.reply_document(
         document=io.BytesIO(pdf_bytes),
         filename=filename,
@@ -294,7 +295,7 @@ async def download_summary_callback(  # pylint: disable=too-many-statements
     filename = f"WOD_{title_slug}_{date_str}_Riepilogo.pdf"
 
     assert query.message is not None
-    msg: Message = query.message  # type: ignore[assignment]
+    msg: Message = cast(Message, query.message)
     await msg.reply_document(
         document=io.BytesIO(pdf_bytes),
         filename=filename,
@@ -325,7 +326,7 @@ async def download_txt_callback(
     filename = f"WOD_{title_slug}_{date_str}.txt"
 
     assert query.message is not None
-    msg: Message = query.message  # type: ignore[assignment]
+    msg: Message = cast(Message, query.message)
     await msg.reply_document(
         document=io.BytesIO(txt_bytes),
         filename=filename,

@@ -366,7 +366,7 @@ async def handle_wod_navigation(
 # ---------------------------------------------------------------------------
 
 
-def build_menu_handlers() -> list[MessageHandler]:
+def build_menu_handlers() -> list[MessageHandler[Any, Any]]:
     """Build all MessageHandler instances for menu button presses.
 
     These should be registered AFTER ConversationHandlers so they don't
@@ -426,6 +426,6 @@ def build_crea_scheda_existing_handler() -> (
     )
 
 
-def build_wod_navigation_handler() -> CallbackQueryHandler:
+def build_wod_navigation_handler() -> CallbackQueryHandler[Any, Any]:
     """Build the callback handler for WOD day navigation."""
     return CallbackQueryHandler(handle_wod_navigation, pattern=r"^wodday:")

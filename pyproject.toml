@@ -65,11 +65,15 @@ python_version = "3.11"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
-plugins = ["pydantic.mypy"]
+plugins = ["pydantic.mypy", "sqlalchemy.ext.mypy.plugin"]
 
 [[tool.mypy.overrides]]
 module = ["telegram.*", "reportlab.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

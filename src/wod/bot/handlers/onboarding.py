@@ -22,6 +22,7 @@ Uses ``ConversationHandler`` with inline-keyboard callbacks and
 from __future__ import annotations
 
 import logging
+from typing import Any, cast
 
 from telegram import CallbackQuery, Update
 from telegram.error import BadRequest
@@ -456,7 +457,7 @@ async def _finalize_onboarding(
     bmi_cat = context.user_data.get("bmi_category", "")
     # pyrefly: ignore [no-matching-overload]
     body_label = _BODY_TYPE_LABELS.get(
-        context.user_data.get("body_type"), "—"  # type: ignore[arg-type]
+        cast(BodyType, context.user_data.get("body_type")), "—"
     )
     level = context.user_data["experience_level"].value.title()
     freq = context.user_data["training_frequency"]
@@ -531,7 +532,7 @@ async def cancel_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) ->
 # ---------------------------------------------------------------------------
 
 
-def build_start_handler() -> CommandHandler:
+def build_start_handler() -> CommandHandler[Any, Any]:
     """Build the /start command handler (greeting + menu)."""
     return CommandHandler("start", start_command)
 
