@@ -182,50 +182,29 @@ FitBot-Generator/
 │       ├── __init__.py
 │       ├── config.py               # App configuration (Pydantic Settings)
 │       ├── bot/                    # 🤖 Telegram Layer
-│       │   ├── main.py             # Entry point — assembles handlers and starts polling
+│       │   ├── formatters/         # Message formatting modules (text, pdf)
+│       │   ├── handlers/           # Command handlers (onboarding, profile, wod, etc.)
 │       │   ├── keyboards.py        # Inline and reply keyboards
-│       │   ├── formatters.py       # Message formatting for the user
-│       │   ├── utils.py            # Shared bot utilities
-│       │   └── handlers/           # Command handlers
-│       │       ├── onboarding.py   # Registration and routine creation flow
-│       │       ├── menu.py         # Main menu and navigation
-│       │       ├── profile.py      # Profile view and editing
-│       │       ├── wod.py          # WOD of the day and navigation
-│       │       ├── history.py      # Routines history + PDF/TXT export
-│       │       └── favorites.py    # Favorite routines management
+│       │   ├── locales.py          # Localization and translations
+│       │   ├── main.py             # Entry point — assembles handlers and starts polling
+│       │   └── utils.py            # Shared bot utilities
 │       ├── core/                   # 🧠 Business Logic Layer
-│       │   ├── types.py            # Enums and domain value objects
+│       │   ├── bmi.py              # BMI calculation (WHO classification)
 │       │   ├── engine.py           # Exercise filtering by equipment and muscles
-│       │   ├── split_generator.py  # Weekly split generation
 │       │   ├── intensity.py        # Sets, reps, and intensity calculation
-│       │   └── bmi.py              # BMI calculation (WHO classification)
+│       │   ├── split_generator.py  # Weekly split generation
+│       │   └── types.py            # Enums and domain value objects
 │       └── db/                     # 💾 Persistence Layer
-│           ├── models.py           # SQLAlchemy Models (User, Exercise, Routine, etc.)
+│           ├── models/             # SQLAlchemy Models (user, exercise, etc.)
 │           ├── repositories.py     # Repository pattern for data access
-│           ├── session.py          # Async database session management
-│           └── seeding.py          # Auto-seeding of the exercise catalog
+│           ├── seeding.py          # Auto-seeding of the exercise catalog
+│           └── session.py          # Async database session management
 ├── tests/                          # 🧪 Test Suite
-│   ├── conftest.py                 # Shared fixtures (In-memory DB, mocks)
-│   ├── test_config.py              # Configuration tests
 │   ├── bot/                        # Bot layer tests
-│   │   ├── test_main.py            # Entry point and handler registration tests
-│   │   ├── test_keyboards.py       # Keyboards and layout tests
-│   │   ├── test_formatters.py      # Message formatting tests
-│   │   ├── test_utils.py           # Utilities tests
-│   │   ├── test_onboarding.py      # Onboarding flow tests
-│   │   ├── test_profile.py         # Profile management tests
-│   │   └── test_wod_helpers.py     # WOD helper tests
 │   ├── core/                       # Core layer tests
-│   │   ├── test_bmi.py             # BMI calculation tests
-│   │   ├── test_engine.py          # Exercise filtering tests
-│   │   ├── test_intensity.py       # Intensity calculation tests
-│   │   ├── test_split_generator.py # Split generation tests
-│   │   └── test_types.py           # Domain types tests
-│   └── db/                         # DB layer tests
-│       ├── test_models.py          # Models tests
-│       ├── test_repositories.py    # Repository pattern tests
-│       ├── test_seeding.py         # Data seeding tests
-│       └── test_session.py         # DB sessions tests
+│   ├── db/                         # DB layer tests
+│   ├── conftest.py                 # Shared fixtures (In-memory DB, mocks)
+│   └── test_config.py              # Configuration tests
 ├── .coveragerc                     # Code coverage configuration
 ├── .flake8                         # Flake8 configuration
 ├── .pre-commit-config.yaml         # Pre-commit hooks
