@@ -26,7 +26,7 @@ from wod.bot.handlers.onboarding.constants import (
 )
 from wod.bot.handlers.onboarding.equipment import equipment_callback
 from wod.bot.handlers.onboarding.finalize import _finalize_onboarding, cancel_command
-from wod.bot.handlers.onboarding.start import start_command
+from wod.bot.handlers.onboarding.start import build_language_handlers, start_command
 from wod.bot.handlers.onboarding.steps import (
     begin_onboarding,
     bmi_continue_callback,
@@ -53,6 +53,7 @@ __all__ = [
     "begin_onboarding",
     "bmi_continue_callback",
     "body_type_callback",
+    "build_language_handlers",
     "build_onboarding_handler",
     "build_start_handler",
     "cancel_command",

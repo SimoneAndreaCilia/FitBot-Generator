@@ -58,6 +58,7 @@ class MockUser:
         self.training_frequency = kwargs.get("training_frequency", None)
         self.preferred_split = kwargs.get("preferred_split", None)
         self.equipment = kwargs.get("equipment", [])
+        self.language = kwargs.get("language", "it")
 
 
 class TestFormatProfileText:
@@ -65,7 +66,7 @@ class TestFormatProfileText:
 
     def test_format_profile_text_empty(self) -> None:
         user = MockUser()
-        text = _format_profile_text(user)
+        text = _format_profile_text("it", user)
         assert "Nome: —" in text
         assert "Altezza: —" in text
         assert "Peso: —" in text
@@ -89,7 +90,7 @@ class TestFormatProfileText:
             preferred_split=SplitType.UPPER_LOWER,
             equipment=[eq1, eq2],
         )
-        text = _format_profile_text(user)
+        text = _format_profile_text("it", user)
         assert "Nome: Alice" in text
         assert "Altezza: 180 cm" in text
         assert "Peso: 72.5 kg" in text
@@ -97,7 +98,7 @@ class TestFormatProfileText:
         assert "Corporatura: Mesomorfo" in text
         assert "Livello: Avanzato" in text
         assert "Frequenza: 4 giorni/settimana" in text
-        assert "Split: Upper/Lower" in text
+        assert "Split: Upper / Lower" in text
         assert "Attrezzatura: Barbell, Bench Press" in text
 
 

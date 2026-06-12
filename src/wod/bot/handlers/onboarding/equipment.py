@@ -9,6 +9,7 @@ from telegram.ext import ContextTypes
 from wod.bot.handlers.onboarding.constants import EQUIPMENT
 from wod.bot.handlers.onboarding.finalize import _finalize_onboarding
 from wod.bot.keyboards import equipment_keyboard
+from wod.bot.locales import get_text
 from wod.bot.utils import handle_equipment_toggle
 
 
@@ -22,12 +23,13 @@ async def equipment_callback(
     assert context.user_data is not None
 
     data = query.data.split(":")[1]
+    lang = context.user_data.get("lang", "it")
 
     if data == "done":
         selected = context.user_data.get("selected_equipment", set())
         if not selected:
             await query.answer(
-                text="⚠️ Seleziona almeno un attrezzo per procedere!",
+                text=get_text(lang, "onb_equip_err"),
                 show_alert=True,
             )
             return EQUIPMENT
@@ -42,9 +44,8 @@ async def equipment_callback(
     eq_list = context.user_data["equipment_list"]
     try:
         await query.edit_message_text(
-            "Seleziona l'attrezzatura disponibile nella tua Home Gym.\n"
-            "Tocca per selezionare/deselezionare, poi conferma:",
-            reply_markup=equipment_keyboard(eq_list, selected),
+            get_text(lang, "onb_equip_prompt"),
+            reply_markup=equipment_keyboard(lang, eq_list, selected),
         )
     except BadRequest as e:
         if "not modified" not in str(e).lower():

@@ -8,7 +8,6 @@ from telegram.ext import ContextTypes
 from wod.bot.handlers.onboarding.constants import (
     BMI_DISPLAY,
     BODY_TYPE,
-    BODY_TYPE_LABELS,
     EQUIPMENT,
     EXPERIENCE,
     FREQUENCY,
@@ -25,9 +24,10 @@ from wod.bot.keyboards import (
     frequency_keyboard,
     split_keyboard,
 )
+from wod.bot.locales import get_text
 from wod.core.bmi import calculate_bmi
 from wod.core.types import BodyType, ExperienceLevel, SplitType
-from wod.db.repositories import get_all_equipment
+from wod.db.repositories import get_all_equipment, get_or_create_user
 from wod.db.session import get_session_factory
 
 # ---------------------------------------------------------------------------
@@ -44,8 +44,16 @@ async def begin_onboarding(update: Update, _context: ContextTypes.DEFAULT_TYPE) 
     assert query is not None
     await query.answer()
 
+    assert update.effective_user is not None
+    async with get_session_factory()() as session:
+        user = await get_or_create_user(session, telegram_id=update.effective_user.id)
+        lang = user.language or "it"
+
+    assert _context.user_data is not None
+    _context.user_data["lang"] = lang
+
     await query.edit_message_text(
-        "🏋️ *Configuriamo il tuo profilo di allenamento!*\n\nCome ti chiami?",
+        get_text(lang, "onb_begin"),
         parse_mode="Markdown",
     )
     return NAME
@@ -62,17 +70,16 @@ async def name_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     assert update.message.text is not None
     assert context.user_data is not None
 
+    lang = context.user_data.get("lang", "it")
     name = update.message.text.strip()
     if not name or len(name) > 128:
-        await update.message.reply_text(
-            "⚠️ Inserisci un nome valido (max 128 caratteri):"
-        )
+        await update.message.reply_text(get_text(lang, "onb_name_err"))
         return NAME
 
     context.user_data["name"] = name
 
     await update.message.reply_text(
-        f"✅ Nome: *{name}*\n\n" "📏 Qual è la tua altezza in *cm*?\n" "_(es: 175)_",
+        get_text(lang, "onb_name_ok", name=name),
         parse_mode="Markdown",
     )
     return HEIGHT
@@ -89,22 +96,19 @@ async def height_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     assert update.message.text is not None
     assert context.user_data is not None
 
+    lang = context.user_data.get("lang", "it")
     try:
         height = float(update.message.text.strip().replace(",", "."))
         if height < 50 or height > 300:
             raise ValueError("out of range")
     except ValueError:
-        await update.message.reply_text(
-            "⚠️ Inserisci un'altezza valida in cm (es: 175):"
-        )
+        await update.message.reply_text(get_text(lang, "onb_height_err"))
         return HEIGHT
 
     context.user_data["height_cm"] = height
 
     await update.message.reply_text(
-        f"✅ Altezza: *{height:.0f} cm*\n\n"
-        "⚖️ Qual è il tuo peso in *kg*?\n"
-        "_(es: 72.5)_",
+        get_text(lang, "onb_height_ok", height=f"{height:.0f}"),
         parse_mode="Markdown",
     )
     return WEIGHT
@@ -121,20 +125,21 @@ async def weight_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     assert update.message.text is not None
     assert context.user_data is not None
 
+    lang = context.user_data.get("lang", "it")
     try:
         weight = float(update.message.text.strip().replace(",", "."))
         if weight < 20 or weight > 500:
             raise ValueError("out of range")
     except ValueError:
-        await update.message.reply_text("⚠️ Inserisci un peso valido in kg (es: 72.5):")
+        await update.message.reply_text(get_text(lang, "onb_weight_err"))
         return WEIGHT
 
     context.user_data["weight_kg"] = weight
 
     await update.message.reply_text(
-        f"✅ Peso: *{weight:.1f} kg*\n\n" "Qual è il tuo tipo di corporatura?",
+        get_text(lang, "onb_weight_ok", weight=f"{weight:.1f}"),
         parse_mode="Markdown",
-        reply_markup=body_type_keyboard(),
+        reply_markup=body_type_keyboard(lang),
     )
     return BODY_TYPE
 
@@ -157,20 +162,28 @@ async def body_type_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
     body = BodyType(body_str)
     context.user_data["body_type"] = body
 
+    lang = context.user_data.get("lang", "it")
+
     # Calculate BMI
     height_cm = context.user_data["height_cm"]
     weight_kg = context.user_data["weight_kg"]
-    bmi_value, bmi_category = calculate_bmi(weight_kg, height_cm)
+    bmi_value, bmi_category_key = calculate_bmi(weight_kg, height_cm)
+    bmi_category = get_text(lang, bmi_category_key)
     context.user_data["bmi_value"] = bmi_value
     context.user_data["bmi_category"] = bmi_category
 
-    body_label = BODY_TYPE_LABELS[body]
+    body_label = get_text(lang, f"lbl_{body.value}")
+
     await query.edit_message_text(
-        f"✅ Corporatura: *{body_label}*\n\n"
-        f"📊 *Il tuo BMI: {bmi_value}* — _{bmi_category}_\n\n"
-        "Ora configuriamo il tuo allenamento!",
+        get_text(
+            lang,
+            "onb_body_ok",
+            body=body_label,
+            bmi_value=bmi_value,
+            bmi_category=bmi_category,
+        ),
         parse_mode="Markdown",
-        reply_markup=bmi_continue_keyboard(),
+        reply_markup=bmi_continue_keyboard(lang),
     )
     return BMI_DISPLAY
 
@@ -188,9 +201,10 @@ async def bmi_continue_callback(
     assert query is not None
     await query.answer()
 
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
     await query.edit_message_text(
-        "Qual è il tuo livello di esperienza?",
-        reply_markup=experience_keyboard(),
+        get_text(lang, "onb_exp_prompt"),
+        reply_markup=experience_keyboard(lang),
     )
     return EXPERIENCE
 
@@ -216,11 +230,11 @@ async def experience_callback(
     assert context.user_data is not None
     context.user_data["experience_level"] = level
 
+    lang = context.user_data.get("lang", "it")
     await query.edit_message_text(
-        f"✅ Livello: *{level.value.title()}*\n\n"
-        "Quanti giorni a settimana vuoi allenarti?",
+        get_text(lang, "onb_exp_ok", level=get_text(lang, f"lbl_{level.value}")),
         parse_mode="Markdown",
-        reply_markup=frequency_keyboard(),
+        reply_markup=frequency_keyboard(lang),
     )
     return FREQUENCY
 
@@ -241,11 +255,11 @@ async def frequency_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
     assert context.user_data is not None
     context.user_data["training_frequency"] = freq
 
+    lang = context.user_data.get("lang", "it")
     await query.edit_message_text(
-        f"✅ Frequenza: *{freq} giorni/settimana*\n\n"
-        "Scegli il tipo di split settimanale:",
+        get_text(lang, "onb_freq_ok", freq=freq),
         parse_mode="Markdown",
-        reply_markup=split_keyboard(frequency=freq),
+        reply_markup=split_keyboard(lang, frequency=freq),
     )
     return SPLIT
 
@@ -275,12 +289,11 @@ async def split_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     context.user_data["equipment_list"] = eq_list
     context.user_data["selected_equipment"] = set()
 
-    split_label = split_type.value.replace("_", " ").title()
+    lang = context.user_data.get("lang", "it")
+    split_label = get_text(lang, f"lbl_{split_type.value}")
     await query.edit_message_text(
-        f"✅ Split: *{split_label}*\n\n"
-        "Seleziona l'attrezzatura disponibile nella tua Home Gym.\n"
-        "Tocca per selezionare/deselezionare, poi conferma:",
+        get_text(lang, "onb_split_ok", split=split_label),
         parse_mode="Markdown",
-        reply_markup=equipment_keyboard(eq_list, set()),
+        reply_markup=equipment_keyboard(lang, eq_list, set()),
     )
     return EQUIPMENT

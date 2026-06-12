@@ -84,8 +84,14 @@ class TestStartLiveWorkout:
     @pytest.mark.asyncio
     @patch("wod.bot.handlers.live_workout.get_session_factory")
     @patch("wod.bot.handlers.live_workout.get_workout_by_id")
+    @patch("wod.bot.handlers.live_workout.get_or_create_user")
     async def test_start_workout_no_workout(
-        self, mock_get_workout, mock_session_factory, mock_update, mock_context
+        self,
+        mock_get_user,
+        mock_get_workout,
+        mock_session_factory,
+        mock_update,
+        mock_context,
     ):
         session_mock = MagicMock()
         session_mock.__aenter__ = AsyncMock(return_value=session_mock)
@@ -93,6 +99,9 @@ class TestStartLiveWorkout:
         session_mock.commit = AsyncMock()
         mock_session_factory.return_value = MagicMock(return_value=session_mock)
         mock_get_workout.return_value = None
+        mock_user = MagicMock()
+        mock_user.language = "it"
+        mock_get_user.return_value = mock_user
 
         result = await start_live_workout(mock_update, mock_context)
 
@@ -104,8 +113,10 @@ class TestStartLiveWorkout:
     @pytest.mark.asyncio
     @patch("wod.bot.handlers.live_workout.get_session_factory")
     @patch("wod.bot.handlers.live_workout.get_workout_by_id")
+    @patch("wod.bot.handlers.live_workout.get_or_create_user")
     async def test_start_workout_multiple_days(
         self,
+        mock_get_user,
         mock_get_workout,
         mock_session_factory,
         mock_update,
@@ -118,6 +129,9 @@ class TestStartLiveWorkout:
         session_mock.commit = AsyncMock()
         mock_session_factory.return_value = MagicMock(return_value=session_mock)
         mock_get_workout.return_value = mock_workout
+        mock_user = MagicMock()
+        mock_user.language = "it"
+        mock_get_user.return_value = mock_user
 
         result = await start_live_workout(mock_update, mock_context)
 
@@ -133,8 +147,10 @@ class TestStartLiveWorkout:
     @patch("wod.bot.handlers.live_workout._start_session_for_day")
     @patch("wod.bot.handlers.live_workout.get_session_factory")
     @patch("wod.bot.handlers.live_workout.get_workout_by_id")
+    @patch("wod.bot.handlers.live_workout.get_or_create_user")
     async def test_start_workout_with_day_index(
         self,
+        mock_get_user,
         mock_get_workout,
         mock_session_factory,
         mock_start_session,
@@ -149,6 +165,9 @@ class TestStartLiveWorkout:
         mock_session_factory.return_value = MagicMock(return_value=session_mock)
         mock_get_workout.return_value = mock_workout
         mock_start_session.return_value = WAIT_SET_INPUT
+        mock_user = MagicMock()
+        mock_user.language = "it"
+        mock_get_user.return_value = mock_user
 
         mock_update.callback_query.data = "startw:1:0"
 
@@ -163,8 +182,10 @@ class TestStartLiveWorkout:
     @patch("wod.bot.handlers.live_workout._start_session_for_day")
     @patch("wod.bot.handlers.live_workout.get_session_factory")
     @patch("wod.bot.handlers.live_workout.get_workout_by_id")
+    @patch("wod.bot.handlers.live_workout.get_or_create_user")
     async def test_start_workout_single_day(
         self,
+        mock_get_user,
         mock_get_workout,
         mock_session_factory,
         mock_start_session,
@@ -181,6 +202,9 @@ class TestStartLiveWorkout:
         mock_workout.exercises = [mock_workout.exercises[0]]
         mock_get_workout.return_value = mock_workout
         mock_start_session.return_value = WAIT_SET_INPUT
+        mock_user = MagicMock()
+        mock_user.language = "it"
+        mock_get_user.return_value = mock_user
 
         mock_update.callback_query.data = "startw:1"
 

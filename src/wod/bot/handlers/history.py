@@ -28,6 +28,7 @@ from wod.bot.formatters import (
     workout_to_pdf,
 )
 from wod.bot.keyboards import history_keyboard, workout_actions_keyboard
+from wod.bot.locales import get_text
 from wod.bot.utils import send_workout_text
 from wod.config import get_settings
 from wod.core.intensity import calculate_intensity
@@ -60,12 +61,10 @@ async def history_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -
         )
         favorites = await get_user_favorites(session, user.id)
         fav_workout_ids = {fav.workout_id for fav in favorites}
+        lang = user.language or "it"
 
     if not workouts:
-        await update.message.reply_text(
-            "📋 Non hai ancora generato nessuna scheda.\n"
-            "Usa /wod per creare il tuo primo allenamento!"
-        )
+        await update.message.reply_text(get_text(lang, "hist_empty"))
         return
 
     workout_tuples = [
@@ -79,9 +78,9 @@ async def history_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -
     ]
 
     await update.message.reply_text(
-        "📋 *Le tue ultime schede:*\n\nTocca per visualizzare:",
+        get_text(lang, "hist_title"),
         parse_mode="Markdown",
-        reply_markup=history_keyboard(workout_tuples),
+        reply_markup=history_keyboard(lang, workout_tuples),
     )
 
 
@@ -98,19 +97,20 @@ async def view_workout_callback(
     workout_id = int(query.data.split(":")[1])
 
     async with get_session_factory()() as session:
+        user = await get_or_create_user(session, telegram_id=query.from_user.id)
+        lang = user.language or "it"
         workout = await get_workout_by_id(session, workout_id)
         if workout is None:
-            await query.edit_message_text("❌ Scheda non trovata.")
+            await query.edit_message_text(get_text(lang, "hist_not_found"))
             return
 
-        user = await get_or_create_user(session, telegram_id=query.from_user.id)
         favorites = await get_user_favorites(session, user.id)
         is_fav = any(f.workout_id == workout_id for f in favorites)
 
     await send_workout_text(
         update,
         workout.content_text,
-        reply_markup=workout_actions_keyboard(workout_id, is_fav),
+        reply_markup=workout_actions_keyboard(lang, workout_id, is_fav),
         parse_mode="Markdown",
     )
 
@@ -128,29 +128,39 @@ async def download_pdf_callback(
     workout_id = int(query.data.split(":")[1])
 
     async with get_session_factory()() as session:
+        user = await get_or_create_user(session, telegram_id=query.from_user.id)
+        lang = user.language or "it"
         workout = await get_workout_by_id(session, workout_id)
         if workout is None:
-            await query.edit_message_text("❌ Scheda non trovata.")
+            await query.edit_message_text(get_text(lang, "hist_not_found"))
             return
 
         # Load user profile with equipment for the PDF
-        user = await get_user_with_equipment(session, telegram_id=query.from_user.id)
+        user_with_eq = await get_user_with_equipment(
+            session, telegram_id=query.from_user.id
+        )
 
         user_profile = None
-        if user is not None:
+        if user_with_eq is not None:
             user_profile = UserProfile(
-                name=user.name,
-                height_cm=user.height_cm,
-                weight_kg=user.weight_kg,
-                body_type=user.body_type.value if user.body_type else None,
+                name=user_with_eq.name,
+                height_cm=user_with_eq.height_cm,
+                weight_kg=user_with_eq.weight_kg,
+                body_type=(
+                    user_with_eq.body_type.value if user_with_eq.body_type else None
+                ),
                 experience_level=(
-                    user.experience_level.value if user.experience_level else None
+                    user_with_eq.experience_level.value
+                    if user_with_eq.experience_level
+                    else None
                 ),
-                training_frequency=user.training_frequency,
+                training_frequency=user_with_eq.training_frequency,
                 preferred_split=(
-                    user.preferred_split.value if user.preferred_split else None
+                    user_with_eq.preferred_split.value
+                    if user_with_eq.preferred_split
+                    else None
                 ),
-                equipment=[eq.name for eq in user.equipment],
+                equipment=[eq.name for eq in user_with_eq.equipment],
             )
 
         # Build FormattedWorkout from stored data
@@ -176,7 +186,7 @@ async def download_pdf_callback(
             user_profile=user_profile,
         )
 
-        pdf_bytes = workout_to_pdf(formatted)
+        pdf_bytes = workout_to_pdf(lang, formatted)
         date_str = workout.created_at.strftime("%Y%m%d")
 
     title_slug = workout.title.replace(" ", "_")
@@ -204,37 +214,48 @@ async def download_summary_callback(  # pylint: disable=too-many-statements
     session_id = int(query.data.split(":")[1])
 
     async with get_session_factory()() as db_session:
+        user = await get_or_create_user(db_session, telegram_id=query.from_user.id)
+        lang = user.language or "it"
+
         # Get the session
         stmt = select(WorkoutSession).where(WorkoutSession.id == session_id)
         result = await db_session.execute(stmt)
         ws = result.scalar_one_or_none()
 
         if not ws:
-            await query.edit_message_text("❌ Sessione non trovata.")
+            await query.edit_message_text(get_text(lang, "hist_session_not_found"))
             return
 
         workout = await get_workout_by_id(db_session, ws.workout_id)
         if not workout:
-            await query.edit_message_text("❌ Scheda non trovata.")
+            await query.edit_message_text(get_text(lang, "hist_not_found"))
             return
 
-        user = await get_user_with_equipment(db_session, telegram_id=query.from_user.id)
+        user_with_eq = await get_user_with_equipment(
+            db_session, telegram_id=query.from_user.id
+        )
 
         user_profile = None
-        if user is not None:
+        if user_with_eq is not None:
             user_profile = UserProfile(
-                name=user.name,
-                height_cm=user.height_cm,
-                weight_kg=user.weight_kg,
-                body_type=user.body_type.value if user.body_type else None,
+                name=user_with_eq.name,
+                height_cm=user_with_eq.height_cm,
+                weight_kg=user_with_eq.weight_kg,
+                body_type=(
+                    user_with_eq.body_type.value if user_with_eq.body_type else None
+                ),
                 experience_level=(
-                    user.experience_level.value if user.experience_level else None
+                    user_with_eq.experience_level.value
+                    if user_with_eq.experience_level
+                    else None
                 ),
-                training_frequency=user.training_frequency,
+                training_frequency=user_with_eq.training_frequency,
                 preferred_split=(
-                    user.preferred_split.value if user.preferred_split else None
+                    user_with_eq.preferred_split.value
+                    if user_with_eq.preferred_split
+                    else None
                 ),
-                equipment=[eq.name for eq in user.equipment],
+                equipment=[eq.name for eq in user_with_eq.equipment],
             )
 
         logs = await get_session_logs(db_session, ws.id)
@@ -253,10 +274,10 @@ async def download_summary_callback(  # pylint: disable=too-many-statements
 
             intensity = "-"
             rest = "-"
-            if we.exercise and user and user.experience_level:
+            if we.exercise and user_with_eq and user_with_eq.experience_level:
                 try:
                     prescription = calculate_intensity(
-                        user.experience_level, we.exercise.effort_type
+                        user_with_eq.experience_level, we.exercise.effort_type
                     )
                     intensity = prescription.intensity
                     rest = (
@@ -288,7 +309,7 @@ async def download_summary_callback(  # pylint: disable=too-many-statements
             rows=session_rows,
             user_profile=user_profile,
         )
-        pdf_bytes = session_summary_to_pdf(summary)
+        pdf_bytes = session_summary_to_pdf(lang, summary)
         date_str = summary.date.strftime("%Y%m%d")
 
     title_slug = workout.title.replace(" ", "_")
@@ -315,9 +336,11 @@ async def download_txt_callback(
     workout_id = int(query.data.split(":")[1])
 
     async with get_session_factory()() as session:
+        user = await get_or_create_user(session, telegram_id=query.from_user.id)
+        lang = user.language or "it"
         workout = await get_workout_by_id(session, workout_id)
         if workout is None:
-            await query.edit_message_text("❌ Scheda non trovata.")
+            await query.edit_message_text(get_text(lang, "hist_not_found"))
             return
 
     txt_bytes = workout.content_text.encode("utf-8")

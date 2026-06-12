@@ -8,6 +8,7 @@ from telegram import Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes
 
 from wod.bot.keyboards import history_keyboard, workout_actions_keyboard
+from wod.bot.locales import get_text
 from wod.db.repositories import (
     get_or_create_user,
     get_user_favorites,
@@ -34,16 +35,19 @@ async def favorite_callback(
         user = await get_or_create_user(session, telegram_id=query.from_user.id)
         is_now_fav = await toggle_favorite(session, user.id, workout_id)
         workout = await get_workout_by_id(session, workout_id)
+        lang = user.language or "it"
         await session.commit()
 
     if workout is None:
-        await query.edit_message_text("Scheda non trovata.")
+        await query.edit_message_text(get_text(lang, "fav_not_found"))
         return
 
-    status = "Aggiunta ai preferiti!" if is_now_fav else "Rimossa dai preferiti."
+    status = (
+        get_text(lang, "fav_added") if is_now_fav else get_text(lang, "fav_removed")
+    )
     await query.answer(status, show_alert=True)
     await query.edit_message_reply_markup(
-        reply_markup=workout_actions_keyboard(workout_id, is_now_fav)
+        reply_markup=workout_actions_keyboard(lang, workout_id, is_now_fav)
     )
 
 
@@ -56,11 +60,10 @@ async def favorites_command(
     async with get_session_factory()() as session:
         user = await get_or_create_user(session, telegram_id=update.effective_user.id)
         favorites = await get_user_favorites(session, user.id)
+        lang = user.language or "it"
 
     if not favorites:
-        await update.message.reply_text(
-            "Non hai ancora nessuna scheda nei preferiti.\nUsa /wod e aggiungila!"
-        )
+        await update.message.reply_text(get_text(lang, "fav_empty"))
         return
 
     tuples = [
@@ -74,9 +77,9 @@ async def favorites_command(
         if f.workout is not None
     ]
     await update.message.reply_text(
-        "*I tuoi preferiti:*\nTocca per visualizzare:",
+        get_text(lang, "fav_title"),
         parse_mode="Markdown",
-        reply_markup=history_keyboard(tuples),
+        reply_markup=history_keyboard(lang, tuples),
     )
 
 

@@ -8,6 +8,7 @@ from telegram.ext import ContextTypes
 
 from wod.bot.handlers.profile.constants import EDIT_EQUIPMENT, REGEN_CONFIRM
 from wod.bot.keyboards import equipment_keyboard, regenerate_keyboard
+from wod.bot.locales import get_text
 from wod.bot.utils import handle_equipment_toggle
 from wod.db.repositories import get_or_create_user, set_user_equipment
 from wod.db.session import get_session_factory
@@ -24,12 +25,13 @@ async def edit_equipment_callback(
     assert query.from_user is not None
 
     data = query.data.split(":")[1]
+    lang = context.user_data.get("lang", "it") if context.user_data else "it"
 
     if data == "done":
         selected_ids = list(context.user_data.get("selected_equipment", set()))
         if not selected_ids:
             await query.answer(
-                text="⚠️ Seleziona almeno un attrezzo per confermare!",
+                text=get_text(lang, "edit_eq_err"),
                 show_alert=True,
             )
             return EDIT_EQUIPMENT
@@ -43,10 +45,9 @@ async def edit_equipment_callback(
 
         eq_count = len(selected_ids)
         await query.edit_message_text(
-            f"✅ Attrezzatura aggiornata: *{eq_count} elementi*\n\n"
-            "Vuoi rigenerare la scheda di allenamento con la nuova attrezzatura?",
+            get_text(lang, "edit_eq_ok", eq_count=eq_count),
             parse_mode="Markdown",
-            reply_markup=regenerate_keyboard(),
+            reply_markup=regenerate_keyboard(lang),
         )
         return REGEN_CONFIRM
 
@@ -56,9 +57,8 @@ async def edit_equipment_callback(
     selected_set = context.user_data["selected_equipment"]
     try:
         await query.edit_message_text(
-            "🔧 Modifica la tua attrezzatura.\n"
-            "Tocca per selezionare/deselezionare, poi conferma:",
-            reply_markup=equipment_keyboard(eq_list, selected_set),
+            get_text(lang, "edit_eq_prompt"),
+            reply_markup=equipment_keyboard(lang, eq_list, selected_set),
         )
     except BadRequest as e:
         if "not modified" not in str(e).lower():

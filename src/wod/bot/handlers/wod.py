@@ -24,6 +24,7 @@ from wod.bot.formatters import (
     workout_to_text,
 )
 from wod.bot.keyboards import workout_actions_keyboard
+from wod.bot.locales import get_text
 from wod.bot.utils import send_workout_text
 from wod.core.engine import (
     filter_exercises_by_equipment,
@@ -56,16 +57,15 @@ async def wod_command(  # pylint: disable=too-many-locals
     async with get_session_factory()() as session:
         user = await get_or_create_user(session, telegram_id=update.effective_user.id)
 
+        lang = user.language or "it"
+
         # Validate profile completeness
         if (
             not user.experience_level
             or not user.training_frequency
             or not user.preferred_split
         ):
-            await update.message.reply_text(
-                "⚠️ Il tuo profilo non è completo.\n"
-                "Usa /start per configurare livello, frequenza e split."
-            )
+            await update.message.reply_text(get_text(lang, "wod_incomp_prof"))
             return
 
         # Load exercises and user equipment
@@ -73,10 +73,7 @@ async def wod_command(  # pylint: disable=too-many-locals
         user_equipment = list(user.equipment)
 
         if not user_equipment:
-            await update.message.reply_text(
-                "⚠️ Non hai selezionato nessuna attrezzatura.\n"
-                "Usa /start per configurare la tua Home Gym."
-            )
+            await update.message.reply_text(get_text(lang, "wod_no_eq"))
             return
 
         # 1. Filter exercises by user's available equipment
@@ -85,10 +82,7 @@ async def wod_command(  # pylint: disable=too-many-locals
         )
 
         if not available_exercises:
-            await update.message.reply_text(
-                "😔 Non ho trovato esercizi compatibili con la tua attrezzatura.\n"
-                "Prova ad aggiungere più attrezzatura con /start."
-            )
+            await update.message.reply_text(get_text(lang, "wod_no_ex_eq"))
             return
 
         # 2. Generate weekly split
@@ -117,22 +111,19 @@ async def wod_command(  # pylint: disable=too-many-locals
             global_order += len(day_prescribed)
 
         if not prescribed:
-            await update.message.reply_text(
-                "😔 Non ho trovato esercizi sufficienti per i tuoi gruppi muscolari.\n"
-                "Prova a rivedere la tua attrezzatura con /start."
-            )
+            await update.message.reply_text(get_text(lang, "wod_no_ex_mg"))
             return
 
         # 5. Format
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        split_name = user.preferred_split.value.title().replace("_", " ")
-        workout_title = f"Scheda Settimanale — {split_name}"
+        split_name = get_text(lang, f"lbl_{user.preferred_split.value}")
+        workout_title = get_text(lang, "wod_weekly_plan", split_name=split_name)
         formatted = FormattedWorkout(
             title=workout_title,
             date=now,
             exercises=prescribed,
         )
-        text = workout_to_text(formatted)
+        text = workout_to_text(lang, formatted)
 
         # 6. Persist
         content_json = json.dumps(
@@ -181,7 +172,7 @@ async def wod_command(  # pylint: disable=too-many-locals
         await send_workout_text(
             update,
             text,
-            reply_markup=workout_actions_keyboard(workout.id, is_favorite=False),
+            reply_markup=workout_actions_keyboard(lang, workout.id, is_favorite=False),
             parse_mode="Markdown",
         )
 

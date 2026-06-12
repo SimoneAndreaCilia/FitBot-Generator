@@ -7,8 +7,8 @@ from typing import cast
 from telegram import CallbackQuery, Update
 from telegram.ext import ContextTypes, ConversationHandler
 
-from wod.bot.handlers.onboarding.constants import BODY_TYPE_LABELS
 from wod.bot.keyboards import expanded_menu_keyboard
+from wod.bot.locales import get_text
 from wod.core.types import BodyType
 from wod.db.repositories import (
     get_or_create_user,
@@ -48,27 +48,44 @@ async def _finalize_onboarding(
     weight = context.user_data.get("weight_kg", 0)
     bmi_value = context.user_data.get("bmi_value", "—")
     bmi_cat = context.user_data.get("bmi_category", "")
-    # pyrefly: ignore [no-matching-overload]
-    body_label = BODY_TYPE_LABELS.get(
-        cast(BodyType, context.user_data.get("body_type")), "—"
-    )
-    level = context.user_data["experience_level"].value.title()
     freq = context.user_data["training_frequency"]
-    split_label = context.user_data["preferred_split"].value.replace("_", " ").title()
     eq_count = len(context.user_data.get("selected_equipment", set()))
 
+    lang = context.user_data.get("lang", "it")
+
+    # Format the completion message
+    msg = get_text(lang, "onb_fin_title")
+    msg += get_text(lang, "onb_fin_name", name=name)
+    msg += get_text(lang, "onb_fin_height", height=f"{height:.0f}")
+    msg += get_text(lang, "onb_fin_weight", weight=f"{weight:.1f}")
+    msg += get_text(lang, "onb_fin_bmi", bmi_value=bmi_value, bmi_cat=bmi_cat)
+    msg += get_text(
+        lang,
+        "onb_fin_body",
+        body=(
+            get_text(
+                lang, f"lbl_{cast(BodyType, context.user_data.get('body_type')).value}"
+            )
+            if context.user_data.get("body_type")
+            else "—"
+        ),
+    )
+    msg += get_text(
+        lang,
+        "onb_fin_level",
+        level=get_text(lang, f"lbl_{context.user_data['experience_level'].value}"),
+    )
+    msg += get_text(lang, "onb_fin_freq", freq=freq)
+    msg += get_text(
+        lang,
+        "onb_fin_split",
+        split=get_text(lang, f"lbl_{context.user_data['preferred_split'].value}"),
+    )
+    msg += get_text(lang, "onb_fin_equip", eq_count=eq_count)
+    msg += get_text(lang, "onb_fin_gen")
+
     await query.edit_message_text(
-        "🎉 *Profilo configurato!*\n\n"
-        f"📛 Nome: {name}\n"
-        f"📏 Altezza: {height:.0f} cm\n"
-        f"⚖️ Peso: {weight:.1f} kg\n"
-        f"📊 BMI: {bmi_value} ({bmi_cat})\n"
-        f"🦴 Corporatura: {body_label}\n"
-        f"• Livello: {level}\n"
-        f"• Frequenza: {freq} giorni/settimana\n"
-        f"• Split: {split_label}\n"
-        f"• Attrezzatura: {eq_count} elementi\n\n"
-        "⏳ *Generazione della scheda in corso...*",
+        msg,
         parse_mode="Markdown",
     )
 
@@ -99,17 +116,16 @@ async def _finalize_onboarding(
 
         # Show the expanded menu keyboard so they have options ready
         await query.message.reply_text(
-            "📋 *Menu completo:*",
+            get_text(lang, "onb_fin_menu"),
             parse_mode="Markdown",
-            reply_markup=expanded_menu_keyboard(),
+            reply_markup=expanded_menu_keyboard(lang),
         )
     return ConversationHandler.END
 
 
-async def cancel_command(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> int:
+async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel the onboarding conversation."""
     assert update.message is not None
-    await update.message.reply_text(
-        "❌ Configurazione annullata. Usa /start per ricominciare."
-    )
+    lang = context.user_data.get("lang", "it") if context.user_data else "it"
+    await update.message.reply_text(get_text(lang, "onb_cancel"))
     return ConversationHandler.END

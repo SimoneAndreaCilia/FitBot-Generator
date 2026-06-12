@@ -43,6 +43,11 @@ class User(Base):
         nullable=True,
         comment="Telegram @username (may be absent)",
     )
+    language: Mapped[Optional[str]] = mapped_column(
+        String(2),
+        nullable=True,
+        comment="User's language preference (e.g., 'it', 'en')",
+    )
     name: Mapped[Optional[str]] = mapped_column(
         String(128),
         nullable=True,

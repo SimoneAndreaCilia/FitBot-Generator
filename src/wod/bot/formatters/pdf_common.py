@@ -11,6 +11,7 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
 
 from wod.bot.formatters.dataclasses import UserProfile
+from wod.bot.locales import get_text
 
 # ---------------------------------------------------------------------------
 # Colour palette (reused across PDF elements)
@@ -46,27 +47,21 @@ BASE_TABLE_STYLE: list[tuple[Any, ...]] = [
     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
 ]
 
-LABEL_MAP: dict[str, str] = {
-    "beginner": "Principiante",
-    "intermediate": "Intermedio",
-    "advanced": "Avanzato",
-    "ectomorph": "Ectomorfo",
-    "mesomorph": "Mesomorfo",
-    "endomorph": "Endomorfo",
-    "full_body": "Full Body",
-    "upper_lower": "Upper / Lower",
-    "push_pull_legs": "Push / Pull / Legs",
-}
 
-
-def human_label(value: Optional[str]) -> str:
-    """Translate an enum value to its Italian human-readable label."""
+def human_label(lang: str, value: Optional[str]) -> str:
+    """Translate an enum value to its localized human-readable label."""
     if value is None:
         return "—"
-    return LABEL_MAP.get(value, value.replace("_", " ").title())
+
+    # Try to find a specific translation, fallback to formatting the value
+    translated = get_text(lang, f"lbl_{value}")
+    if translated == f"lbl_{value}":
+        return value.replace("_", " ").title()
+    return translated
 
 
 def build_profile_section(
+    lang: str,
     profile: UserProfile,
     styles: Any,
 ) -> list[Any]:
@@ -81,26 +76,49 @@ def build_profile_section(
         spaceAfter=8,
         spaceBefore=0,
     )
-    elements.append(Paragraph("👤 Profilo Atleta", section_title))
+    elements.append(Paragraph(get_text(lang, "pdf_prof_title"), section_title))
 
     # Build profile data as a 2-column key/value table
     info_rows: list[list[str]] = []
     if profile.name:
-        info_rows.append(["Nome", profile.name])
+        info_rows.append([get_text(lang, "pdf_prof_name"), profile.name])
     if profile.height_cm is not None:
-        info_rows.append(["Altezza", f"{profile.height_cm:.0f} cm"])
+        info_rows.append(
+            [get_text(lang, "pdf_prof_height"), f"{profile.height_cm:.0f} cm"]
+        )
     if profile.weight_kg is not None:
-        info_rows.append(["Peso", f"{profile.weight_kg:.1f} kg"])
+        info_rows.append(
+            [get_text(lang, "pdf_prof_weight"), f"{profile.weight_kg:.1f} kg"]
+        )
     if profile.body_type:
-        info_rows.append(["Somatotipo", human_label(profile.body_type)])
+        info_rows.append(
+            [get_text(lang, "pdf_prof_body"), human_label(lang, profile.body_type)]
+        )
     if profile.experience_level:
-        info_rows.append(["Livello", human_label(profile.experience_level)])
+        info_rows.append(
+            [
+                get_text(lang, "pdf_prof_level"),
+                human_label(lang, profile.experience_level),
+            ]
+        )
     if profile.training_frequency is not None:
-        info_rows.append(["Frequenza", f"{profile.training_frequency}x / settimana"])
+        info_rows.append(
+            [
+                get_text(lang, "pdf_prof_freq"),
+                get_text(lang, "pdf_prof_freq_val", freq=profile.training_frequency),
+            ]
+        )
     if profile.preferred_split:
-        info_rows.append(["Split", human_label(profile.preferred_split)])
+        info_rows.append(
+            [
+                get_text(lang, "pdf_prof_split"),
+                human_label(lang, profile.preferred_split),
+            ]
+        )
     if profile.equipment:
-        info_rows.append(["Attrezzatura", ", ".join(profile.equipment)])
+        info_rows.append(
+            [get_text(lang, "pdf_prof_equip"), ", ".join(profile.equipment)]
+        )
 
     if not info_rows:
         return elements

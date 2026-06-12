@@ -40,7 +40,7 @@ def test_pdf():
         user_profile=UserProfile(name="Test User", height_cm=180, weight_kg=80),
     )
     try:
-        pdf_bytes = session_summary_to_pdf(summary)
+        pdf_bytes = session_summary_to_pdf("it", summary)
         print("Success! PDF generated, size:", len(pdf_bytes))
     except Exception:  # pylint: disable=broad-exception-caught
         traceback.print_exc()

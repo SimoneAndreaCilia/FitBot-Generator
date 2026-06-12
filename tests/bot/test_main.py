@@ -146,7 +146,7 @@ class TestDatabaseInitialization:
 
         await _ensure_user_profile_columns()
 
-        assert mock_conn.exec_driver_sql.call_count == 5  # 1 for PRAGMA, 4 for columns
+        assert mock_conn.exec_driver_sql.call_count == 6  # 1 for PRAGMA, 5 for columns
         mock_conn.commit.assert_called_once()
 
     @pytest.mark.asyncio

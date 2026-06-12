@@ -26,7 +26,11 @@ from wod.bot.handlers.menu import (
     build_menu_handlers,
     build_wod_navigation_handler,
 )
-from wod.bot.handlers.onboarding import build_onboarding_handler, build_start_handler
+from wod.bot.handlers.onboarding import (
+    build_language_handlers,
+    build_onboarding_handler,
+    build_start_handler,
+)
 from wod.bot.handlers.profile import (
     build_edit_profile_handler,
     build_profile_command_handler,
@@ -51,6 +55,7 @@ async def _ensure_user_profile_columns() -> None:
     check for and add missing columns for SQLite backwards-compatibility.
     """
     new_columns = {
+        "language": "VARCHAR(2)",
         "name": "VARCHAR(128)",
         "height_cm": "FLOAT",
         "weight_kg": "FLOAT",
@@ -147,6 +152,10 @@ def create_application() -> Application[Any, Any, Any, Any, Any, Any]:
     # Menu button handlers (ReplyKeyboard text messages)
     for handler in build_menu_handlers():
         app.add_handler(handler)
+
+    # Callback query handlers for language selection
+    for lang_handler in build_language_handlers():
+        app.add_handler(lang_handler)
 
     # Callback query handlers
     app.add_handler(build_wod_navigation_handler())

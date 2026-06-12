@@ -16,41 +16,41 @@ from wod.bot.keyboards import (
 
 class TestMainMenuKeyboard:
     def test_has_buttons(self) -> None:
-        kb = main_menu_keyboard()
+        kb = main_menu_keyboard("it")
         assert len(kb.keyboard) > 0
 
 
 class TestExpandedMenuKeyboard:
     def test_has_buttons(self) -> None:
-        kb = expanded_menu_keyboard()
+        kb = expanded_menu_keyboard("it")
         assert len(kb.keyboard) > 0
 
 
 class TestCreaSchedaChoiceKeyboard:
     def test_has_buttons(self) -> None:
-        kb = crea_scheda_choice_keyboard()
+        kb = crea_scheda_choice_keyboard("it")
         assert len(kb.inline_keyboard) > 0
 
 
 class TestWodDayNavigationKeyboard:
     def test_has_nav_buttons(self) -> None:
-        kb = wod_day_navigation_keyboard(1, 3, 100)
+        kb = wod_day_navigation_keyboard("it", 1, 3, 100)
         assert len(kb.inline_keyboard) > 0
 
 
 class TestLiveWorkoutSessionKeyboard:
     def test_has_buttons(self) -> None:
-        kb = live_set_keyboard()
+        kb = live_set_keyboard("it")
         assert len(kb.inline_keyboard) > 0
 
     def test_select_day(self) -> None:
-        kb = select_day_keyboard(["Day 1", "Day 2"])
+        kb = select_day_keyboard("it", ["Day 1", "Day 2"])
         assert len(kb.inline_keyboard) > 0
 
     def test_rest_timer(self) -> None:
-        kb = rest_timer_keyboard()
+        kb = rest_timer_keyboard("it")
         assert len(kb.inline_keyboard) > 0
 
     def test_end_workout(self) -> None:
-        kb = end_workout_keyboard(1)
+        kb = end_workout_keyboard("it", 1)
         assert len(kb.inline_keyboard) > 0

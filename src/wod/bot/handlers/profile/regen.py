@@ -5,6 +5,8 @@ from __future__ import annotations
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 
+from wod.bot.locales import get_text
+
 
 async def regen_callback(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle the regenerate workout confirmation."""
@@ -14,16 +16,12 @@ async def regen_callback(update: Update, _context: ContextTypes.DEFAULT_TYPE) ->
     assert query.data is not None
 
     choice = query.data.split(":")[1]
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
 
     if choice == "yes":
-        await query.edit_message_text(
-            "🔄 Usa il comando /wod per generare una nuova scheda "
-            "con i tuoi dati aggiornati!"
-        )
+        await query.edit_message_text(get_text(lang, "regen_yes"))
     else:
-        await query.edit_message_text(
-            "👍 Perfetto! Usa /profilo per rivedere il tuo profilo."
-        )
+        await query.edit_message_text(get_text(lang, "regen_no"))
 
     return ConversationHandler.END
 
@@ -33,5 +31,6 @@ async def edit_cancel_command(
 ) -> int:
     """Cancel the edit conversation."""
     assert update.message is not None
-    await update.message.reply_text("❌ Modifica annullata.")
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
+    await update.message.reply_text(get_text(lang, "edit_cancel"))
     return ConversationHandler.END

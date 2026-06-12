@@ -26,9 +26,11 @@ from wod.bot.formatters.pdf_common import (
     TEXT_MUTED,
     build_profile_section,
 )
+from wod.bot.locales import get_text
 
 
 def _build_session_log_table(
+    lang: str,
     rows: list[SessionLogRow],
     _styles: Any,
 ) -> list[Any]:
@@ -36,7 +38,14 @@ def _build_session_log_table(
     elements: list[Any] = []
     page_width = A4[0] - 4 * cm
 
-    header = ["Esercizio", "Serie", "Kg", "Ripetizioni", "Recupero", "Intensità (CT)"]
+    header = [
+        get_text(lang, "pdf_sess_col_ex"),
+        get_text(lang, "pdf_sess_col_set"),
+        get_text(lang, "pdf_sess_col_kg"),
+        get_text(lang, "pdf_sess_col_reps"),
+        get_text(lang, "pdf_sess_col_rest"),
+        get_text(lang, "pdf_sess_col_int"),
+    ]
     table_data: list[list[str]] = [header]
 
     for row in rows:
@@ -46,7 +55,7 @@ def _build_session_log_table(
                     row.exercise_name,
                     str(row.set_number),
                     "-",
-                    "Saltata",
+                    get_text(lang, "pdf_sess_skipped"),
                     "-",
                     "-",
                 ]
@@ -84,7 +93,7 @@ def _build_session_log_table(
     return elements
 
 
-def session_summary_to_pdf(summary: SessionSummary) -> bytes:
+def session_summary_to_pdf(lang: str, summary: SessionSummary) -> bytes:
     """Generate a PDF document from a SessionSummary.
 
     Args:
@@ -132,7 +141,9 @@ def session_summary_to_pdf(summary: SessionSummary) -> bytes:
     # Title & date
     elements.append(Paragraph(summary.title, title_style))
     date_str = summary.date.strftime("%d/%m/%Y — %H:%M")
-    elements.append(Paragraph(f"📅 Riepilogo Sessione — {date_str}", subtitle_style))
+    elements.append(
+        Paragraph(get_text(lang, "pdf_sess_title", date=date_str), subtitle_style)
+    )
     elements.append(
         HRFlowable(
             width="100%",
@@ -145,15 +156,13 @@ def session_summary_to_pdf(summary: SessionSummary) -> bytes:
 
     # User profile
     if summary.user_profile is not None:
-        elements.extend(build_profile_section(summary.user_profile, styles))
+        elements.extend(build_profile_section(lang, summary.user_profile, styles))
 
     # The log table
     if summary.rows:
-        elements.extend(_build_session_log_table(summary.rows, styles))
+        elements.extend(_build_session_log_table(lang, summary.rows, styles))
     else:
-        elements.append(
-            Paragraph("Nessun dato registrato per questa sessione.", subtitle_style)
-        )
+        elements.append(Paragraph(get_text(lang, "pdf_sess_empty"), subtitle_style))
 
     # Footer
     elements.append(Spacer(1, 20))
@@ -168,7 +177,7 @@ def session_summary_to_pdf(summary: SessionSummary) -> bytes:
     )
     elements.append(
         Paragraph(
-            "Generato con WOD Bot — Il tuo personal trainer digitale 💪",
+            get_text(lang, "pdf_footer"),
             footer_style,
         )
     )

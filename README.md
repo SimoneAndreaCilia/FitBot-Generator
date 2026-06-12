@@ -5,7 +5,7 @@
 <h1 align="center">🏋️ FitBot — Workout of the Day Telegram Bot</h1>
 
 <p align="center">
-  <em>Generatore di schede di allenamento personalizzate, accessibile tramite Telegram Bot.</em>
+  <em>Personalized workout routine generator, accessible via Telegram Bot.</em>
 </p>
 
 <p align="center">
@@ -24,95 +24,111 @@
 
 ---
 
-## 📖 Indice
+## 📖 Table of Contents
 
-- [Panoramica](#-panoramica)
-- [Funzionalità e Comandi del Bot](#-funzionalità-e-comandi-del-bot)
-- [Screenshots UX](#-screenshots-ux)
-- [Architettura del Progetto](#-architettura-del-progetto)
-- [Struttura del Repository](#-struttura-del-repository)
-- [Guida all'Installazione](#-guida-allinstallazione)
-- [Sviluppo e Qualità del Codice](#-sviluppo-e-qualità-del-codice)
+- [Overview](#-overview)
+- [Bot Features and Commands](#-bot-features-and-commands)
+- [UX Screenshots](#-ux-screenshots)
+- [Project Architecture](#-project-architecture)
+- [Repository Structure](#-repository-structure)
+- [Installation Guide](#-installation-guide)
+- [Development and Code Quality](#-development-and-code-quality)
 - [Testing](#-testing)
 - [CI/CD Pipeline](#-cicd-pipeline)
 - [Tech Stack](#-tech-stack)
 
 ---
 
-## 🎯 Panoramica
+## 🎯 Overview
 
-**FitBot** è un Telegram Bot progettato per generare schede di allenamento personalizzate (WOD — *Workout of the Day*) basate sul profilo fisico dell'utente, il suo livello di esperienza e l'attrezzatura disponibile.
+**FitBot** is a Telegram Bot designed to generate personalized workout routines (WOD — *Workout of the Day*) based on the user's physical profile, experience level, and available equipment.
 
-Il progetto è stato sviluppato seguendo i principi della **Quality Development** con un focus su:
+The project was developed following **Quality Development** principles with a focus on:
 
-- ✅ **Core logic disaccoppiata** — la business logic è completamente separata dall'interfaccia Telegram
-- ✅ **Architettura testabile** — ogni layer può essere testato in isolamento
-- ✅ **Copertura dei test ≥ 75%** — enforced automaticamente nella CI pipeline
-- ✅ **Static analysis completa** — Black, isort, Flake8, Pylint, Mypy (strict mode)
-- ✅ **Pre-commit hooks** — qualità garantita ad ogni commit
-- ✅ **CI/CD con GitHub Actions** — lint + test automatici su ogni push/PR
+- ✅ **Decoupled core logic** — business logic is completely separated from the Telegram interface
+- ✅ **Testable architecture** — each layer can be tested in isolation
+- ✅ **Test coverage ≥ 75%** — automatically enforced in the CI pipeline
+- ✅ **Complete static analysis** — Black, isort, Flake8, Pylint, Mypy (strict mode)
+- ✅ **Pre-commit hooks** — guaranteed quality on every commit
+- ✅ **CI/CD with GitHub Actions** — automated linting + testing on every push/PR
 
 ---
 
-## 🤖 Funzionalità e Comandi del Bot
+## 🤖 Bot Features and Commands
 
-| Comando / Pulsante | Emoji | Descrizione |
+| Command / Button | Emoji | Description |
 |---|---|---|
-| `/start` | 👋 | Avvia il bot e mostra il menu principale con tutti i comandi disponibili |
-| **Nuova scheda** | 🏆 | Crea una nuova scheda di allenamento personalizzata tramite un processo di onboarding guidato. L'utente inserisce i propri dati (livello, frequenza, split, attrezzatura) o usa il profilo esistente |
-| **Profilo** | 👤 | Visualizza il profilo completo dell'utente con tutte le informazioni personali (nome, altezza, peso, BMI, corporatura, livello, frequenza, split, attrezzatura). Include opzione per modificare il profilo |
-| **🔥 WOD del giorno** | 🔥 | Mostra il Workout of the Day — l'allenamento giornaliero basato sulla scheda attiva, con navigazione tra i giorni della settimana (Indietro/Avanti) |
-| **📜 Storico** | 📜 | Rivedi le schede di allenamento generate in passato, con possibilità di scaricarle in formato PDF o TXT |
-| **⭐ Preferiti** | ⭐ | Accedi alle schede salvate nei preferiti per un rapido accesso alle routine più apprezzate |
+| `/start` | 👋 | Starts the bot and shows the main menu with all available commands |
+| **Nuova scheda (New Routine)** | 🏆 | Creates a new personalized workout routine via a guided onboarding process. The user inputs their data (level, frequency, split, equipment) or uses their existing profile |
+| **Profilo (Profile)** | 👤 | Displays the full user profile with all personal information (name, height, weight, BMI, body type, level, frequency, split, equipment). Includes option to edit the profile |
+| **🔥 WOD del giorno (WOD of the day)** | 🔥 | Shows the Workout of the Day — the daily workout based on the active routine, with navigation between days of the week (Back/Forward) |
+| **📜 Storico (History)** | 📜 | Review past generated workout routines, with the ability to download them in PDF or TXT format |
+| **⭐ Preferiti (Favorites)** | ⭐ | Access favorited routines for quick access to your most appreciated workouts |
 
-### Flusso Utente
+### User Flow
 
 ```
-/start → Menu Principale
-           ├── 🏆 Nuova scheda → Onboarding (livello, frequenza, split, attrezzatura) → Scheda generata
-           ├── 👤 Profilo → Visualizza/Modifica dati personali
-           ├── 🔥 WOD del giorno → Navigazione giornaliera della scheda attiva
-           ├── 📜 Storico → Lista schede passate → Download PDF/TXT
-           └── ⭐ Preferiti → Schede salvate
+/start → Main Menu
+           ├── 🏆 Nuova scheda → Onboarding (level, frequency, split, equipment) → Generated routine
+           ├── 👤 Profilo → View/Edit personal data
+           ├── 🔥 WOD del giorno → Daily navigation of the active routine
+           ├── 📜 Storico → List of past routines → Download PDF/TXT
+           └── ⭐ Preferiti → Saved routines
 ```
 
 ---
 
-## 📱 Screenshots UX
+## 📱 UX Screenshots
 
-Di seguito sono mostrate le schermate principali dell'interfaccia del bot Telegram:
+Below are the main screens of the Telegram bot interface:
 
-<table>
+<table align="center">
   <tr>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/start_command.jpg" width="260" alt="Comando /start"/>
+    <td align="center" colspan="3" valign="top">
+      <img src="docs/screenshots/start_command.jpg" width="280" alt="Welcome Screen"/>
       <br/>
-      <b>Comando /start</b>
+      <b>Welcome Menu</b>
       <br/>
-      <sub>Il bot accoglie l'utente con un messaggio di benvenuto e mostra l'elenco completo dei comandi disponibili. In basso sono presenti i pulsanti rapidi del menu.</sub>
+      <sub>Greets the user in their set language, displaying the initial menu and interactive quick-replies.</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/wod_profile.jpg" width="260" alt="WOD e Profilo"/>
+    <td align="center" colspan="3" valign="top">
+      <img src="docs/screenshots/onboarding_bmi.jpg" width="280" alt="Onboarding Flow"/>
       <br/>
-      <b>WOD del giorno & Profilo</b>
+      <b>Guided Onboarding</b>
       <br/>
-      <sub>In alto: il WOD mostra l'allenamento del giorno con navigazione tra i giorni. In basso: il profilo utente con tutti i dati personali e il calcolo del BMI.</sub>
+      <sub>Step-by-step setup prompts for physical metrics, calculating BMI and body type classification.</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/preferiti.jpg" width="260" alt="Preferiti"/>
+  </tr>
+  <tr>
+    <td align="center" colspan="2" valign="top">
+      <img src="docs/screenshots/profile.jpg" width="280" alt="User Profile"/>
       <br/>
-      <b>Preferiti</b>
+      <b>User Profile</b>
       <br/>
-      <sub>Lista delle schede salvate come preferite, con data/ora e tipo di programma. Tocca una scheda per visualizzarla.</sub>
+      <sub>A clean profile summary displaying physical metrics, selected training frequency, workout split, and equipment.</sub>
+    </td>
+    <td align="center" colspan="2" valign="top">
+      <img src="docs/screenshots/wod.jpg" width="280" alt="WOD Navigation"/>
+      <br/>
+      <b>WOD of the Day</b>
+      <br/>
+      <sub>Interactive daily routine browsing with navigation buttons to skip forward or backward through workout days.</sub>
+    </td>
+    <td align="center" colspan="2" valign="top">
+      <img src="docs/screenshots/preferiti.jpg" width="280" alt="Favorites & Actions"/>
+      <br/>
+      <b>Favorites & Export</b>
+      <br/>
+      <sub>Quickly load saved favorite routines, or download workouts in standard TXT/PDF formats.</sub>
     </td>
   </tr>
 </table>
 
 ---
 
-## 🏗️ Architettura del Progetto
+## 🏗️ Project Architecture
 
-Il progetto segue un'architettura **a tre layer** con separazione netta delle responsabilità, pensata per massimizzare la testabilità e il disaccoppiamento:
+The project follows a **three-layer architecture** with a clear separation of concerns, designed to maximize testability and decoupling:
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -132,23 +148,23 @@ Il progetto segue un'architettura **a tre layer** con separazione netta delle re
 
 ### Layer Details
 
-| Layer | Path | Responsabilità | Principio di Qualità |
+| Layer | Path | Responsibility | Quality Principle |
 |---|---|---|---|
-| **Bot** | `src/wod/bot/` | Interfaccia Telegram — gestione comandi, tastiere, formattazione messaggi | Thin controller — nessuna business logic |
-| **Core** | `src/wod/core/` | Logica di dominio — filtraggio esercizi, generazione split, calcolo BMI e intensità | Pura business logic senza dipendenze esterne |
-| **DB** | `src/wod/db/` | Persistenza — modelli SQLAlchemy, repository pattern, seeding dati | Repository pattern per isolare l'accesso ai dati |
-| **Config** | `src/wod/config.py` | Configurazione centralizzata tramite Pydantic Settings | Validazione automatica, type-safe |
+| **Bot** | `src/wod/bot/` | Telegram Interface — command handling, keyboards, message formatting | Thin controller — no business logic |
+| **Core** | `src/wod/core/` | Domain logic — exercise filtering, split generation, BMI and intensity calculation | Pure business logic with no external dependencies |
+| **DB** | `src/wod/db/` | Persistence — SQLAlchemy models, repository pattern, data seeding | Repository pattern to isolate data access |
+| **Config** | `src/wod/config.py` | Centralized configuration via Pydantic Settings | Automatic validation, type-safe |
 
-### Principi Architetturali
+### Architectural Principles
 
-- **Dependency Inversion** — I layer superiori non dipendono dall'implementazione concreta dei layer inferiori
-- **Repository Pattern** — L'accesso ai dati è incapsulato in repository dedicati, semplificando mocking e testing
-- **Pure Functions** — La core logic è implementata come funzioni pure, facilmente testabili senza setup complesso
-- **Configuration as Code** — Tutte le impostazioni sono gestite tramite `pydantic-settings` con validazione automatica
+- **Dependency Inversion** — Higher layers do not depend on the concrete implementation of lower layers
+- **Repository Pattern** — Data access is encapsulated in dedicated repositories, simplifying mocking and testing
+- **Pure Functions** — Core logic is implemented as pure functions, easily testable without complex setup
+- **Configuration as Code** — All settings are managed via `pydantic-settings` with automatic validation
 
 ---
 
-## 📂 Struttura del Repository
+## 📂 Repository Structure
 
 ```
 FitBot-Generator/
@@ -156,170 +172,149 @@ FitBot-Generator/
 │   └── workflows/
 │       └── ci.yml                  # GitHub Actions — lint + test pipeline
 ├── data/
-│   └── seed_exercises.json         # Catalogo esercizi per il seeding del DB
+│   └── seed_exercises.json         # Exercise catalog for DB seeding
 ├── docs/
-│   └── screenshots/                # Screenshot UX del bot
+│   └── screenshots/                # UX screenshots of the bot
 ├── scripts/
-│   └── seed_db.py                  # Script per il seeding manuale del database
+│   └── seed_db.py                  # Script for manual database seeding
 ├── src/
 │   └── wod/
 │       ├── __init__.py
-│       ├── config.py               # Configurazione app (Pydantic Settings)
-│       ├── bot/                    # 🤖 Layer Telegram
-│       │   ├── main.py             # Entry point — assembla handlers e avvia polling
-│       │   ├── keyboards.py        # Tastiere inline e reply del bot
-│       │   ├── formatters.py       # Formattazione messaggi per l'utente
-│       │   ├── utils.py            # Utility condivise del bot
-│       │   └── handlers/           # Gestori dei comandi
-│       │       ├── onboarding.py   # Flusso di registrazione e creazione scheda
-│       │       ├── menu.py         # Menu principale e navigazione
-│       │       ├── profile.py      # Visualizzazione e modifica profilo
-│       │       ├── wod.py          # WOD del giorno e navigazione
-│       │       ├── history.py      # Storico schede + export PDF/TXT
-│       │       └── favorites.py    # Gestione schede preferite
-│       ├── core/                   # 🧠 Layer Business Logic
-│       │   ├── types.py            # Enums e value objects del dominio
-│       │   ├── engine.py           # Filtraggio esercizi per attrezzatura e muscoli
-│       │   ├── split_generator.py  # Generazione split settimanale
-│       │   ├── intensity.py        # Calcolo serie, ripetizioni e intensità
-│       │   └── bmi.py              # Calcolo BMI (classificazione WHO)
-│       └── db/                     # 💾 Layer Persistenza
-│           ├── models.py           # Modelli SQLAlchemy (User, Exercise, Routine, ecc.)
-│           ├── repositories.py     # Repository pattern per accesso ai dati
-│           ├── session.py          # Gestione sessioni async del database
-│           └── seeding.py          # Auto-seeding del catalogo esercizi
-├── tests/                          # 🧪 Suite di Test
-│   ├── conftest.py                 # Fixture condivise (DB in-memory, mock)
-│   ├── test_config.py              # Test configurazione
-│   ├── bot/                        # Test layer Bot
-│   │   ├── test_main.py            # Test entry point e handler registration
-│   │   ├── test_keyboards.py       # Test tastiere e layout
-│   │   ├── test_formatters.py      # Test formattazione messaggi
-│   │   ├── test_utils.py           # Test utility
-│   │   ├── test_onboarding.py      # Test flusso onboarding
-│   │   ├── test_profile.py         # Test gestione profilo
-│   │   └── test_wod_helpers.py     # Test helper WOD
-│   ├── core/                       # Test layer Core
-│   │   ├── test_bmi.py             # Test calcolo BMI
-│   │   ├── test_engine.py          # Test filtraggio esercizi
-│   │   ├── test_intensity.py       # Test calcolo intensità
-│   │   ├── test_split_generator.py # Test generazione split
-│   │   └── test_types.py           # Test domain types
-│   └── db/                         # Test layer DB
-│       ├── test_models.py          # Test modelli
-│       ├── test_repositories.py    # Test repository pattern
-│       ├── test_seeding.py         # Test seeding dati
-│       └── test_session.py         # Test sessioni DB
-├── .coveragerc                     # Configurazione code coverage
-├── .flake8                         # Configurazione Flake8
-├── .pre-commit-config.yaml         # Hook pre-commit
-├── .pylintrc                       # Configurazione Pylint
-├── mypy.ini                        # Configurazione MyPy
-├── pyproject.toml                  # Configurazione progetto e dipendenze
+│       ├── config.py               # App configuration (Pydantic Settings)
+│       ├── bot/                    # 🤖 Telegram Layer
+│       │   ├── formatters/         # Message formatting modules (text, pdf)
+│       │   ├── handlers/           # Command handlers (onboarding, profile, wod, etc.)
+│       │   ├── keyboards.py        # Inline and reply keyboards
+│       │   ├── locales.py          # Localization and translations
+│       │   ├── main.py             # Entry point — assembles handlers and starts polling
+│       │   └── utils.py            # Shared bot utilities
+│       ├── core/                   # 🧠 Business Logic Layer
+│       │   ├── bmi.py              # BMI calculation (WHO classification)
+│       │   ├── engine.py           # Exercise filtering by equipment and muscles
+│       │   ├── intensity.py        # Sets, reps, and intensity calculation
+│       │   ├── split_generator.py  # Weekly split generation
+│       │   └── types.py            # Enums and domain value objects
+│       └── db/                     # 💾 Persistence Layer
+│           ├── models/             # SQLAlchemy Models (user, exercise, etc.)
+│           ├── repositories.py     # Repository pattern for data access
+│           ├── seeding.py          # Auto-seeding of the exercise catalog
+│           └── session.py          # Async database session management
+├── tests/                          # 🧪 Test Suite
+│   ├── bot/                        # Bot layer tests
+│   ├── core/                       # Core layer tests
+│   ├── db/                         # DB layer tests
+│   ├── conftest.py                 # Shared fixtures (In-memory DB, mocks)
+│   └── test_config.py              # Configuration tests
+├── .coveragerc                     # Code coverage configuration
+├── .flake8                         # Flake8 configuration
+├── .pre-commit-config.yaml         # Pre-commit hooks
+├── .pylintrc                       # Pylint configuration
+├── mypy.ini                        # MyPy configuration
+├── pyproject.toml                  # Project and dependencies configuration
 └── README.md
 ```
 
 ---
 
-## 🚀 Guida all'Installazione
+## 🚀 Installation Guide
 
-### Prerequisiti
+### Prerequisites
 
 - **Python 3.11+** — [Download](https://www.python.org/downloads/)
 - **Git** — [Download](https://git-scm.com/)
-- **Token Telegram Bot** — Ottenibile tramite [@BotFather](https://t.me/BotFather) su Telegram
+- **Telegram Bot Token** — Obtainable via [@BotFather](https://t.me/BotFather) on Telegram
 
-### Step 1 — Clona il repository
+### Step 1 — Clone the repository
 
 ```bash
 git clone https://github.com/SimoneAndreaCilia/FitBot-Generator.git
 cd FitBot-Generator
 ```
 
-### Step 2 — Crea e attiva l'ambiente virtuale
+### Step 2 — Create and activate the virtual environment
 
 ```bash
-# Crea il virtual environment
+# Create the virtual environment
 python -m venv .venv
 
-# Attiva l'ambiente virtuale
+# Activate the virtual environment
 .venv\Scripts\activate          # Windows (PowerShell / CMD)
 # source .venv/bin/activate     # macOS / Linux
 ```
 
-### Step 3 — Installa le dipendenze
+### Step 3 — Install dependencies
 
 ```bash
-# Installa il progetto in modalità editable con le dipendenze di sviluppo
+# Install the project in editable mode with development dependencies
 pip install -e ".[dev]"
 ```
 
-### Step 4 — Configura le variabili d'ambiente
+### Step 4 — Configure environment variables
 
 ```bash
-# Crea il file .env dalla template
+# Create the .env file from the template
 cp .env.example .env
 ```
 
-Modifica il file `.env` e inserisci il tuo token Telegram:
+Edit the `.env` file and insert your Telegram token:
 
 ```ini
-TELEGRAM_BOT_TOKEN=il-tuo-token-qui
+TELEGRAM_BOT_TOKEN=your-token-here
 ```
 
 > [!TIP]
-> Per ottenere un token, apri Telegram, cerca **@BotFather**, invia `/newbot` e segui le istruzioni.
+> To get a token, open Telegram, search for **@BotFather**, send `/newbot` and follow the instructions.
 
-### Step 5 — Avvia il bot
+### Step 5 — Start the bot
 
 ```bash
-# Avvia il bot in modalità long-polling
+# Start the bot in long-polling mode
 wod-bot
 ```
 
-Il bot si connetterà a Telegram e inizierà a ricevere messaggi. Cerca il tuo bot su Telegram e invia `/start` per iniziare! 🎉
+The bot will connect to Telegram and start receiving messages. Search for your bot on Telegram and send `/start` to begin! 🎉
 
 ---
 
-## 🔧 Sviluppo e Qualità del Codice
+## 🔧 Development and Code Quality
 
-Questo progetto implementa una **toolchain di qualità completa**, in linea con le best practice della materia **Quality Development**.
+This project implements a **comprehensive quality toolchain**, aligning with the best practices of the **Quality Development** subject.
 
 ### Pre-commit Hooks
 
-Il progetto utilizza `pre-commit` per garantire che il codice rispetti gli standard di formattazione e qualità **prima di ogni commit**.
+The project uses `pre-commit` to ensure the code meets formatting and quality standards **before every commit**.
 
 ```bash
-# Installa pre-commit
+# Install pre-commit
 pip install pre-commit
 
-# Installa i ganci di pre-commit nel repository locale
+# Install pre-commit hooks in the local repository
 pre-commit install
 ```
 
-I seguenti controlli vengono eseguiti automaticamente ad ogni `git commit`:
+The following checks run automatically on every `git commit`:
 
-| Hook | Strumento | Funzione |
+| Hook | Tool | Function |
 |---|---|---|
-| Trailing whitespace | pre-commit | Rimuove spazi bianchi a fine riga |
-| End-of-file fixer | pre-commit | Assicura newline finale nei file |
-| YAML check | pre-commit | Valida la sintassi dei file YAML |
-| Code formatting | **Black** | Formattazione automatica del codice |
-| Import sorting | **isort** | Ordinamento automatico degli import |
-| Style checking | **Flake8** | Controllo stile PEP 8 |
-| Static analysis | **Pylint** | Analisi statica approfondita |
-| Type checking | **MyPy** | Controllo dei tipi in modalità strict |
+| Trailing whitespace | pre-commit | Removes trailing whitespace |
+| End-of-file fixer | pre-commit | Ensures a blank line at the end of files |
+| YAML check | pre-commit | Validates YAML syntax |
+| Code formatting | **Black** | Automatic code formatting |
+| Import sorting | **isort** | Automatic import sorting |
+| Style checking | **Flake8** | PEP 8 style checking |
+| Static analysis | **Pylint** | Deep static analysis |
+| Type checking | **MyPy** | Strict mode type checking |
 
-### Esecuzione Manuale
+### Manual Execution
 
-È possibile eseguire manualmente i controlli senza effettuare un commit:
+You can run checks manually without making a commit:
 
 ```bash
-# Esegui tutti i controlli pre-commit
+# Run all pre-commit checks
 pre-commit run --all-files
 
-# Oppure esegui i singoli strumenti:
-black src/ tests/                # Formattazione
+# Or run individual tools:
+black src/ tests/                # Code formatting
 isort src/ tests/                # Import sorting
 flake8 src/ tests/               # Style checking
 pylint src/wod/                  # Static analysis
@@ -330,36 +325,36 @@ mypy src/wod/                    # Type checking
 
 ## 🧪 Testing
 
-La suite di test è strutturata in modo da rispecchiare i tre layer dell'architettura:
+The test suite is structured to mirror the three layers of the architecture:
 
 ```
 tests/
-├── core/    → Test unitari della business logic (puri, senza I/O)
-├── bot/     → Test dei gestori Telegram (con mock dell'API)
-└── db/      → Test del layer di persistenza (DB in-memory)
+├── core/    → Unit tests for business logic (pure, without I/O)
+├── bot/     → Telegram handlers tests (with API mocking)
+└── db/      → Persistence layer tests (in-memory DB)
 ```
 
-### Esecuzione dei test
+### Running tests
 
 ```bash
-# Esegui tutti i test con report di copertura
+# Run all tests with coverage report
 pytest
 
-# Esegui solo i test di un layer specifico
-pytest tests/core/               # Solo core logic
-pytest tests/bot/                # Solo bot handlers
-pytest tests/db/                 # Solo database
+# Run tests for a specific layer only
+pytest tests/core/               # Core logic only
+pytest tests/bot/                # Bot handlers only
+pytest tests/db/                 # Database only
 
-# Esegui un singolo file di test
+# Run a single test file
 pytest tests/core/test_bmi.py
 
-# Esegui con output dettagliato
+# Run with verbose output
 pytest -v --tb=short
 ```
 
-### Configurazione Coverage
+### Coverage Configuration
 
-La copertura minima è impostata al **75%** e viene verificata automaticamente:
+The minimum coverage is set to **75%** and is verified automatically:
 
 ```ini
 # pyproject.toml
@@ -373,52 +368,52 @@ addopts = [
 ```
 
 > [!IMPORTANT]
-> Se la copertura scende sotto il 75%, i test falliranno sia in locale che nella CI pipeline.
+> If the coverage drops below 75%, the tests will fail both locally and in the CI pipeline.
 
 ---
 
 ## ⚙️ CI/CD Pipeline
 
-Il progetto utilizza **GitHub Actions** per l'integrazione continua. La pipeline viene eseguita automaticamente su ogni `push` e `pull_request` verso il branch `main`.
+The project uses **GitHub Actions** for continuous integration. The pipeline runs automatically on every `push` and `pull_request` to the `main` branch.
 
 ```
 CI Pipeline
 │
 ├── 🔍 Job: Lint & Type-check
-│   ├── black --check          (formattazione)
-│   ├── isort --check-only     (ordinamento import)
-│   ├── flake8                 (stile PEP 8)
-│   ├── pylint                 (analisi statica)
-│   └── mypy                   (type checking strict)
+│   ├── black --check          (formatting)
+│   ├── isort --check-only     (import sorting)
+│   ├── flake8                 (PEP 8 style)
+│   ├── pylint                 (static analysis)
+│   └── mypy                   (strict type checking)
 │
-└── 🧪 Job: Tests (dipende da Lint)
+└── 🧪 Job: Tests (depends on Lint)
     └── pytest --cov --cov-fail-under=75
 ```
 
 > [!NOTE]
-> Il job dei test viene eseguito **solo se** il job di lint supera tutti i controlli, garantendo che il codice rispetti gli standard di qualità prima di verificare la correttezza funzionale.
+> The test job runs **only if** the linting job passes all checks, ensuring the code meets quality standards before verifying functional correctness.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Tecnologia | Versione | Ruolo |
+| Technology | Version | Role |
 |---|---|---|
-| [Python](https://www.python.org/) | 3.11+ | Linguaggio principale |
-| [python-telegram-bot](https://python-telegram-bot.org/) | 21.x | Framework Telegram Bot API |
-| [SQLAlchemy](https://www.sqlalchemy.org/) | 2.0 | ORM e gestione database |
-| [aiosqlite](https://github.com/omnilib/aiosqlite) | 0.20+ | Driver SQLite asincrono |
-| [Pydantic](https://docs.pydantic.dev/) | 2.0 | Validazione dati e configurazione |
-| [ReportLab](https://www.reportlab.com/) | 4.0 | Generazione file PDF |
-| [pytest](https://docs.pytest.org/) | 8.0 | Framework di testing |
-| [Black](https://black.readthedocs.io/) | 24.x | Formattazione automatica del codice |
-| [MyPy](https://mypy.readthedocs.io/) | 1.8+ | Type checking statico (strict) |
-| [Pylint](https://pylint.readthedocs.io/) | 3.x | Analisi statica del codice |
-| [Flake8](https://flake8.pycqa.org/) | 7.0 | Controllo stile PEP 8 |
+| [Python](https://www.python.org/) | 3.11+ | Main Language |
+| [python-telegram-bot](https://python-telegram-bot.org/) | 21.x | Telegram Bot API Framework |
+| [SQLAlchemy](https://www.sqlalchemy.org/) | 2.0 | ORM and Database Management |
+| [aiosqlite](https://github.com/omnilib/aiosqlite) | 0.20+ | Async SQLite driver |
+| [Pydantic](https://docs.pydantic.dev/) | 2.0 | Data validation and configuration |
+| [ReportLab](https://www.reportlab.com/) | 4.0 | PDF file generation |
+| [pytest](https://docs.pytest.org/) | 8.0 | Testing framework |
+| [Black](https://black.readthedocs.io/) | 24.x | Automatic code formatter |
+| [MyPy](https://mypy.readthedocs.io/) | 1.8+ | Static type checker (strict) |
+| [Pylint](https://pylint.readthedocs.io/) | 3.x | Static code analyzer |
+| [Flake8](https://flake8.pycqa.org/) | 7.0 | PEP 8 style checker |
 | [GitHub Actions](https://github.com/features/actions) | — | CI/CD pipeline |
 
 ---
 
 <p align="center">
-  Sviluppato come progetto per il corso di <strong>Quality Development</strong> 💪
+  Developed as a project for the <strong>Quality Development</strong> course 💪
 </p>

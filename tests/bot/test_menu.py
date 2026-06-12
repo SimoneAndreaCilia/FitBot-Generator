@@ -33,11 +33,25 @@ class TestHandleCreaSchedaExisting:
     """Verify entry point shows frequency selection."""
 
     @pytest.mark.asyncio
-    async def test_shows_frequency_keyboard(self) -> None:
+    @patch("wod.bot.handlers.menu.get_session_factory")
+    @patch("wod.bot.handlers.menu.get_or_create_user")
+    async def test_shows_frequency_keyboard(
+        self, mock_get_user, mock_session_factory
+    ) -> None:
         update = MagicMock(spec=Update)
         query = AsyncMock()
         update.callback_query = query
         context = MagicMock()
+        context.user_data = {}
+
+        session_mock = MagicMock()
+        session_mock.__aenter__ = AsyncMock(return_value=session_mock)
+        session_mock.__aexit__ = AsyncMock(return_value=False)
+        mock_session_factory.return_value = MagicMock(return_value=session_mock)
+
+        user = MagicMock()
+        user.language = "it"
+        mock_get_user.return_value = user
 
         next_state = await handle_crea_scheda_existing(update, context)
 
@@ -97,7 +111,8 @@ class TestCreaSplitCallback:
         session_mock.commit = AsyncMock()
 
         class MockUser:
-            pass
+            id = 1
+            language = "it"
 
         user = MockUser()
 
@@ -197,9 +212,21 @@ class TestMenuHandlers:
         )
 
     @pytest.mark.asyncio
-    async def test_handle_altro(self):
+    @patch("wod.bot.handlers.menu.get_session_factory")
+    @patch("wod.bot.handlers.menu.get_or_create_user")
+    async def test_handle_altro(self, mock_get_user, mock_session_factory):
         update = MagicMock()
         update.message = AsyncMock()
+
+        session_mock = MagicMock()
+        session_mock.__aenter__ = AsyncMock(return_value=session_mock)
+        session_mock.__aexit__ = AsyncMock(return_value=False)
+        mock_session_factory.return_value = MagicMock(return_value=session_mock)
+
+        user = MagicMock()
+        user.language = "it"
+        mock_get_user.return_value = user
+
         await handle_altro(update, MagicMock())
         update.message.reply_text.assert_called_once()
 
@@ -364,7 +391,7 @@ class TestMenuHandlers:
 class TestBuilders:
     def test_build_menu_handlers(self):
         handlers = build_menu_handlers()
-        assert len(handlers) == 6
+        assert len(handlers) == 7
         for h in handlers:
             assert isinstance(h, MessageHandler)
 
