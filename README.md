@@ -82,28 +82,44 @@ The project was developed following **Quality Development** principles with a fo
 
 Below are the main screens of the Telegram bot interface:
 
-<table>
+<table align="center">
   <tr>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/start_command.jpg" width="260" alt="/start Command"/>
+    <td align="center" colspan="3" valign="top">
+      <img src="docs/screenshots/start_command.jpg" width="280" alt="Welcome Screen"/>
       <br/>
-      <b>/start Command</b>
+      <b>Welcome Menu</b>
       <br/>
-      <sub>The bot greets the user with a welcome message and shows the full list of available commands. Quick menu buttons are present at the bottom.</sub>
+      <sub>Greets the user in their set language, displaying the initial menu and interactive quick-replies.</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/wod_profile.jpg" width="260" alt="WOD and Profile"/>
+    <td align="center" colspan="3" valign="top">
+      <img src="docs/screenshots/onboarding_bmi.jpg" width="280" alt="Onboarding Flow"/>
       <br/>
-      <b>WOD of the Day & Profile</b>
+      <b>Guided Onboarding</b>
       <br/>
-      <sub>Top: The WOD shows the daily workout with day-by-day navigation. Bottom: The user profile with all personal data and BMI calculation.</sub>
+      <sub>Step-by-step setup prompts for physical metrics, calculating BMI and body type classification.</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="docs/screenshots/preferiti.jpg" width="260" alt="Favorites"/>
+  </tr>
+  <tr>
+    <td align="center" colspan="2" valign="top">
+      <img src="docs/screenshots/profile.jpg" width="280" alt="User Profile"/>
       <br/>
-      <b>Favorites</b>
+      <b>User Profile</b>
       <br/>
-      <sub>List of routines saved as favorites, including date/time and program type. Tap a routine to view it.</sub>
+      <sub>A clean profile summary displaying physical metrics, selected training frequency, workout split, and equipment.</sub>
+    </td>
+    <td align="center" colspan="2" valign="top">
+      <img src="docs/screenshots/wod.jpg" width="280" alt="WOD Navigation"/>
+      <br/>
+      <b>WOD of the Day</b>
+      <br/>
+      <sub>Interactive daily routine browsing with navigation buttons to skip forward or backward through workout days.</sub>
+    </td>
+    <td align="center" colspan="2" valign="top">
+      <img src="docs/screenshots/preferiti.jpg" width="280" alt="Favorites & Actions"/>
+      <br/>
+      <b>Favorites & Export</b>
+      <br/>
+      <sub>Quickly load saved favorite routines, or download workouts in standard TXT/PDF formats.</sub>
     </td>
   </tr>
 </table>
