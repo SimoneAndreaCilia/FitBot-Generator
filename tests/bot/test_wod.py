@@ -1,9 +1,11 @@
+# pylint: disable=too-many-positional-arguments
 """Tests for the WOD command handler."""
 
 # pylint: disable=too-many-arguments, redefined-outer-name
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -21,7 +23,7 @@ from wod.db.models import Exercise, GeneratedWorkout, User
 
 
 @pytest.fixture
-def mock_update():
+def mock_update() -> Any:
     update = MagicMock(spec=Update)
     update.effective_user.id = 123
     update.message = AsyncMock()
@@ -29,7 +31,7 @@ def mock_update():
 
 
 @pytest.fixture
-def mock_context():
+def mock_context() -> Any:
     return MagicMock()
 
 
@@ -38,8 +40,12 @@ class TestWodCommand:
     @patch("wod.bot.handlers.wod.get_session_factory")
     @patch("wod.bot.handlers.wod.get_or_create_user")
     async def test_incomplete_profile(
-        self, mock_get_user, mock_session_factory, mock_update, mock_context
-    ):
+        self,
+        mock_get_user: Any,
+        mock_session_factory: Any,
+        mock_update: Any,
+        mock_context: Any,
+    ) -> None:
         session_mock = MagicMock()
         session_mock.__aenter__ = AsyncMock(return_value=session_mock)
         session_mock.__aexit__ = AsyncMock(return_value=False)
@@ -59,12 +65,12 @@ class TestWodCommand:
     @patch("wod.bot.handlers.wod.get_all_exercises")
     async def test_no_equipment(
         self,
-        mock_get_exercises,
-        mock_get_user,
-        mock_session_factory,
-        mock_update,
-        mock_context,
-    ):
+        mock_get_exercises: Any,
+        mock_get_user: Any,
+        mock_session_factory: Any,
+        mock_update: Any,
+        mock_context: Any,
+    ) -> None:
         session_mock = MagicMock()
         session_mock.__aenter__ = AsyncMock(return_value=session_mock)
         session_mock.__aexit__ = AsyncMock(return_value=False)
@@ -95,13 +101,13 @@ class TestWodCommand:
     @patch("wod.bot.handlers.wod.filter_exercises_by_equipment")
     async def test_no_compatible_exercises(
         self,
-        mock_filter_eq,
-        mock_get_exercises,
-        mock_get_user,
-        mock_session_factory,
-        mock_update,
-        mock_context,
-    ):
+        mock_filter_eq: Any,
+        mock_get_exercises: Any,
+        mock_get_user: Any,
+        mock_session_factory: Any,
+        mock_update: Any,
+        mock_context: Any,
+    ) -> None:
         session_mock = MagicMock()
         session_mock.__aenter__ = AsyncMock(return_value=session_mock)
         session_mock.__aexit__ = AsyncMock(return_value=False)
@@ -139,19 +145,19 @@ class TestWodCommand:
     @patch("wod.bot.handlers.wod._prescribe_exercises")
     async def test_successful_generation(
         self,
-        mock_prescribe,
-        mock_select,
-        mock_filter_muscle,
-        mock_gen_split,
-        mock_filter_eq,
-        mock_get_exercises,
-        mock_get_user,
-        mock_session_factory,
-        mock_save_workout,
-        mock_send_workout,
-        mock_update,
-        mock_context,
-    ):
+        mock_prescribe: Any,
+        mock_select: Any,
+        mock_filter_muscle: Any,
+        mock_gen_split: Any,
+        mock_filter_eq: Any,
+        mock_get_exercises: Any,
+        mock_get_user: Any,
+        mock_session_factory: Any,
+        mock_save_workout: Any,
+        mock_send_workout: Any,
+        mock_update: Any,
+        mock_context: Any,
+    ) -> None:
         session_mock = MagicMock()
         session_mock.__aenter__ = AsyncMock(return_value=session_mock)
         session_mock.__aexit__ = AsyncMock(return_value=False)
@@ -205,17 +211,17 @@ class TestWodCommand:
     @patch("wod.bot.handlers.wod._prescribe_exercises")
     async def test_no_prescribed_exercises(
         self,
-        mock_prescribe,
-        mock_select,
-        mock_filter_muscle,
-        mock_gen_split,
-        mock_filter_eq,
-        mock_get_exercises,
-        mock_get_user,
-        mock_session_factory,
-        mock_update,
-        mock_context,
-    ):
+        mock_prescribe: Any,
+        mock_select: Any,
+        mock_filter_muscle: Any,
+        mock_gen_split: Any,
+        mock_filter_eq: Any,
+        mock_get_exercises: Any,
+        mock_get_user: Any,
+        mock_session_factory: Any,
+        mock_update: Any,
+        mock_context: Any,
+    ) -> None:
         session_mock = MagicMock()
         session_mock.__aenter__ = AsyncMock(return_value=session_mock)
         session_mock.__aexit__ = AsyncMock(return_value=False)
@@ -250,7 +256,7 @@ class TestWodCommand:
 
 
 class TestSelectExercises:
-    def test_select_exercises_arms(self):
+    def test_select_exercises_arms(self) -> None:
         training_day = MagicMock()
         training_day.muscle_groups = [MuscleGroup.BICEPS]
 
@@ -267,7 +273,7 @@ class TestSelectExercises:
         assert len(selected) == 1
         assert selected[0].weight == 2
 
-    def test_select_exercises_other_groups(self):
+    def test_select_exercises_other_groups(self) -> None:
         training_day = MagicMock()
         training_day.muscle_groups = [MuscleGroup.CHEST]
 
@@ -288,7 +294,7 @@ class TestSelectExercises:
 
 
 class TestPrescribeExercises:
-    def test_prescribe_exercises(self):
+    def test_prescribe_exercises(self) -> None:
         ex = Exercise(name="Push Up", effort_type=EffortType.ISOLATION)
         result = _prescribe_exercises([ex], ExperienceLevel.BEGINNER, "Day 1", 1)
 
@@ -299,6 +305,6 @@ class TestPrescribeExercises:
 
 
 class TestBuildWodHandler:
-    def test_build(self):
+    def test_build(self) -> None:
         handler = build_wod_handler()
         assert isinstance(handler, CommandHandler)

@@ -71,9 +71,12 @@ plugins = ["pydantic.mypy", "sqlalchemy.ext.mypy.plugin"]
 module = ["telegram.*", "reportlab.*"]
 ignore_missing_imports = true
 
+
+
 [[tool.mypy.overrides]]
 module = "tests.*"
-ignore_errors = true
+disallow_untyped_decorators = false
+check_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

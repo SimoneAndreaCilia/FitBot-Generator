@@ -114,9 +114,7 @@ class TestFilterByEquipment:
     """Verifies that exercises are correctly filtered by available equipment."""
 
     def test_all_equipment_available(
-        self,
-        exercise_catalog: list[Exercise],
-        equipment_catalog: dict[str, Equipment],
+        self, exercise_catalog: list[Exercise], equipment_catalog: dict[str, Equipment]
     ) -> None:
         """When the user owns everything, all exercises should be returned."""
         user_eq = list(equipment_catalog.values())
@@ -124,9 +122,7 @@ class TestFilterByEquipment:
         assert len(result) == len(exercise_catalog)
 
     def test_bodyweight_only(
-        self,
-        exercise_catalog: list[Exercise],
-        equipment_catalog: dict[str, Equipment],
+        self, exercise_catalog: list[Exercise], equipment_catalog: dict[str, Equipment]
     ) -> None:
         """Bodyweight-only user should see Push-Up, Squat, Plank."""
         user_eq = [equipment_catalog["bodyweight"]]
@@ -135,9 +131,7 @@ class TestFilterByEquipment:
         assert names == {"Push-Up", "Bodyweight Squat", "Plank"}
 
     def test_partial_equipment(
-        self,
-        exercise_catalog: list[Exercise],
-        equipment_catalog: dict[str, Equipment],
+        self, exercise_catalog: list[Exercise], equipment_catalog: dict[str, Equipment]
     ) -> None:
         """User with dumbbell + bench + bodyweight should see matching exercises."""
         user_eq = [
@@ -157,18 +151,12 @@ class TestFilterByEquipment:
             "Plank",
         }
 
-    def test_no_equipment(
-        self,
-        exercise_catalog: list[Exercise],
-    ) -> None:
+    def test_no_equipment(self, exercise_catalog: list[Exercise]) -> None:
         """No equipment means no exercises available."""
         result = filter_exercises_by_equipment(exercise_catalog, [])
         assert result == []
 
-    def test_empty_catalog(
-        self,
-        equipment_catalog: dict[str, Equipment],
-    ) -> None:
+    def test_empty_catalog(self, equipment_catalog: dict[str, Equipment]) -> None:
         """Empty exercise catalogue should return empty list."""
         result = filter_exercises_by_equipment([], list(equipment_catalog.values()))
         assert result == []

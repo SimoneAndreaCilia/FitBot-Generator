@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -135,7 +136,7 @@ class TestErrorHandler:
 class TestDatabaseInitialization:
     @pytest.mark.asyncio
     @patch("wod.bot.main.get_engine")
-    async def test_ensure_user_profile_columns(self, mock_engine):
+    async def test_ensure_user_profile_columns(self, mock_engine: Any) -> None:
         mock_conn = AsyncMock()
         # Mock pragma result
         mock_conn.exec_driver_sql.return_value = [("0", "id")]
@@ -153,7 +154,9 @@ class TestDatabaseInitialization:
     @patch("wod.bot.main.get_engine")
     @patch("wod.bot.main._ensure_user_profile_columns")
     @patch("wod.bot.main.auto_seed_if_empty")
-    async def test_initialize_database(self, mock_seed, mock_ensure, mock_engine):
+    async def test_initialize_database(
+        self, mock_seed: Any, mock_ensure: Any, mock_engine: Any
+    ) -> None:
         mock_conn = AsyncMock()
         mock_engine.return_value.begin.return_value.__aenter__.return_value = mock_conn
 
@@ -166,7 +169,7 @@ class TestDatabaseInitialization:
 
 class TestMain:
     @patch("wod.bot.main.create_application")
-    def test_main(self, mock_create):
+    def test_main(self, mock_create: Any) -> None:
         mock_app = MagicMock()
         mock_create.return_value = mock_app
 

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import (
@@ -17,7 +19,7 @@ from wod.db.models import Base, Equipment, Exercise, User
 
 
 @pytest.fixture()
-async def async_engine():
+async def async_engine() -> Any:
     """Create a disposable in-memory SQLite engine for each test."""
     engine = create_async_engine(
         "sqlite+aiosqlite:///:memory:",
@@ -46,7 +48,7 @@ async def async_engine():
 
 
 @pytest.fixture()
-async def db_session(async_engine):
+async def db_session(async_engine: Any) -> Any:
     """Yield an async session bound to the in-memory database."""
     session_factory = async_sessionmaker(
         async_engine,

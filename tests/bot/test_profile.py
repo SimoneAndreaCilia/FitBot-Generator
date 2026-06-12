@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -49,7 +50,7 @@ class MockEquipment:
 
 # pylint: disable=too-many-instance-attributes
 class MockUser:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         self.name = kwargs.get("name", None)
         self.height_cm = kwargs.get("height_cm", None)
         self.weight_kg = kwargs.get("weight_kg", None)
