@@ -35,36 +35,36 @@ class TestWorkoutToText:
     """Tests for plain-text rendering."""
 
     def test_contains_title(self) -> None:
-        text = workout_to_text(_make_workout())
+        text = workout_to_text("it", _make_workout())
         assert "Upper Body — Day 1" in text
 
     def test_contains_date(self) -> None:
-        text = workout_to_text(_make_workout())
+        text = workout_to_text("it", _make_workout())
         assert "2025-06-15" in text
 
     def test_contains_exercises(self) -> None:
-        text = workout_to_text(_make_workout())
+        text = workout_to_text("it", _make_workout())
         assert "Bench Press" in text
         assert "Dumbbell Row" in text
         assert "Bicep Curl" in text
 
     def test_contains_sets_reps(self) -> None:
-        text = workout_to_text(_make_workout())
+        text = workout_to_text("it", _make_workout())
         assert "4" in text
         assert "10" in text
         assert "3" in text
         assert "12" in text
 
     def test_contains_notes(self) -> None:
-        text = workout_to_text(_make_workout())
+        text = workout_to_text("it", _make_workout())
         assert "Slow" in text
 
     def test_output_is_string(self) -> None:
-        text = workout_to_text(_make_workout())
+        text = workout_to_text("it", _make_workout())
         assert isinstance(text, str)
 
     def test_separator_lines(self) -> None:
-        text = workout_to_text(_make_workout())
+        text = workout_to_text("it", _make_workout())
         assert "═" in text
 
     def test_empty_exercises(self) -> None:
@@ -73,7 +73,7 @@ class TestWorkoutToText:
             date=datetime.datetime.now(tz=datetime.timezone.utc),
             exercises=[],
         )
-        text = workout_to_text(workout)
+        text = workout_to_text("it", workout)
         assert "Empty" in text
 
 
@@ -81,11 +81,11 @@ class TestWorkoutToPdf:
     """Tests for PDF rendering."""
 
     def test_returns_bytes(self) -> None:
-        pdf = workout_to_pdf(_make_workout())
+        pdf = workout_to_pdf("it", _make_workout())
         assert isinstance(pdf, bytes)
 
     def test_pdf_starts_with_header(self) -> None:
-        pdf = workout_to_pdf(_make_workout())
+        pdf = workout_to_pdf("it", _make_workout())
         assert pdf[:5] == b"%PDF-"
 
     def test_workout_to_pdf_multiple_days(self) -> None:
@@ -100,12 +100,12 @@ class TestWorkoutToPdf:
                 day_label="Day 2",
             )
         )
-        pdf = workout_to_pdf(workout)
+        pdf = workout_to_pdf("it", workout)
         assert isinstance(pdf, bytes)
         assert pdf[:5] == b"%PDF-"
 
     def test_pdf_not_empty(self) -> None:
-        pdf = workout_to_pdf(_make_workout())
+        pdf = workout_to_pdf("it", _make_workout())
         assert len(pdf) > 100
 
     def test_empty_exercises_pdf(self) -> None:
@@ -114,7 +114,7 @@ class TestWorkoutToPdf:
             date=datetime.datetime.now(tz=datetime.timezone.utc),
             exercises=[],
         )
-        pdf = workout_to_pdf(workout)
+        pdf = workout_to_pdf("it", workout)
         assert pdf[:5] == b"%PDF-"
 
     def test_with_user_profile(self) -> None:
@@ -126,7 +126,7 @@ class TestWorkoutToPdf:
             body_type="Ectomorph",
             equipment=["Dumbbell"],
         )
-        pdf = workout_to_pdf(workout)
+        pdf = workout_to_pdf("it", workout)
         assert b"%PDF-" in pdf
 
     def test_with_actual_data(self) -> None:
@@ -134,7 +134,7 @@ class TestWorkoutToPdf:
         workout.exercises[0].actual_data = ["Set 1: 100kg x 10"]
         workout.exercises[1].notes = "Some notes"
         workout.exercises[1].actual_data = ["Set 1: 50kg x 10"]
-        pdf = workout_to_pdf(workout)
+        pdf = workout_to_pdf("it", workout)
         assert b"%PDF-" in pdf
 
 
@@ -167,7 +167,7 @@ class TestSessionSummaryToPdf:
                 ),
             ],
         )
-        pdf = session_summary_to_pdf(summary)
+        pdf = session_summary_to_pdf("it", summary)
         assert isinstance(pdf, bytes)
         assert pdf[:5] == b"%PDF-"
 
@@ -177,5 +177,5 @@ class TestSessionSummaryToPdf:
             date=datetime.datetime.now(tz=datetime.timezone.utc),
             rows=[],
         )
-        pdf = session_summary_to_pdf(summary)
+        pdf = session_summary_to_pdf("it", summary)
         assert pdf[:5] == b"%PDF-"

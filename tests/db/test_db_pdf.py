@@ -107,7 +107,7 @@ async def main():
             user_profile=UserProfile(name="Test"),
         )
         try:
-            pdf_bytes = session_summary_to_pdf(summary)
+            pdf_bytes = session_summary_to_pdf("it", summary)
             print("Successfully generated PDF! Size:", len(pdf_bytes))
         except Exception:  # pylint: disable=broad-exception-caught
             traceback.print_exc()

@@ -8,7 +8,6 @@ from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 
 from wod.bot.handlers.profile.constants import (
-    BODY_TYPE_LABELS,
     CHOOSE_FIELD,
     EDIT_BODY_TYPE,
     EDIT_EQUIPMENT,
@@ -18,9 +17,7 @@ from wod.bot.handlers.profile.constants import (
     EDIT_NAME,
     EDIT_SPLIT,
     EDIT_WEIGHT,
-    EXPERIENCE_LABELS,
     REGEN_CONFIRM,
-    SPLIT_LABELS,
 )
 from wod.bot.keyboards import (
     body_type_keyboard,
@@ -31,6 +28,7 @@ from wod.bot.keyboards import (
     regenerate_keyboard,
     split_keyboard,
 )
+from wod.bot.locales import get_text
 from wod.core.bmi import calculate_bmi
 from wod.core.types import BodyType, ExperienceLevel, SplitType
 from wod.db.repositories import (
@@ -57,10 +55,11 @@ async def edit_profile_entry(
     assert query is not None
     await query.answer()
 
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
     await query.edit_message_text(
-        "✏️ *Cosa vuoi modificare?*",
+        get_text(lang, "edit_choose"),
         parse_mode="Markdown",
-        reply_markup=edit_field_keyboard(),
+        reply_markup=edit_field_keyboard(lang),
     )
     return CHOOSE_FIELD
 
@@ -81,48 +80,49 @@ async def field_selection_callback(
     assert query.data is not None
     assert context.user_data is not None
 
+    lang = context.user_data.get("lang", "it")
     field = query.data.split(":")[1]
 
     if field == "cancel":
-        await query.edit_message_text("❌ Modifica annullata.")
+        await query.edit_message_text(get_text(lang, "edit_cancel"))
         return ConversationHandler.END
 
     if field == "name":
-        await query.edit_message_text("📛 Inserisci il tuo nuovo nome:")
+        await query.edit_message_text(get_text(lang, "edit_name_prompt"))
         return EDIT_NAME
 
     if field == "height":
         await query.edit_message_text(
-            "📏 Inserisci la tua nuova altezza in *cm*:\n_(es: 175)_",
+            get_text(lang, "edit_height_prompt"),
             parse_mode="Markdown",
         )
         return EDIT_HEIGHT
 
     if field == "weight":
         await query.edit_message_text(
-            "⚖️ Inserisci il tuo nuovo peso in *kg*:\n_(es: 72.5)_",
+            get_text(lang, "edit_weight_prompt"),
             parse_mode="Markdown",
         )
         return EDIT_WEIGHT
 
     if field == "body_type":
         await query.edit_message_text(
-            "🦴 Seleziona il tuo tipo di corporatura:",
-            reply_markup=body_type_keyboard(),
+            get_text(lang, "edit_body_prompt"),
+            reply_markup=body_type_keyboard(lang),
         )
         return EDIT_BODY_TYPE
 
     if field == "experience":
         await query.edit_message_text(
-            "📊 Seleziona il tuo livello di esperienza:",
-            reply_markup=experience_keyboard(),
+            get_text(lang, "edit_exp_prompt"),
+            reply_markup=experience_keyboard(lang),
         )
         return EDIT_EXPERIENCE
 
     if field == "frequency":
         await query.edit_message_text(
-            "📅 Quanti giorni a settimana vuoi allenarti?",
-            reply_markup=frequency_keyboard(),
+            get_text(lang, "edit_freq_prompt"),
+            reply_markup=frequency_keyboard(lang),
         )
         return EDIT_FREQUENCY
 
@@ -134,8 +134,8 @@ async def field_selection_callback(
             user_freq = user.training_frequency
 
         await query.edit_message_text(
-            "🔀 Scegli il tipo di split settimanale:",
-            reply_markup=split_keyboard(frequency=user_freq),
+            get_text(lang, "edit_split_prompt"),
+            reply_markup=split_keyboard(lang, frequency=user_freq),
         )
         return EDIT_SPLIT
 
@@ -155,14 +155,13 @@ async def field_selection_callback(
         context.user_data["selected_equipment"] = current_ids
 
         await query.edit_message_text(
-            "🔧 Modifica la tua attrezzatura.\n"
-            "Tocca per selezionare/deselezionare, poi conferma:",
-            reply_markup=equipment_keyboard(eq_list, current_ids),
+            get_text(lang, "edit_eq_prompt"),
+            reply_markup=equipment_keyboard(lang, eq_list, current_ids),
         )
         return EDIT_EQUIPMENT
 
     # Fallback
-    await query.edit_message_text("⚠️ Campo non riconosciuto.")
+    await query.edit_message_text(get_text(lang, "edit_unrecognized"))
     return ConversationHandler.END
 
 
@@ -177,11 +176,10 @@ async def edit_name_input(update: Update, _context: ContextTypes.DEFAULT_TYPE) -
     assert update.message.text is not None
     assert update.effective_user is not None
 
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
     name = update.message.text.strip()
     if not name or len(name) > 128:
-        await update.message.reply_text(
-            "⚠️ Inserisci un nome valido (max 128 caratteri):"
-        )
+        await update.message.reply_text(get_text(lang, "onb_name_err"))
         return EDIT_NAME
 
     async with get_session_factory()() as session:
@@ -190,8 +188,7 @@ async def edit_name_input(update: Update, _context: ContextTypes.DEFAULT_TYPE) -
         await session.commit()
 
     await update.message.reply_text(
-        f"✅ Nome aggiornato a: *{name}*\n\n"
-        "Usa /profilo per vedere il profilo aggiornato.",
+        get_text(lang, "edit_name_ok", name=name),
         parse_mode="Markdown",
     )
     return ConversationHandler.END
@@ -203,14 +200,13 @@ async def edit_height_input(update: Update, _context: ContextTypes.DEFAULT_TYPE)
     assert update.message.text is not None
     assert update.effective_user is not None
 
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
     try:
         height = float(update.message.text.strip().replace(",", "."))
         if height < 50 or height > 300:
             raise ValueError("out of range")
     except ValueError:
-        await update.message.reply_text(
-            "⚠️ Inserisci un'altezza valida in cm (es: 175):"
-        )
+        await update.message.reply_text(get_text(lang, "onb_height_err"))
         return EDIT_HEIGHT
 
     async with get_session_factory()() as session:
@@ -218,14 +214,14 @@ async def edit_height_input(update: Update, _context: ContextTypes.DEFAULT_TYPE)
         await update_user_profile(session, user, height_cm=height)
         await session.commit()
         if user.weight_kg and user.height_cm:
-            bmi_val, bmi_cat = calculate_bmi(user.weight_kg, user.height_cm)
-            bmi_msg = f"\n📊 Nuovo BMI: *{bmi_val}* — _{bmi_cat}_\n"
+            bmi_val, bmi_cat_key = calculate_bmi(user.weight_kg, user.height_cm)
+            bmi_cat = get_text(lang, bmi_cat_key)
+            bmi_msg = get_text(lang, "edit_bmi_msg", bmi_val=bmi_val, bmi_cat=bmi_cat)
         else:
             bmi_msg = ""
 
     await update.message.reply_text(
-        f"✅ Altezza aggiornata a: *{height:.0f} cm*\n{bmi_msg}\n"
-        "Usa /profilo per vedere il profilo aggiornato.",
+        get_text(lang, "edit_height_ok", height=f"{height:.0f}", bmi_msg=bmi_msg),
         parse_mode="Markdown",
     )
     return ConversationHandler.END
@@ -237,12 +233,13 @@ async def edit_weight_input(update: Update, _context: ContextTypes.DEFAULT_TYPE)
     assert update.message.text is not None
     assert update.effective_user is not None
 
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
     try:
         weight = float(update.message.text.strip().replace(",", "."))
         if weight < 20 or weight > 500:
             raise ValueError("out of range")
     except ValueError:
-        await update.message.reply_text("⚠️ Inserisci un peso valido in kg (es: 72.5):")
+        await update.message.reply_text(get_text(lang, "onb_weight_err"))
         return EDIT_WEIGHT
 
     async with get_session_factory()() as session:
@@ -250,14 +247,14 @@ async def edit_weight_input(update: Update, _context: ContextTypes.DEFAULT_TYPE)
         await update_user_profile(session, user, weight_kg=weight)
         await session.commit()
         if user.weight_kg and user.height_cm:
-            bmi_val, bmi_cat = calculate_bmi(user.weight_kg, user.height_cm)
-            bmi_msg = f"\n📊 Nuovo BMI: *{bmi_val}* — _{bmi_cat}_\n"
+            bmi_val, bmi_cat_key = calculate_bmi(user.weight_kg, user.height_cm)
+            bmi_cat = get_text(lang, bmi_cat_key)
+            bmi_msg = get_text(lang, "edit_bmi_msg", bmi_val=bmi_val, bmi_cat=bmi_cat)
         else:
             bmi_msg = ""
 
     await update.message.reply_text(
-        f"✅ Peso aggiornato a: *{weight:.1f} kg*\n{bmi_msg}\n"
-        "Usa /profilo per vedere il profilo aggiornato.",
+        get_text(lang, "edit_weight_ok", weight=f"{weight:.1f}", bmi_msg=bmi_msg),
         parse_mode="Markdown",
     )
     return ConversationHandler.END
@@ -285,10 +282,10 @@ async def edit_body_type_callback(
         await update_user_profile(session, user, body_type=body)
         await session.commit()
 
-    label = BODY_TYPE_LABELS[body]
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
+    label = get_text(lang, f"lbl_{body.value}")
     await query.edit_message_text(
-        f"✅ Corporatura aggiornata a: *{label}*\n\n"
-        "Usa /profilo per vedere il profilo aggiornato.",
+        get_text(lang, "edit_body_ok", body=label),
         parse_mode="Markdown",
     )
     return ConversationHandler.END
@@ -311,10 +308,10 @@ async def edit_experience_callback(
         await update_user_profile(session, user, experience_level=level)
         await session.commit()
 
-    label = EXPERIENCE_LABELS[level]
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
+    label = get_text(lang, f"lbl_{level.value}")
     await query.edit_message_text(
-        f"✅ Livello aggiornato a: *{label}*\n\n"
-        "Usa /profilo per vedere il profilo aggiornato.",
+        get_text(lang, "edit_exp_ok", level=label),
         parse_mode="Markdown",
     )
     return ConversationHandler.END
@@ -345,22 +342,21 @@ async def edit_frequency_callback(
         await session.commit()
         current_split = user.preferred_split
 
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
+
     # Check if the current split is still compatible with the new frequency
     if current_split is not None and freq < split_min_days.get(current_split, 1):
         await query.edit_message_text(
-            f"✅ Frequenza aggiornata a: *{freq} giorni/settimana*\n\n"
-            "⚠️ Lo split attuale non è compatibile con la nuova frequenza.\n"
-            "Scegli un nuovo tipo di split:",
+            get_text(lang, "edit_freq_incompat", freq=freq),
             parse_mode="Markdown",
-            reply_markup=split_keyboard(frequency=freq),
+            reply_markup=split_keyboard(lang, frequency=freq),
         )
         return EDIT_SPLIT
 
     await query.edit_message_text(
-        f"✅ Frequenza aggiornata a: *{freq} giorni/settimana*\n\n"
-        "Vuoi rigenerare la scheda di allenamento con i nuovi dati?",
+        get_text(lang, "edit_freq_ok", freq=freq),
         parse_mode="Markdown",
-        reply_markup=regenerate_keyboard(),
+        reply_markup=regenerate_keyboard(lang),
     )
     return REGEN_CONFIRM
 
@@ -382,11 +378,11 @@ async def edit_split_callback(
         await update_user_profile(session, user, preferred_split=split)
         await session.commit()
 
-    label = SPLIT_LABELS[split]
+    lang = _context.user_data.get("lang", "it") if _context.user_data else "it"
+    label = get_text(lang, f"lbl_{split.value}")
     await query.edit_message_text(
-        f"✅ Split aggiornato a: *{label}*\n\n"
-        "Vuoi rigenerare la scheda di allenamento con i nuovi dati?",
+        get_text(lang, "edit_split_ok", split=label),
         parse_mode="Markdown",
-        reply_markup=regenerate_keyboard(),
+        reply_markup=regenerate_keyboard(lang),
     )
     return REGEN_CONFIRM

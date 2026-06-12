@@ -65,7 +65,7 @@ class TestFormatProfileText:
 
     def test_format_profile_text_empty(self) -> None:
         user = MockUser()
-        text = _format_profile_text(user)
+        text = _format_profile_text("it", user)
         assert "Nome: —" in text
         assert "Altezza: —" in text
         assert "Peso: —" in text
@@ -89,7 +89,7 @@ class TestFormatProfileText:
             preferred_split=SplitType.UPPER_LOWER,
             equipment=[eq1, eq2],
         )
-        text = _format_profile_text(user)
+        text = _format_profile_text("it", user)
         assert "Nome: Alice" in text
         assert "Altezza: 180 cm" in text
         assert "Peso: 72.5 kg" in text

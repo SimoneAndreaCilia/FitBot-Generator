@@ -66,6 +66,7 @@ async def update_user_profile(
     session: AsyncSession,
     user: User,
     *,
+    language: Optional[str] = None,
     name: Optional[str] = None,
     height_cm: Optional[float] = None,
     weight_kg: Optional[float] = None,
@@ -75,6 +76,8 @@ async def update_user_profile(
     preferred_split: Optional[SplitType] = None,
 ) -> User:
     """Update a user's profile and training preferences."""
+    if language is not None:
+        user.language = language
     if name is not None:
         user.name = name
     if height_cm is not None:

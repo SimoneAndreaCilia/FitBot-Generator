@@ -97,7 +97,8 @@ class TestCreaSplitCallback:
         session_mock.commit = AsyncMock()
 
         class MockUser:
-            pass
+            id = 1
+            language = "it"
 
         user = MockUser()
 

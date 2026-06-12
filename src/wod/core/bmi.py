@@ -18,7 +18,7 @@ def calculate_bmi(weight_kg: float, height_cm: float) -> tuple[float, str]:
         height_cm: Height in centimeters.
 
     Returns:
-        A tuple of (rounded BMI value, Italian category label).
+        A tuple of (rounded BMI value, category localization key).
 
     Raises:
         ValueError: If weight or height are non-positive.
@@ -33,12 +33,12 @@ def calculate_bmi(weight_kg: float, height_cm: float) -> tuple[float, str]:
     bmi = round(bmi, 1)
 
     if bmi < 18.5:
-        category = "Sottopeso"
+        category = "bmi_underweight"
     elif bmi < 25:
-        category = "Normopeso"
+        category = "bmi_normal"
     elif bmi < 30:
-        category = "Sovrappeso"
+        category = "bmi_overweight"
     else:
-        category = "Obeso"
+        category = "bmi_obese"
 
     return bmi, category

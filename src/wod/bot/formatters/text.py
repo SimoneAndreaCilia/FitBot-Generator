@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from wod.bot.formatters.dataclasses import FormattedWorkout
+from wod.bot.locales import get_text
 
 
-def workout_to_text(workout: FormattedWorkout) -> str:
+def workout_to_text(lang: str, workout: FormattedWorkout) -> str:
     """Render a workout as a plain-text string.
 
     Example output::
@@ -31,7 +32,11 @@ def workout_to_text(workout: FormattedWorkout) -> str:
         f"  📅 {date_str}",
         sep,
         "",
-        f"{'#':<3} {'Esercizio':<25} {'Serie × Reps':<15} {'Intensità':<20} {'Note'}",
+        (
+            f"{'#':<3} {get_text(lang, 'txt_col_ex'):<25} "
+            f"{get_text(lang, 'txt_col_set_reps'):<15} "
+            f"{get_text(lang, 'txt_col_int'):<20} {get_text(lang, 'txt_col_notes')}"
+        ),
         f"{'──':<3} {'─' * 25:<25} {'─' * 14:<15} {'─' * 19:<20} {'─' * 5}",
     ]
 

@@ -12,7 +12,7 @@ import logging
 import re
 from typing import Any
 
-from telegram import Message, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Message, Update
 from telegram.ext import (
     CallbackQueryHandler,
     ContextTypes,
@@ -22,18 +22,13 @@ from telegram.ext import (
 )
 
 from wod.bot.keyboards import (
-    BTN_ALTRO,
-    BTN_CREA_SCHEDA,
-    BTN_PREFERITI,
-    BTN_PROFILO,
-    BTN_STORICO,
-    BTN_WOD,
     crea_scheda_choice_keyboard,
     expanded_menu_keyboard,
     frequency_keyboard,
     split_keyboard,
     wod_day_navigation_keyboard,
 )
+from wod.bot.locales import get_text
 from wod.core.types import SplitType
 from wod.db.repositories import (
     get_or_create_user,
@@ -73,18 +68,18 @@ async def handle_crea_scheda(
         and len(user.equipment) > 0
     )
 
+    lang = user.language if user and user.language else "it"
+
     if has_complete_profile:
         await update.message.reply_text(
-            "📋 Hai già un profilo configurato!\n\n"
-            "Vuoi usare il profilo esistente per generare una nuova scheda, "
-            "oppure crearne uno da zero?",
-            reply_markup=crea_scheda_choice_keyboard(),
+            get_text(lang, "menu_has_profile"),
+            reply_markup=crea_scheda_choice_keyboard(lang),
         )
     else:
         # No complete profile — send them to create a new one via callback
         await update.message.reply_text(
-            "🏋️ Non hai ancora un profilo completo.\nCreiamone uno insieme!",
-            reply_markup=crea_scheda_choice_keyboard(),
+            get_text(lang, "menu_no_profile"),
+            reply_markup=crea_scheda_choice_keyboard(lang),
         )
 
 
@@ -103,9 +98,15 @@ async def handle_crea_scheda_existing(
     assert query is not None
     await query.answer()
 
+    async with get_session_factory()() as session:
+        user = await get_or_create_user(session, telegram_id=query.from_user.id)
+        lang = user.language or "it"
+    assert _context.user_data is not None
+    _context.user_data["lang"] = lang
+
     await query.edit_message_text(
-        "📅 Quanti giorni a settimana vuoi allenarti?",
-        reply_markup=frequency_keyboard(),
+        get_text(lang, "menu_ask_freq"),
+        reply_markup=frequency_keyboard(lang),
     )
     return CREA_FREQ
 
@@ -122,12 +123,12 @@ async def _crea_freq_callback(
 
     freq = int(query.data.split(":")[1])
     context.user_data["crea_frequency"] = freq
+    lang = context.user_data.get("lang", "it")
 
     await query.edit_message_text(
-        f"✅ Frequenza: *{freq} giorni/settimana*\n\n"
-        "Scegli il tipo di split settimanale:",
+        get_text(lang, "onb_freq_ok", freq=freq),
         parse_mode="Markdown",
-        reply_markup=split_keyboard(frequency=freq),
+        reply_markup=split_keyboard(lang, frequency=freq),
     )
     return CREA_SPLIT
 
@@ -155,7 +156,8 @@ async def _crea_split_callback(
         )
         await session.commit()
 
-    await query.edit_message_text("⏳ Generazione della scheda in corso...")
+    lang = context.user_data.get("lang", "it")
+    await query.edit_message_text(get_text(lang, "onb_fin_gen"))
 
     # Delegate to wod_command
     from wod.bot.handlers.wod import (  # pylint: disable=import-outside-toplevel
@@ -185,10 +187,43 @@ async def handle_altro(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> N
     """Handle the 'Altro' button — expand the menu."""
     assert update.message is not None
 
+    assert update.effective_user is not None
+    async with get_session_factory()() as session:
+        user = await get_or_create_user(session, telegram_id=update.effective_user.id)
+        lang = user.language or "it"
+
     await update.message.reply_text(
-        "📋 *Menu completo:*",
+        get_text(lang, "menu_full"),
         parse_mode="Markdown",
-        reply_markup=expanded_menu_keyboard(),
+        reply_markup=expanded_menu_keyboard(lang),
+    )
+
+
+# ---------------------------------------------------------------------------
+# "🌍 Lingua" button
+# ---------------------------------------------------------------------------
+
+
+async def handle_lingua(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle the 'Lingua/Language' button — ask for language."""
+    assert update.message is not None
+    assert update.effective_user is not None
+
+    async with get_session_factory()() as session:
+        user = await get_or_create_user(session, telegram_id=update.effective_user.id)
+        lang = user.language or "it"
+
+    keyboard = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("🇮🇹 Italiano", callback_data="lang:it"),
+                InlineKeyboardButton("🇬🇧 English", callback_data="lang:en"),
+            ]
+        ]
+    )
+    await update.message.reply_text(
+        get_text(lang, "choose_language"),
+        reply_markup=keyboard,
     )
 
 
@@ -262,15 +297,17 @@ def _parse_workout_days(content_json: str) -> list[dict[str, Any]]:
     return [{"label": label, "exercises": days[label]} for label in day_order]
 
 
-def _format_day_text(day: dict[str, Any], day_index: int, total_days: int) -> str:
+def _format_day_text(
+    lang: str, day: dict[str, Any], day_index: int, total_days: int
+) -> str:
     """Format a single training day for display."""
     lines = [
-        f"🔥 *WOD del giorno — {day['label']}*",
-        f"📅 Giorno {day_index + 1} di {total_days}\n",
+        get_text(lang, "wod_day_title", day_label=day["label"]),
+        get_text(lang, "wod_day_subtitle", current=day_index + 1, total=total_days),
     ]
 
     for i, ex in enumerate(day["exercises"], start=1):
-        name = ex.get("name", "Esercizio")
+        name = ex.get("name", get_text(lang, "wod_ex_default"))
         sets = ex.get("sets", "?")
         reps = ex.get("reps", "?")
         notes = ex.get("notes", "")
@@ -290,12 +327,12 @@ async def handle_wod_giorno(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     async with get_session_factory()() as session:
         user = await get_or_create_user(session, telegram_id=update.effective_user.id)
+        lang = user.language or "it"
         workouts = await get_user_workouts(session, user.id, limit=1)
 
     if not workouts:
         await update.message.reply_text(
-            "⚠️ Non hai ancora generato nessuna scheda.\n"
-            "Usa 🏋️ *Creati una scheda* per crearne una!",
+            get_text(lang, "wod_no_workout"),
             parse_mode="Markdown",
         )
         return
@@ -304,21 +341,20 @@ async def handle_wod_giorno(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     days = _parse_workout_days(workout.content_json)
 
     if not days:
-        await update.message.reply_text(
-            "⚠️ La scheda non contiene giornate di allenamento."
-        )
+        await update.message.reply_text(get_text(lang, "wod_no_days"))
         return
 
     # Store workout data in user_data for navigation
     context.user_data["wod_days"] = days
     context.user_data["wod_current_day"] = 0
     context.user_data["wod_workout_id"] = workout.id
+    context.user_data["lang"] = lang
 
-    text = _format_day_text(days[0], 0, len(days))
+    text = _format_day_text(lang, days[0], 0, len(days))
     await update.message.reply_text(
         text,
         parse_mode="Markdown",
-        reply_markup=wod_day_navigation_keyboard(0, len(days), workout.id),
+        reply_markup=wod_day_navigation_keyboard(lang, 0, len(days), workout.id),
     )
 
 
@@ -343,13 +379,15 @@ async def handle_wod_navigation(
     day_index = int(data)
     days = context.user_data.get("wod_days", [])
 
+    lang = context.user_data.get("lang", "it")
+
     if not days or day_index < 0 or day_index >= len(days):
-        await query.answer("⚠️ Giornata non disponibile.", show_alert=True)
+        await query.answer(get_text(lang, "wod_nav_err"), show_alert=True)
         return
 
     context.user_data["wod_current_day"] = day_index
 
-    text = _format_day_text(days[day_index], day_index, len(days))
+    text = _format_day_text(lang, days[day_index], day_index, len(days))
 
     workout_id = context.user_data.get("wod_workout_id")
     assert isinstance(workout_id, int)
@@ -357,13 +395,22 @@ async def handle_wod_navigation(
     await query.edit_message_text(
         text,
         parse_mode="Markdown",
-        reply_markup=wod_day_navigation_keyboard(day_index, len(days), workout_id),
+        reply_markup=wod_day_navigation_keyboard(
+            lang, day_index, len(days), workout_id
+        ),
     )
 
 
 # ---------------------------------------------------------------------------
 # Handler builders
 # ---------------------------------------------------------------------------
+
+
+def _localized_regex(key: str) -> str:
+    """Return a regex matching any localization of a specific text key."""
+    it = re.escape(get_text("it", key))
+    en = re.escape(get_text("en", key))
+    return f"^({it}|{en})$"
 
 
 def build_menu_handlers() -> list[MessageHandler[Any, Any]]:
@@ -374,28 +421,32 @@ def build_menu_handlers() -> list[MessageHandler[Any, Any]]:
     """
     return [
         MessageHandler(
-            filters.TEXT & filters.Regex(f"^{re.escape(BTN_CREA_SCHEDA)}$"),
+            filters.TEXT & filters.Regex(_localized_regex("btn_new_workout")),
             handle_crea_scheda,
         ),
         MessageHandler(
-            filters.TEXT & filters.Regex(f"^{re.escape(BTN_ALTRO)}$"),
+            filters.TEXT & filters.Regex(_localized_regex("btn_other")),
             handle_altro,
         ),
         MessageHandler(
-            filters.TEXT & filters.Regex(f"^{re.escape(BTN_PROFILO)}$"),
+            filters.TEXT & filters.Regex(_localized_regex("btn_profile")),
             handle_profilo,
         ),
         MessageHandler(
-            filters.TEXT & filters.Regex(f"^{re.escape(BTN_STORICO)}$"),
+            filters.TEXT & filters.Regex(_localized_regex("btn_history")),
             handle_storico,
         ),
         MessageHandler(
-            filters.TEXT & filters.Regex(f"^{re.escape(BTN_PREFERITI)}$"),
+            filters.TEXT & filters.Regex(_localized_regex("btn_favorites")),
             handle_preferiti,
         ),
         MessageHandler(
-            filters.TEXT & filters.Regex(f"^{re.escape(BTN_WOD)}$"),
+            filters.TEXT & filters.Regex(_localized_regex("btn_wod")),
             handle_wod_giorno,
+        ),
+        MessageHandler(
+            filters.TEXT & filters.Regex(_localized_regex("btn_language")),
+            handle_lingua,
         ),
     ]
 

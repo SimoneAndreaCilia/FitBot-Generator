@@ -28,6 +28,7 @@ from wod.bot.formatters.pdf_common import (
     TEXT_MUTED,
     build_profile_section,
 )
+from wod.bot.locales import get_text
 
 
 def _group_exercises_by_day(
@@ -45,6 +46,7 @@ def _group_exercises_by_day(
 
 
 def _build_session_table(
+    lang: str,
     session_label: Optional[str],
     exercises: list[FormattedExercise],
     styles: Any,
@@ -66,7 +68,14 @@ def _build_session_table(
         elements.append(Paragraph(f"🏋️ {session_label}", heading_style))
 
     # Table header + data rows
-    header: list[Any] = ["#", "Esercizio", "Serie", "Reps", "Intensità", "Note"]
+    header: list[Any] = [
+        get_text(lang, "pdf_work_col_num"),
+        get_text(lang, "pdf_work_col_ex"),
+        get_text(lang, "pdf_work_col_set"),
+        get_text(lang, "pdf_work_col_reps"),
+        get_text(lang, "pdf_work_col_int"),
+        get_text(lang, "pdf_work_col_notes"),
+    ]
     table_data: list[list[Any]] = [header]
     note_style = ParagraphStyle(
         "NoteStyle",
@@ -81,7 +90,10 @@ def _build_session_table(
         if ex.actual_data:
             if notes_text:
                 notes_text += "<br/><br/>"
-            notes_text += "<b>Dati reali:</b><br/>" + "<br/>".join(ex.actual_data)
+            notes_text += (
+                f"<b>{get_text(lang, 'pdf_work_actual_data')}</b><br/>"
+                + "<br/>".join(ex.actual_data)
+            )
 
         notes_element = Paragraph(notes_text, note_style) if notes_text else ""
 
@@ -118,7 +130,7 @@ def _build_session_table(
     return elements
 
 
-def workout_to_pdf(workout: FormattedWorkout) -> bytes:
+def workout_to_pdf(lang: str, workout: FormattedWorkout) -> bytes:
     """Render a workout as a PDF document and return the bytes.
 
     The PDF includes:
@@ -166,7 +178,9 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
     # ── Title & date ────────────────────────────────────────────
     elements.append(Paragraph(workout.title, title_style))
     date_str = workout.date.strftime("%d/%m/%Y — %H:%M")
-    elements.append(Paragraph(f"📅  {date_str}", subtitle_style))
+    elements.append(
+        Paragraph(get_text(lang, "pdf_work_date", date=date_str), subtitle_style)
+    )
     elements.append(
         HRFlowable(
             width="100%",
@@ -179,17 +193,19 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
 
     # ── User profile ────────────────────────────────────────────
     if workout.user_profile is not None:
-        elements.extend(build_profile_section(workout.user_profile, styles))
+        elements.extend(build_profile_section(lang, workout.user_profile, styles))
 
     # ── Exercise tables (one per session/day) ───────────────────
     grouped = _group_exercises_by_day(workout.exercises)
 
     if len(grouped) == 1 and "__single__" in grouped:
         # No day labels → single table without session heading
-        elements.extend(_build_session_table(None, grouped["__single__"], styles))
+        elements.extend(_build_session_table(lang, None, grouped["__single__"], styles))
     else:
         for day_label, day_exercises in grouped.items():
-            elements.extend(_build_session_table(day_label, day_exercises, styles))
+            elements.extend(
+                _build_session_table(lang, day_label, day_exercises, styles)
+            )
 
     # ── Footer ──────────────────────────────────────────────────
     elements.append(Spacer(1, 20))
@@ -204,7 +220,7 @@ def workout_to_pdf(workout: FormattedWorkout) -> bytes:
     )
     elements.append(
         Paragraph(
-            "Generato con WOD Bot — Il tuo personal trainer digitale 💪",
+            get_text(lang, "pdf_footer"),
             footer_style,
         )
     )
