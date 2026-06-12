@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from wod.core.types import ExperienceLevel, SplitType
 from wod.db.repositories import (
     complete_workout_session,
@@ -29,18 +31,18 @@ from wod.db.repositories import (
 class TestUserRepository:
     """Tests for user CRUD operations."""
 
-    async def test_create_new_user(self, db_session) -> None:
+    async def test_create_new_user(self, db_session: Any) -> None:
         user = await get_or_create_user(db_session, telegram_id=111, username="alice")
         assert user.id is not None
         assert user.telegram_id == 111
         assert user.username == "alice"
 
-    async def test_get_existing_user(self, db_session) -> None:
+    async def test_get_existing_user(self, db_session: Any) -> None:
         user1 = await get_or_create_user(db_session, telegram_id=222)
         user2 = await get_or_create_user(db_session, telegram_id=222)
         assert user1.id == user2.id
 
-    async def test_update_profile(self, db_session) -> None:
+    async def test_update_profile(self, db_session: Any) -> None:
         user = await get_or_create_user(db_session, telegram_id=333)
         updated = await update_user_profile(
             db_session,
@@ -53,7 +55,7 @@ class TestUserRepository:
         assert updated.training_frequency == 5
         assert updated.preferred_split == SplitType.PUSH_PULL_LEGS
 
-    async def test_partial_update(self, db_session) -> None:
+    async def test_partial_update(self, db_session: Any) -> None:
         user = await get_or_create_user(db_session, telegram_id=444)
         await update_user_profile(
             db_session,
@@ -72,11 +74,13 @@ class TestUserRepository:
 class TestEquipmentRepository:
     """Tests for equipment operations."""
 
-    async def test_get_all_equipment_empty(self, db_session) -> None:
+    async def test_get_all_equipment_empty(self, db_session: Any) -> None:
         result = await get_all_equipment(db_session)
         assert len(result) == 0
 
-    async def test_get_all_equipment(self, db_session, sample_equipment) -> None:
+    async def test_get_all_equipment(
+        self, db_session: Any, sample_equipment: Any
+    ) -> None:
         for eq in sample_equipment:
             db_session.add(eq)
         await db_session.flush()
@@ -84,7 +88,9 @@ class TestEquipmentRepository:
         result = await get_all_equipment(db_session)
         assert len(result) == len(sample_equipment)
 
-    async def test_set_user_equipment(self, db_session, sample_equipment) -> None:
+    async def test_set_user_equipment(
+        self, db_session: Any, sample_equipment: Any
+    ) -> None:
         for eq in sample_equipment:
             db_session.add(eq)
         await db_session.flush()
@@ -97,7 +103,9 @@ class TestEquipmentRepository:
         await db_session.refresh(user, ["equipment"])
         assert len(user.equipment) == 2
 
-    async def test_replace_user_equipment(self, db_session, sample_equipment) -> None:
+    async def test_replace_user_equipment(
+        self, db_session: Any, sample_equipment: Any
+    ) -> None:
         for eq in sample_equipment:
             db_session.add(eq)
         await db_session.flush()
@@ -121,12 +129,12 @@ class TestEquipmentRepository:
 class TestExerciseRepository:
     """Tests for exercise operations."""
 
-    async def test_get_all_exercises_empty(self, db_session) -> None:
+    async def test_get_all_exercises_empty(self, db_session: Any) -> None:
         result = await get_all_exercises(db_session)
         assert len(result) == 0
 
     async def test_get_all_exercises_with_equipment(
-        self, db_session, sample_equipment, sample_exercises
+        self, db_session: Any, sample_equipment: Any, sample_exercises: Any
     ) -> None:
         for eq in sample_equipment:
             db_session.add(eq)
@@ -150,7 +158,7 @@ class TestExerciseRepository:
 class TestWorkoutRepository:
     """Tests for workout CRUD operations."""
 
-    async def _create_user_and_workout(self, db_session):
+    async def _create_user_and_workout(self, db_session: Any) -> Any:
         """Helper: create a user and save one workout."""
         user = await get_or_create_user(db_session, telegram_id=777)
         workout = await save_workout(
@@ -171,13 +179,13 @@ class TestWorkoutRepository:
         )
         return user, workout
 
-    async def test_save_workout(self, db_session) -> None:
+    async def test_save_workout(self, db_session: Any) -> None:
         user, workout = await self._create_user_and_workout(db_session)
         assert workout.id is not None
         assert workout.user_id == user.id
         assert workout.title == "Test Workout"
 
-    async def test_workout_exercises_saved(self, db_session) -> None:
+    async def test_workout_exercises_saved(self, db_session: Any) -> None:
         _, workout = await self._create_user_and_workout(db_session)
         # Re-fetch with eager loading to access exercises
         fetched = await get_workout_by_id(db_session, workout.id)
@@ -187,7 +195,7 @@ class TestWorkoutRepository:
         assert fetched.exercises[0].reps == "12"
         assert fetched.exercises[0].notes == "Slow tempo"
 
-    async def test_get_user_workouts(self, db_session) -> None:
+    async def test_get_user_workouts(self, db_session: Any) -> None:
         user, _ = await self._create_user_and_workout(db_session)
         # Save another workout
         await save_workout(
@@ -202,7 +210,7 @@ class TestWorkoutRepository:
         workouts = await get_user_workouts(db_session, user.id, limit=10)
         assert len(workouts) == 2
 
-    async def test_get_user_workouts_limit(self, db_session) -> None:
+    async def test_get_user_workouts_limit(self, db_session: Any) -> None:
         user, _ = await self._create_user_and_workout(db_session)
         await save_workout(
             db_session,
@@ -216,13 +224,13 @@ class TestWorkoutRepository:
         workouts = await get_user_workouts(db_session, user.id, limit=1)
         assert len(workouts) == 1
 
-    async def test_get_workout_by_id(self, db_session) -> None:
+    async def test_get_workout_by_id(self, db_session: Any) -> None:
         _, workout = await self._create_user_and_workout(db_session)
         fetched = await get_workout_by_id(db_session, workout.id)
         assert fetched is not None
         assert fetched.id == workout.id
 
-    async def test_get_workout_by_id_not_found(self, db_session) -> None:
+    async def test_get_workout_by_id_not_found(self, db_session: Any) -> None:
         result = await get_workout_by_id(db_session, 99999)
         assert result is None
 
@@ -235,7 +243,7 @@ class TestWorkoutRepository:
 class TestFavoritesRepository:
     """Tests for the favorites toggle mechanism."""
 
-    async def test_toggle_on(self, db_session) -> None:
+    async def test_toggle_on(self, db_session: Any) -> None:
         user = await get_or_create_user(db_session, telegram_id=888)
         workout = await save_workout(
             db_session,
@@ -249,7 +257,7 @@ class TestFavoritesRepository:
         added = await toggle_favorite(db_session, user.id, workout.id)
         assert added is True
 
-    async def test_toggle_off(self, db_session) -> None:
+    async def test_toggle_off(self, db_session: Any) -> None:
         user = await get_or_create_user(db_session, telegram_id=999)
         workout = await save_workout(
             db_session,
@@ -264,7 +272,7 @@ class TestFavoritesRepository:
         removed = await toggle_favorite(db_session, user.id, workout.id)
         assert removed is False
 
-    async def test_get_user_favorites(self, db_session) -> None:
+    async def test_get_user_favorites(self, db_session: Any) -> None:
         user = await get_or_create_user(db_session, telegram_id=1010)
         w1 = await save_workout(
             db_session,
@@ -289,7 +297,7 @@ class TestFavoritesRepository:
         favs = await get_user_favorites(db_session, user.id)
         assert len(favs) == 2
 
-    async def test_favorites_empty(self, db_session) -> None:
+    async def test_favorites_empty(self, db_session: Any) -> None:
         user = await get_or_create_user(db_session, telegram_id=1111)
         favs = await get_user_favorites(db_session, user.id)
         assert len(favs) == 0
@@ -298,7 +306,7 @@ class TestFavoritesRepository:
 class TestSessionRepository:
     """Tests for live workout session operations."""
 
-    async def _create_user_and_workout(self, db_session):
+    async def _create_user_and_workout(self, db_session: Any) -> Any:
         user = await get_or_create_user(db_session, telegram_id=1212)
         workout = await save_workout(
             db_session,
@@ -312,14 +320,14 @@ class TestSessionRepository:
         )
         return user, workout
 
-    async def test_create_workout_session(self, db_session) -> None:
+    async def test_create_workout_session(self, db_session: Any) -> None:
         user, workout = await self._create_user_and_workout(db_session)
         ws = await create_workout_session(db_session, user.id, workout.id)
         assert ws.id is not None
         assert ws.status == "in_progress"
         assert ws.started_at is not None
 
-    async def test_complete_workout_session(self, db_session) -> None:
+    async def test_complete_workout_session(self, db_session: Any) -> None:
         user, workout = await self._create_user_and_workout(db_session)
         ws = await create_workout_session(db_session, user.id, workout.id)
 
@@ -331,7 +339,7 @@ class TestSessionRepository:
         assert completed.status == "completed"
         assert completed.completed_at is not None
 
-    async def test_log_set(self, db_session) -> None:
+    async def test_log_set(self, db_session: Any) -> None:
         user, workout = await self._create_user_and_workout(db_session)
         ws = await create_workout_session(db_session, user.id, workout.id)
 
@@ -353,7 +361,7 @@ class TestSessionRepository:
         assert log.reps_done == 10
         assert log.skipped is False
 
-    async def test_get_session_logs(self, db_session) -> None:
+    async def test_get_session_logs(self, db_session: Any) -> None:
         user, workout = await self._create_user_and_workout(db_session)
         ws = await create_workout_session(db_session, user.id, workout.id)
         workout = await get_workout_by_id(db_session, workout.id)
@@ -367,7 +375,7 @@ class TestSessionRepository:
         assert logs[0].set_number == 1
         assert logs[1].skipped is True
 
-    async def test_get_latest_completed_session(self, db_session) -> None:
+    async def test_get_latest_completed_session(self, db_session: Any) -> None:
         user, workout = await self._create_user_and_workout(db_session)
         ws = await create_workout_session(db_session, user.id, workout.id)
         await complete_workout_session(db_session, ws.id, "completed")

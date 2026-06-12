@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -174,7 +175,7 @@ class TestHandleEquipmentToggle:
     """Tests for handle_equipment_toggle."""
 
     def test_toggle_all(self) -> None:
-        user_data = {
+        user_data: dict[str, Any] = {
             "equipment_list": [(1, "barbell"), (2, "dumbbell")],
             "selected_equipment": set(),
         }
@@ -182,7 +183,7 @@ class TestHandleEquipmentToggle:
         assert user_data["selected_equipment"] == {1, 2}
 
     def test_toggle_none(self) -> None:
-        user_data = {
+        user_data: dict[str, Any] = {
             "equipment_list": [(1, "barbell"), (2, "dumbbell")],
             "selected_equipment": {1, 2},
         }
@@ -190,7 +191,7 @@ class TestHandleEquipmentToggle:
         assert user_data["selected_equipment"] == set()
 
     def test_toggle_add(self) -> None:
-        user_data = {
+        user_data: dict[str, Any] = {
             "equipment_list": [(1, "barbell"), (2, "dumbbell")],
             "selected_equipment": {1},
         }
@@ -198,7 +199,7 @@ class TestHandleEquipmentToggle:
         assert user_data["selected_equipment"] == {1, 2}
 
     def test_toggle_remove(self) -> None:
-        user_data = {
+        user_data: dict[str, Any] = {
             "equipment_list": [(1, "barbell"), (2, "dumbbell")],
             "selected_equipment": {1, 2},
         }

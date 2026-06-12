@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -36,7 +37,7 @@ class TestHandleCreaSchedaExisting:
     @patch("wod.bot.handlers.menu.get_session_factory")
     @patch("wod.bot.handlers.menu.get_or_create_user")
     async def test_shows_frequency_keyboard(
-        self, mock_get_user, mock_session_factory
+        self, mock_get_user: Any, mock_session_factory: Any
     ) -> None:
         update = MagicMock(spec=Update)
         query = AsyncMock()
@@ -158,8 +159,8 @@ class TestMenuHandlers:
     @patch("wod.bot.handlers.menu.get_session_factory")
     @patch("wod.bot.handlers.menu.get_user_with_equipment")
     async def test_handle_crea_scheda_complete_profile(
-        self, mock_get_user, mock_session_factory
-    ):
+        self, mock_get_user: Any, mock_session_factory: Any
+    ) -> None:
         update = MagicMock(spec=Update)
         update.effective_user.id = 123
         update.message = AsyncMock()
@@ -189,8 +190,8 @@ class TestMenuHandlers:
     @patch("wod.bot.handlers.menu.get_session_factory")
     @patch("wod.bot.handlers.menu.get_user_with_equipment")
     async def test_handle_crea_scheda_incomplete_profile(
-        self, mock_get_user, mock_session_factory
-    ):
+        self, mock_get_user: Any, mock_session_factory: Any
+    ) -> None:
         update = MagicMock(spec=Update)
         update.effective_user.id = 123
         update.message = AsyncMock()
@@ -214,7 +215,9 @@ class TestMenuHandlers:
     @pytest.mark.asyncio
     @patch("wod.bot.handlers.menu.get_session_factory")
     @patch("wod.bot.handlers.menu.get_or_create_user")
-    async def test_handle_altro(self, mock_get_user, mock_session_factory):
+    async def test_handle_altro(
+        self, mock_get_user: Any, mock_session_factory: Any
+    ) -> None:
         update = MagicMock()
         update.message = AsyncMock()
 
@@ -232,21 +235,21 @@ class TestMenuHandlers:
 
     @pytest.mark.asyncio
     @patch("wod.bot.handlers.profile.profile_command")
-    async def test_handle_profilo(self, mock_cmd):
+    async def test_handle_profilo(self, mock_cmd: Any) -> None:
         update, context = MagicMock(), MagicMock()
         await handle_profilo(update, context)
         mock_cmd.assert_called_once_with(update, context)
 
     @pytest.mark.asyncio
     @patch("wod.bot.handlers.history.history_command")
-    async def test_handle_storico(self, mock_cmd):
+    async def test_handle_storico(self, mock_cmd: Any) -> None:
         update, context = MagicMock(), MagicMock()
         await handle_storico(update, context)
         mock_cmd.assert_called_once_with(update, context)
 
     @pytest.mark.asyncio
     @patch("wod.bot.handlers.favorites.favorites_command")
-    async def test_handle_preferiti(self, mock_cmd):
+    async def test_handle_preferiti(self, mock_cmd: Any) -> None:
         update, context = MagicMock(), MagicMock()
         await handle_preferiti(update, context)
         mock_cmd.assert_called_once_with(update, context)
@@ -256,8 +259,8 @@ class TestMenuHandlers:
     @patch("wod.bot.handlers.menu.get_or_create_user")
     @patch("wod.bot.handlers.menu.get_user_workouts")
     async def test_handle_wod_giorno_no_workouts(
-        self, mock_get_workouts, _mock_get_user, mock_session_factory
-    ):
+        self, mock_get_workouts: Any, _mock_get_user: Any, mock_session_factory: Any
+    ) -> None:
         update = MagicMock(spec=Update)
         update.effective_user.id = 123
         update.message = AsyncMock()
@@ -283,8 +286,8 @@ class TestMenuHandlers:
     @patch("wod.bot.handlers.menu.get_or_create_user")
     @patch("wod.bot.handlers.menu.get_user_workouts")
     async def test_handle_wod_giorno_with_workouts(
-        self, mock_get_workouts, _mock_get_user, mock_session_factory
-    ):
+        self, mock_get_workouts: Any, _mock_get_user: Any, mock_session_factory: Any
+    ) -> None:
         update = MagicMock(spec=Update)
         update.effective_user.id = 123
         update.message = AsyncMock()
@@ -316,8 +319,8 @@ class TestMenuHandlers:
     @patch("wod.bot.handlers.menu.get_or_create_user")
     @patch("wod.bot.handlers.menu.get_user_workouts")
     async def test_handle_wod_giorno_no_days(
-        self, mock_get_workouts, _mock_get_user, mock_session_factory
-    ):
+        self, mock_get_workouts: Any, _mock_get_user: Any, mock_session_factory: Any
+    ) -> None:
         update = MagicMock(spec=Update)
         update.effective_user.id = 123
         update.message = AsyncMock()
@@ -341,7 +344,7 @@ class TestMenuHandlers:
         )
 
     @pytest.mark.asyncio
-    async def test_handle_wod_navigation(self):
+    async def test_handle_wod_navigation(self) -> None:
         update = MagicMock(spec=Update)
         query = AsyncMock()
         query.data = "wodday:1"
@@ -361,7 +364,7 @@ class TestMenuHandlers:
         query.edit_message_text.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_handle_wod_navigation_noop(self):
+    async def test_handle_wod_navigation_noop(self) -> None:
         update = MagicMock(spec=Update)
         query = AsyncMock()
         query.data = "wodday:noop"
@@ -373,7 +376,7 @@ class TestMenuHandlers:
         query.edit_message_text.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_handle_wod_navigation_invalid(self):
+    async def test_handle_wod_navigation_invalid(self) -> None:
         update = MagicMock(spec=Update)
         query = AsyncMock()
         query.data = "wodday:99"
@@ -389,12 +392,12 @@ class TestMenuHandlers:
 
 
 class TestBuilders:
-    def test_build_menu_handlers(self):
+    def test_build_menu_handlers(self) -> None:
         handlers = build_menu_handlers()
         assert len(handlers) == 7
         for h in handlers:
             assert isinstance(h, MessageHandler)
 
-    def test_build_wod_navigation_handler(self):
+    def test_build_wod_navigation_handler(self) -> None:
         handler = build_wod_navigation_handler()
         assert isinstance(handler, CallbackQueryHandler)

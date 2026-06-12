@@ -1,9 +1,8 @@
 """Tests for database and PDF generation."""
 
-# pylint: disable=duplicate-code
-
 import asyncio
 import traceback
+from typing import Any
 
 from sqlalchemy import select
 
@@ -23,8 +22,10 @@ from wod.db.repositories import (
 )
 from wod.db.session import get_session_factory
 
+# pylint: disable=duplicate-code
 
-async def main():
+
+async def main() -> Any:
     async with get_session_factory()() as session:
         # Find any completed session
         stmt = (

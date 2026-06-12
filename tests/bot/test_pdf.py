@@ -11,7 +11,7 @@ from wod.bot.formatters import (
 )
 
 
-def test_pdf():
+def test_pdf() -> None:
     summary = SessionSummary(
         title="Test Workout",
         date=datetime.datetime.now(),
